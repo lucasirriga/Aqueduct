@@ -14,8 +14,9 @@ import math
 from .ferramenta_base import AqueductTool
 
 class GradePontosDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, iface, parent=None):
         super().__init__(parent)
+        self.iface = iface
         self.setWindowTitle("Aqueduct - Grade de Plantio")
         self.resize(400, 500)
         self.setup_ui()
@@ -84,7 +85,15 @@ class GradePontosDialog(QDialog):
         self.spin_angle.setValue(0.0)
         self.spin_angle.setSuffix(" °")
         
-        form_rot.addRow("Ângulo (Azimute 0=Leste):", self.spin_angle)
+        self.btn_get_angle = QPushButton("Pegar da Seleção")
+        self.btn_get_angle.setToolTip("Calcula o ângulo da linha selecionada na camada ativa")
+        self.btn_get_angle.clicked.connect(self.get_angle_from_selection)
+        
+        layout_angle = QHBoxLayout()
+        layout_angle.addWidget(self.spin_angle)
+        layout_angle.addWidget(self.btn_get_angle)
+        
+        form_rot.addRow("Ângulo (Azimute):", layout_angle)
         group_rot.setLayout(form_rot)
         layout.addWidget(group_rot)
         
@@ -95,6 +104,52 @@ class GradePontosDialog(QDialog):
         
         self.setLayout(layout)
         self.toggle_inputs()
+
+    def get_angle_from_selection(self):
+        layer = self.iface.activeLayer()
+        if not layer or layer.type() != QgsVectorLayer.VectorLayer:
+            QMessageBox.warning(self, "Aviso", "Selecione uma camada vetorial de Linha (Ativa).")
+            return
+            
+        if layer.geometryType() != QgsWkbTypes.LineGeometry:
+            QMessageBox.warning(self, "Aviso", "A camada ativa deve ser de Linha.")
+            return
+            
+        features = layer.selectedFeatures()
+        if len(features) != 1:
+            QMessageBox.warning(self, "Aviso", "Selecione exatamente UMA linha na camada ativa.")
+            return
+            
+        feat = features[0]
+        geom = feat.geometry()
+        
+        # Pega o ângulo do primeiro segmento
+        if geom.isMultipart():
+            geom = geom.asMultiPolyline()[0]
+            p1 = geom[0]
+            p2 = geom[1]
+        else:
+            p1 = geom.vertexAt(0)
+            p2 = geom.vertexAt(1)
+            
+        # Calcula azimute
+        # math.atan2(y, x) retorna radianos.
+        # QGIS Azimute geralmente é Norte=0, Clockwise?
+        # A ferramenta de grade usa "math.cos(angle_rad)" onde 0=E, CounterClockwise (padrão trigonométrico).
+        # Vamos manter o padrão trigonométrico (0 = Leste).
+        
+        dx = p2.x() - p1.x()
+        dy = p2.y() - p1.y()
+        rad = math.atan2(dy, dx)
+        deg = math.degrees(rad)
+        
+        # Normaliza para 0-360
+        if deg < 0:
+            deg += 360
+            
+        self.spin_angle.setValue(deg)
+        QMessageBox.information(self, "Ângulo Capturado", f"Ângulo definido para: {deg:.3f}°")
+
 
     def populate_layers(self):
         self.combo_layer.clear()
@@ -269,5 +324,5 @@ class GradePontosTool(AqueductTool):
             self.iface.addToolBarIcon(self.action)
             
     def run(self):
-        dlg = GradePontosDialog(self.iface.mainWindow())
+        dlg = GradePontosDialog(self.iface, self.iface.mainWindow())
         dlg.exec_()
