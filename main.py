@@ -34,30 +34,37 @@ class AqueductPlugin:
         for filename in os.listdir(tools_dir):
             if filename.endswith(".py") and filename != "__init__.py" and filename != "ferramenta_base.py":
                 module_name = filename[:-3]
+                full_module_name = f"Aqueduct.tools.{module_name}"
                 try:
-                    # Importação robusta usando importlib
-                    # Assume que 'tools' é um subpacote do plugin atual
-                    if __package__:
-                        package = f"{__package__}.tools"
+                    # Tenta importar usando o nome completo do pacote
+                    if full_module_name in sys.modules:
+                        module = importlib.reload(sys.modules[full_module_name])
                     else:
-                        package = "tools"
-                        
-                    module = importlib.import_module(f".{module_name}", package=package)
+                        module = importlib.import_module(f".tools.{module_name}", package="Aqueduct")
                     
                     # Procura por subclasses de AqueductTool no módulo
+                    loaded_count = 0
                     for name, obj in inspect.getmembers(module):
                         if inspect.isclass(obj) and issubclass(obj, AqueductTool) and obj is not AqueductTool:
                             # Instancia e inicializa a ferramenta passando a toolbar
-                            tool_instance = obj(self.iface, self.toolbar)
-                            tool_instance.initGui()
-                            self.tools.append(tool_instance)
-                
+                            try:
+                                tool_instance = obj(self.iface, self.toolbar)
+                                tool_instance.initGui()
+                                self.tools.append(tool_instance)
+                                loaded_count += 1
+                                self.iface.messageBar().pushMessage("Aqueduct Load", f"Carregada: {name}", level=0, duration=2)
+                            except Exception as e_inst:
+                                self.iface.messageBar().pushMessage("Aqueduct Error", f"Falha ao instanciar {name}: {e_inst}", level=2)
+                    
+                    if loaded_count == 0:
+                         self.iface.messageBar().pushMessage("Aqueduct Warn", f"Nenhuma ferramenta encontrada em {filename}", level=1)
+
                 except Exception as e:
                     print(f"Erro ao carregar ferramenta {filename}: {e}")
                     # Mostra erro na MessageBar para debug do usuário
                     self.iface.messageBar().pushMessage(
                         "Aqueduct Error", 
-                        f"Falha ao carregar {filename}: {e}", 
+                        f"Falha ao carregar arquivo {filename}: {e}", 
                         level=2, # Warning
                         duration=10
                     )
