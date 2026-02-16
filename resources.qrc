@@ -4,5 +4,6 @@
         <file>icons/icone_comprimento.svg</file>
         <file>icons/icone_area.svg</file>
         <file>icons/icone_vazao.svg</file>
+        <file>icons/icone_dn.svg</file>
     </qresource>
 </RCC>
