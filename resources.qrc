@@ -9,5 +9,11 @@
         <file>icons/icone_hf.svg</file>
         <file>icons/icone_simbologia.svg</file>
         <file>icons/icone_recortar.svg</file>
+        <file>icons/icone_vazao_linha.svg</file>
+        <file>icons/icone_direcao.svg</file>
+        <file>icons/icone_inverter.svg</file>
+        <file>icons/icone_dividir_dn.svg</file>
+        <file>icons/icone_pdf.svg</file>
+        <file>icons/icone_pecas.svg</file>
     </qresource>
 </RCC>
