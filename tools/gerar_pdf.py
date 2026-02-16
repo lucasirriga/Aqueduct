@@ -65,10 +65,15 @@ class GerarPdfTool(AqueductTool):
             return
 
         # 2. Caminho do Arquivo PDF
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+        base_name = project.baseName() or "mapa_aqueduct"
+        default_name = f"{base_name}_{timestamp}.pdf"
+        
         pdf_path, _ = QFileDialog.getSaveFileName(
             self.iface.mainWindow(),
             "Salvar Mapa PDF",
-            os.path.join(os.path.expanduser("~"), "mapa_aqueduct.pdf"),
+            os.path.join(os.path.expanduser("~"), default_name),
             "Arquivos PDF (*.pdf)"
         )
         
