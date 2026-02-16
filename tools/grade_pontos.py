@@ -80,6 +80,7 @@ class GradePontosDialog(QDialog):
         
         self.spin_angle = QDoubleSpinBox()
         self.spin_angle.setRange(0.0, 360.0)
+        self.spin_angle.setDecimals(3)
         self.spin_angle.setValue(0.0)
         self.spin_angle.setSuffix(" °")
         
