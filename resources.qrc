@@ -3,5 +3,6 @@
         <file>icons/icon.svg</file>
         <file>icons/icone_irrigacao.svg</file>
         <file>icons/icone_comprimento.svg</file>
+        <file>icons/icone_area.svg</file>
     </qresource>
 </RCC>
