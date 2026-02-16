@@ -53,7 +53,7 @@ class SimbologiaDirecaoTool(AqueductTool):
         simple_marker = QgsSimpleMarkerSymbolLayer()
         simple_marker.setShape(QgsSimpleMarkerSymbolLayer.ArrowHeadFilled)
         simple_marker.setColor(QColor("#FF5252")) # Vermelho
-        simple_marker.setSize(3.0) # mm
+        simple_marker.setSize(5.0) # mm
         # Garantir que removeu camadas padrão e só tem o marker configurado
         marker_symbol.changeSymbolLayer(0, simple_marker)
         
