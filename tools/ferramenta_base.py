@@ -9,9 +9,10 @@ class AqueductTool(QObject):
     As ferramentas devem herdar desta classe e implementar initGui e run.
     """
 
-    def __init__(self, iface):
+    def __init__(self, iface, toolbar=None):
         super().__init__()
         self.iface = iface
+        self.toolbar = toolbar
         self.action = None
 
     def initGui(self):
@@ -34,5 +35,10 @@ class AqueductTool(QObject):
         """
         if self.action:
             self.iface.removePluginMenu('&Aqueduct', self.action)
-            self.iface.removeToolBarIcon(self.action)
+            
+            if self.toolbar:
+                self.toolbar.removeAction(self.action)
+            else:
+                self.iface.removeToolBarIcon(self.action)
+                
             del self.action

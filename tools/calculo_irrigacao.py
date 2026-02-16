@@ -1,4 +1,4 @@
-from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon
 import os
 
@@ -11,7 +11,7 @@ class IrrigationCalcTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icon.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_irrigacao.svg')
         self.action = QAction(QIcon(icon_path), 'Cálculo de Irrigação (Exemplo)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         
@@ -23,13 +23,17 @@ class IrrigationCalcTool(AqueductTool):
         # ou usamos addPluginToMenu com o nome do menu sendo o título do plugin.
         
         self.iface.addPluginToMenu('&Aqueduct', self.action)
-        self.iface.addToolBarIcon(self.action)
+        
+        if self.toolbar:
+            self.toolbar.addAction(self.action)
+        else:
+            self.iface.addToolBarIcon(self.action)
 
     def run(self):
         """Executa a lógica da ferramenta."""
-        QMessageBox.information(
-            self.iface.mainWindow(),
-            "Aqueduct - Exemplo",
-            "Ferramenta de Cálculo de Irrigação carregada com sucesso!\n"
-            "Esta é uma ferramenta modular carregada automaticamente."
+        self.iface.messageBar().pushMessage(
+            "Aqueduct",
+            "Ferramenta de Cálculo de Irrigação carregada com sucesso! (Exemplo Modular)",
+            level=0, # 0 = Info
+            duration=5
         )

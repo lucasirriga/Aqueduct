@@ -1,4 +1,4 @@
-from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsWkbTypes, QgsField, QgsProject, QgsFeature
 from qgis.PyQt.QtCore import QVariant
@@ -13,12 +13,16 @@ class LineLengthTool(AqueductTool):
 
     def initGui(self):
         # Usa o mesmo ícone por enquanto ou um específico se existisse
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icon.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_comprimento.svg')
         self.action = QAction(QIcon(icon_path), 'Calcular Comprimento de Linhas', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         
         self.iface.addPluginToMenu('&Aqueduct', self.action)
-        self.iface.addToolBarIcon(self.action)
+        
+        if self.toolbar:
+            self.toolbar.addAction(self.action)
+        else:
+            self.iface.addToolBarIcon(self.action)
 
     def run(self):
         layer = self.iface.activeLayer()
@@ -71,11 +75,5 @@ class LineLengthTool(AqueductTool):
         layer.commitChanges()
 
         # 5. Relatório
-        QMessageBox.information(
-            self.iface.mainWindow(),
-            "Aqueduct - Relatório",
-            f"Cálculo concluído {mode_msg}.\n\n"
-            f"Feições processadas: {count}\n"
-            f"Comprimento Total: {total_length:.3f} m\n" # Assumindo projeção em metros
-            f"(Campo '{field_name}' atualizado)"
-        )
+        msg = f"Cálculo concluído {mode_msg}. Feições: {count}. Comprimento Total: {total_length:.3f} m."
+        self.iface.messageBar().pushMessage("Aqueduct", msg, level=0, duration=5)

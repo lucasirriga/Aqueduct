@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/plugins/Aqueduct" >
         <file>icons/icon.svg</file>
+        <file>icons/icone_irrigacao.svg</file>
+        <file>icons/icone_comprimento.svg</file>
     </qresource>
 </RCC>
