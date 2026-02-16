@@ -1,0 +1,14 @@
+[general]
+name=Aqueduct
+qgisMinimumVersion=3.0
+description=Plugin de automação para projetos de irrigação e análise espacial agronômica.
+version=0.1.0
+author=Agrônomo/Desenvolvedor
+email=seu_email@dominio.com
+about=Ferramentas modulares para cálculo hidráulico, análise de terreno e dimensionamento de sistemas de irrigação.
+tracker=https://github.com/lucasirriga/Aqueduct/issues
+repository=https://github.com/lucasirriga/Aqueduct
+tags=Irrigação, Agronomia, Análise Espacial
+category=Plugins
+experimental=True
+icon=icons/icon.svg
