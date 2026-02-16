@@ -31,7 +31,7 @@ class AqueductPlugin:
         tools_dir = os.path.join(self.plugin_dir, 'tools')
         # sys.path.append(tools_dir) # Não necessário se usarmos import relativo correto ou importlib robusto
 
-        for filename in os.listdir(tools_dir):
+        for filename in sorted(os.listdir(tools_dir)):
             if filename.endswith(".py") and filename != "__init__.py" and filename != "ferramenta_base.py":
                 module_name = filename[:-3]
                 full_module_name = f"Aqueduct.tools.{module_name}"
@@ -52,12 +52,13 @@ class AqueductPlugin:
                                 tool_instance.initGui()
                                 self.tools.append(tool_instance)
                                 loaded_count += 1
-                                self.iface.messageBar().pushMessage("Aqueduct Load", f"Carregada: {name}", level=0, duration=2)
+                                # Log de sucesso removido para produção
                             except Exception as e_inst:
                                 self.iface.messageBar().pushMessage("Aqueduct Error", f"Falha ao instanciar {name}: {e_inst}", level=2)
                     
                     if loaded_count == 0:
-                         self.iface.messageBar().pushMessage("Aqueduct Warn", f"Nenhuma ferramenta encontrada em {filename}", level=1)
+                         # Warn discreto ou removido, mantendo apenas para devs
+                         print(f"Aqueduct Warn: Nenhuma ferramenta encontrada em {filename}")
 
                 except Exception as e:
                     print(f"Erro ao carregar ferramenta {filename}: {e}")

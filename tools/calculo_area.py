@@ -15,10 +15,6 @@ class CalculoAreaTool(AqueductTool):
     def initGui(self):
         icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_area.svg')
         
-        # Debug: Verificar se o arquivo existe
-        if not os.path.exists(icon_path):
-            self.iface.messageBar().pushMessage("Aqueduct Debug", f"Ícone não encontrado: {icon_path}", level=2)
-
         self.action = QAction(QIcon(icon_path), 'Calcular Área (Hectares)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         
