@@ -95,7 +95,7 @@ class PecaDialog(QDialog):
         form_layout = QFormLayout()
         
         self.edit_nome = QLineEdit()
-        self.edit_desc = QLineEdit()
+        # self.edit_desc removido
         self.spin_custo = QDoubleSpinBox()
         self.spin_custo.setRange(0.0, 999999.0)
         self.spin_custo.setDecimals(2)
@@ -114,7 +114,7 @@ class PecaDialog(QDialog):
         self.spin_lucro.valueChanged.connect(self.update_final_price)
         
         form_layout.addRow("Nome:", self.edit_nome)
-        form_layout.addRow("Descrição:", self.edit_desc)
+        # form_layout.addRow("Descrição:", self.edit_desc) removido
         form_layout.addRow("Custo Unitário:", self.spin_custo)
         form_layout.addRow("Lucro (%):", self.spin_lucro)
         form_layout.addRow("Preço Final:", self.lbl_preco_final)
@@ -155,7 +155,7 @@ class PecaDialog(QDialog):
             self.current_name = nome
             self.edit_nome.setText(nome)
             self.edit_nome.setEnabled(False) # Não permite mudar chave primária na edição p/ simplificar
-            self.edit_desc.setText(data.get('descricao', ''))
+            # self.edit_desc removido
             self.spin_custo.setValue(data.get('custo', 0.0))
             self.spin_lucro.setValue(data.get('lucro', 0.0))
             self.update_final_price()
@@ -169,7 +169,7 @@ class PecaDialog(QDialog):
         self.list_widget.clearSelection()
         self.edit_nome.setEnabled(True)
         self.edit_nome.clear()
-        self.edit_desc.clear()
+        # self.edit_desc removido
         self.spin_custo.setValue(0.0)
         self.spin_lucro.setValue(30.0)
         self.update_final_price()
@@ -181,7 +181,7 @@ class PecaDialog(QDialog):
             return
             
         data = {
-            "descricao": self.edit_desc.text(),
+            # "descricao" removido
             "custo": self.spin_custo.value(),
             "lucro": self.spin_lucro.value()
         }
