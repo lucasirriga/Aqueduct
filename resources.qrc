@@ -16,5 +16,9 @@
         <file>icons/icone_pdf.svg</file>
         <file>icons/icone_pecas.svg</file>
         <file>icons/icone_lista_materiais.svg</file>
+        <file>icons/icone_servicos.svg</file>
+        <file>icons/icone_lista_servicos.svg</file>
+        <file>icons/icone_termos.svg</file>
+        <file>icons/icone_info.svg</file>
     </qresource>
 </RCC>
