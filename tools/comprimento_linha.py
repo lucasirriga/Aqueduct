@@ -51,7 +51,7 @@ class LineLengthTool(AqueductTool):
             mode_msg = "em todas as feições"
 
         # 3. Preparação do Campo
-        field_name = "Comprimento"
+        field_name = "L"
         idx = layer.fields().indexOf(field_name)
         
         layer.startEditing()

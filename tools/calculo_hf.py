@@ -44,12 +44,14 @@ class CalculoHfTool(AqueductTool):
 
         # Verifica campos necessários
         fields = layer.fields()
-        idx_len = fields.indexOf("Comprimento")
+        # Shapefiles limitam nomes a 10 chars. 'Comprimento' vira 'Comprimen'.
+        # Atualizado para usar 'L'.
+        idx_len = fields.indexOf("L")
         idx_dn = fields.indexOf("DN")
         idx_flow = fields.indexOf("vazao")
         
         missing = []
-        if idx_len == -1: missing.append("Comprimento")
+        if idx_len == -1: missing.append("L")
         if idx_dn == -1: missing.append("DN")
         if idx_flow == -1: missing.append("vazao")
         
