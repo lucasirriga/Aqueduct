@@ -20,5 +20,6 @@
         <file>icons/icone_lista_servicos.svg</file>
         <file>icons/icone_termos.svg</file>
         <file>icons/icone_info.svg</file>
+        <file>icons/icone_grade.svg</file>
     </qresource>
 </RCC>
