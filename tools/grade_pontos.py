@@ -1,6 +1,7 @@
 from qgis.PyQt.QtWidgets import (
     QAction, QDialog, QVBoxLayout, QFormLayout, QComboBox, QDoubleSpinBox, 
-    QPushButton, QMessageBox, QLabel, QRadioButton, QButtonGroup, QGroupBox
+    QPushButton, QMessageBox, QLabel, QRadioButton, QButtonGroup, QGroupBox,
+    QHBoxLayout
 )
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import (
