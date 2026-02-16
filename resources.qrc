@@ -5,5 +5,7 @@
         <file>icons/icone_area.svg</file>
         <file>icons/icone_vazao.svg</file>
         <file>icons/icone_dn.svg</file>
+        <file>icons/icone_atribuir_vazao.svg</file>
+        <file>icons/icone_hf.svg</file>
     </qresource>
 </RCC>
