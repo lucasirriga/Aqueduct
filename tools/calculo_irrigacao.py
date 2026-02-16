@@ -2,7 +2,7 @@ from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 import os
 
-from .base_tool import AqueductTool
+from .ferramenta_base import AqueductTool
 
 class IrrigationCalcTool(AqueductTool):
     """

@@ -4,7 +4,7 @@ from qgis.core import QgsWkbTypes, QgsField, QgsProject, QgsFeature
 from qgis.PyQt.QtCore import QVariant
 import os
 
-from .base_tool import AqueductTool
+from .ferramenta_base import AqueductTool
 
 class LineLengthTool(AqueductTool):
     """

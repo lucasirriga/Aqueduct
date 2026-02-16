@@ -5,10 +5,10 @@ import inspect
 from qgis.PyQt.QtWidgets import QAction, QMenu
 from qgis.PyQt.QtGui import QIcon
 
-from .tools.base_tool import AqueductTool
+from .tools.ferramenta_base import AqueductTool
 
 class AqueductPlugin:
-    """QGIS Plugin Implementation."""
+    """Implementação do Plugin QGIS Aqueduct."""
 
     def __init__(self, iface):
         self.iface = iface
@@ -17,7 +17,7 @@ class AqueductPlugin:
         self.menu_name = '&Aqueduct'
 
     def initGui(self):
-        """Create the menu entries and toolbar icons inside the QGIS GUI."""
+        """Cria as entradas de menu e ícones da barra de ferramentas na interface do QGIS."""
         
         # Cria o menu se não existir (o QGIS gerencia isso, mas garantimos a referência)
         # Na verdade, self.iface.addPluginToMenu lida com a criação do menu pai se necessário
@@ -31,7 +31,7 @@ class AqueductPlugin:
         sys.path.append(tools_dir) # Garante que podemos importar
 
         for filename in os.listdir(tools_dir):
-            if filename.endswith(".py") and filename != "__init__.py" and filename != "base_tool.py":
+            if filename.endswith(".py") and filename != "__init__.py" and filename != "ferramenta_base.py":
                 module_name = filename[:-3]
                 try:
                     # Importa o módulo dinamicamente
@@ -56,7 +56,7 @@ class AqueductPlugin:
                     # Em QGIS production, usar QgsMessageLog
 
     def unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
+        """Remove o item de menu do plugin e o ícone da interface do QGIS."""
         for tool in self.tools:
             try:
                 tool.unload()

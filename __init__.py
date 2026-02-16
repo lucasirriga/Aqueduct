@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 def classFactory(iface):
-    """Load AqueductPlugin class from file main.py."""
+    """Carrega a classe AqueductPlugin do arquivo main.py."""
     from .main import AqueductPlugin
     return AqueductPlugin(iface)
