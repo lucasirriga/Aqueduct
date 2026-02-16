@@ -87,6 +87,10 @@ class InfoProjetoDialog(QDialog):
         self.lbl_vazao_projeto.setReadOnly(True)
         self.lbl_vazao_projeto.setStyleSheet("font-weight: bold; color: blue;")
         
+        self.lbl_vazao_diaria = QLineEdit()
+        self.lbl_vazao_diaria.setReadOnly(True)
+        self.lbl_vazao_diaria.setStyleSheet("font-weight: bold; color: darkblue;")
+        
         self.lbl_tempo_total = QLineEdit()
         self.lbl_tempo_total.setReadOnly(True)
         self.lbl_tempo_total.setStyleSheet("font-weight: bold; color: green;")
@@ -95,7 +99,8 @@ class InfoProjetoDialog(QDialog):
         form_res.addRow("Qtd. Setores:", self.lbl_qtd_setores)
         form_res.addRow("Vazão Média/Setor (m³/h):", self.lbl_vazao_media)
         form_res.addRow("Vazão Projeto (m³/h):", self.lbl_vazao_projeto)
-        form_res.addRow("Tempo Total (h):", self.lbl_tempo_total)
+        form_res.addRow("Vazão Total Diária (m³):", self.lbl_vazao_diaria)
+        form_res.addRow("Tempo Total de Irrigação (h):", self.lbl_tempo_total)
         
         group_res.setLayout(form_res)
         layout.addWidget(group_res)
@@ -158,8 +163,14 @@ class InfoProjetoDialog(QDialog):
         vazao_media = total_vazao / count if count > 0 else 0
         
         # Fórmulas do Usuário
-        # Vazão Projeto = Média * Simultâneos
+        # Vazão Projeto (Instantânea) = Média * Simultâneos
         vazao_projeto = vazao_media * simultaneos
+        
+        # Vazão Total Diária (Volume) = Total Vazão (Soma) * Tempo Setor
+        # Se cada setor opera por X horas, o volume total é a soma dos volumes de cada setor.
+        # Volume Setor = Vazão Setor * Tempo.
+        # Volume Total = (Soma Vazão) * Tempo.
+        vazao_diaria = total_vazao * tempo_setor
         
         # Tempo Total = (Qtd Setores * Tempo Setor) / Simultâneos
         tempo_total = (count * tempo_setor) / simultaneos
@@ -169,6 +180,7 @@ class InfoProjetoDialog(QDialog):
         self.lbl_qtd_setores.setText(str(count))
         self.lbl_vazao_media.setText(f"{vazao_media:.2f}")
         self.lbl_vazao_projeto.setText(f"{vazao_projeto:.2f}")
+        self.lbl_vazao_diaria.setText(f"{vazao_diaria:.2f}")
         self.lbl_tempo_total.setText(f"{tempo_total:.2f}")
         
         if not has_vazao:
@@ -190,9 +202,10 @@ class InfoProjetoDialog(QDialog):
                     if idx >= 0:
                         self.combo_layer.setCurrentIndex(idx)
                         
-                    # Preenche resultados salvos (opcional, melhor recalcular, mas ok mostrar)
+                    # Preenche resultados salvos
                     self.lbl_area_total.setText(str(data.get('area_total', '')))
                     self.lbl_vazao_projeto.setText(str(data.get('vazao_projeto', '')))
+                    self.lbl_vazao_diaria.setText(str(data.get('vazao_diaria', '')))
                     self.lbl_tempo_total.setText(str(data.get('tempo_total', '')))
             except:
                 pass
@@ -210,6 +223,7 @@ class InfoProjetoDialog(QDialog):
             'tempo_setor': self.spin_tempo_setor.value(),
             'area_total': self.lbl_area_total.text(),
             'vazao_projeto': self.lbl_vazao_projeto.text(),
+            'vazao_diaria': self.lbl_vazao_diaria.text(),
             'tempo_total': self.lbl_tempo_total.text()
         }
         
