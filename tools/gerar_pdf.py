@@ -202,8 +202,11 @@ class GerarPdfTool(AqueductTool):
             logo.attemptResize(QgsLayoutSize(logo_width, logo_height, QgsUnitTypes.LayoutMillimeters))
             layout.addLayoutItem(logo)
             
-            # Espaçamento entre imagem e informações
-            info_gap = 3
+            # Ajuste de Posição (Subir 10mm -> Gap negativo ou reduzido)
+            # Logo Height = 25. 
+            # Gap original = 3. 
+            # Novo Gap = 3 - 10 = -7 (Sobreposição visual se houver branco, ou apenas compactação)
+            info_gap = -7
             info_y = logo_y + logo_height + info_gap
         else:
             self.iface.messageBar().pushMessage("Aqueduct", f"Logo não encontrado em: {logo_path}", level=1)
@@ -215,32 +218,33 @@ class GerarPdfTool(AqueductTool):
         json_path = os.path.join(project_home, 'dados_projeto.json')
         
         info_html = ""
+        # Fonts aumentadas em 30%
+        # Normal: 8 -> 10.5pt
+        # Bold: 10 -> 13pt
         if os.path.exists(json_path):
             try:
                 import json
                 with open(json_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     
-                # Formata HTML
                 info_html = f"""
-                <div style="font-family: Arial; font-size: 8pt; color: black;">
-                    <b style="font-size: 10pt;">Informações Agronômicas</b><br>
-                    <b>Cliente:</b> {data.get('cliente', '-')}<br>
-                    <b>Local:</b> {data.get('local', '-')}<br>
-                    <b>Área Total:</b> {data.get('area_total', '-')} ha<br>
-                    <b>Vazão Projeto:</b> {data.get('vazao_projeto', '-')} m³/h<br>
-                    <b>Vazão Diária:</b> {data.get('vazao_diaria', '-')} m³<br>
-                    <b>Tempo Total:</b> {data.get('tempo_total', '-')} h
+                <div style="font-family: Arial; font-size: 10.5pt; color: black;">
+                    <b style="font-size: 11pt;">INFORMAÇÕES AGRONÔMICAS</b><br>
+                    <b>CLIENTE:</b> {data.get('cliente', '-').upper()}<br>
+                    <b>LOCAL:</b> {data.get('local', '-').upper()}<br>
+                    <b>ÁREA TOTAL:</b> {data.get('area_total', '-')} ha<br>
+                    <b>VAZÃO PROJETO:</b> {data.get('vazao_projeto', '-')} m³/h<br>
+                    <b>VAZÃO DIÁRIA:</b> {data.get('vazao_diaria', '-')} m³<br>
+                    <b>TEMPO TOTAL:</b> {data.get('tempo_total', '-')} h
                 </div>
                 """
             except:
                 info_html = "Erro ao ler dados do projeto."
         else:
              info_html = """
-             <div style="font-family: Arial; font-size: 8pt;">
-                <b style="font-size: 10pt;">Informações Agronômicas</b><br>
+             <div style="font-family: Arial; font-size: 10.5pt;">
+                <b style="font-size: 11pt;">INFORMAÇÕES AGRONÔMICAS</b><br>
                 Dados não calculados.<br>
-                Use a ferramenta 'Informações do Projeto'.
              </div>
              """
 
@@ -249,23 +253,19 @@ class GerarPdfTool(AqueductTool):
         info_label.setText(info_html)
         info_label.setMode(QgsLayoutItemLabel.ModeHtml)
         
-        # Posição e Largura
-        # Alinhado com a coluna lateral
-        # Vamos usar um pouco de padding interno visual
-        info_x = sidebar_start_x + 2 
-        info_width = sidebar_width - 4
+        # Posição X com 5mm de Padding Esquerdo
+        info_x = sidebar_start_x + 5
+        info_width = sidebar_width - 10 # Ajusta largura para caber no padding
         
-        # Altura estimada
-        info_height = 40 
+        # Altura estimada (maior fonte = maior altura necessária)
+        info_height = 50 
         
         info_label.attemptMove(QgsLayoutPoint(info_x, info_y, QgsUnitTypes.LayoutMillimeters))
         info_label.attemptResize(QgsLayoutSize(info_width, info_height, QgsUnitTypes.LayoutMillimeters))
         layout.addLayoutItem(info_label)
         
-        # Legenda desce depois das informações
-        legend_gap = 3
-        # Se subimos 10mm antes, agora temos info no meio.
-        # Vamos manter o gap curto.
+        # Legenda também sobe (gap reduzido em relação ao Info)
+        legend_gap = -5
         legend_y = info_y + info_height + legend_gap
         
         # Legenda
