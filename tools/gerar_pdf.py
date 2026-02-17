@@ -3,7 +3,8 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.core import (
     QgsProject, QgsPrintLayout, QgsLayoutItemMap, QgsLayoutItemLegend,
     QgsLayoutItemScaleBar, QgsLayoutItemMapGrid, QgsLayoutPoint, QgsLayoutSize, QgsUnitTypes,
-    QgsLayoutItemLabel, QgsReadWriteContext, QgsLayoutExporter, QgsWkbTypes
+    QgsLayoutItemLabel, QgsReadWriteContext, QgsLayoutExporter, QgsWkbTypes,
+    QgsLayoutItemShape, QgsFillSymbol
 )
 import os
 
@@ -97,6 +98,23 @@ class GerarPdfTool(AqueductTool):
         margin = 10
         page_width = 297
         page_height = 210
+        
+        # --- Borda da Página (1mm) ---
+        border = QgsLayoutItemShape(layout)
+        border.setShapeType(QgsLayoutItemShape.Rectangle)
+        border.attemptMove(QgsLayoutPoint(0, 0, QgsUnitTypes.LayoutMillimeters))
+        border.attemptResize(QgsLayoutSize(page_width, page_height, QgsUnitTypes.LayoutMillimeters))
+        
+        # Estilo: Sem preenchimento, Borda Preta 1mm
+        symbol = QgsFillSymbol.createSimple({
+            'color': 'transparent', 
+            'outline_color': 'black', 
+            'outline_width': '1.0'
+        })
+        border.setSymbol(symbol)
+        border.setLocked(True) # Travar para não atrapalhar
+        layout.addLayoutItem(border)
+        # -----------------------------
         
         # Mapa
         map_item = QgsLayoutItemMap(layout)
