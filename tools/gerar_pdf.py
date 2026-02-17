@@ -4,9 +4,9 @@ from qgis.core import (
     QgsProject, QgsPrintLayout, QgsLayoutItemMap, QgsLayoutItemLegend,
     QgsLayoutItemScaleBar, QgsLayoutItemMapGrid, QgsLayoutPoint, QgsLayoutSize, QgsUnitTypes,
     QgsLayoutItemLabel, QgsReadWriteContext, QgsLayoutExporter, QgsWkbTypes,
-    QgsLayoutItemShape, QgsFillSymbol
+    QgsLayoutItemShape, QgsFillSymbol, QgsLegendStyle, QgsLayoutItemPicture
 )
-import os
+from qgis.PyQt.QtGui import QIcon, QFont
 
 from .ferramenta_base import AqueductTool
 
@@ -99,17 +99,18 @@ class GerarPdfTool(AqueductTool):
         page_width = 297
         page_height = 210
         
-        # --- Borda da Página (1mm) ---
+        # --- Borda da Página (0.3mm com 2mm de padding) ---
+        border_padding = 2
         border = QgsLayoutItemShape(layout)
         border.setShapeType(QgsLayoutItemShape.Rectangle)
-        border.attemptMove(QgsLayoutPoint(0, 0, QgsUnitTypes.LayoutMillimeters))
-        border.attemptResize(QgsLayoutSize(page_width, page_height, QgsUnitTypes.LayoutMillimeters))
+        border.attemptMove(QgsLayoutPoint(border_padding, border_padding, QgsUnitTypes.LayoutMillimeters))
+        border.attemptResize(QgsLayoutSize(page_width - 2*border_padding, page_height - 2*border_padding, QgsUnitTypes.LayoutMillimeters))
         
-        # Estilo: Sem preenchimento, Borda Preta 1mm
+        # Estilo: Sem preenchimento, Borda Preta 0.3mm
         symbol = QgsFillSymbol.createSimple({
             'color': 'transparent', 
             'outline_color': 'black', 
-            'outline_width': '1.0'
+            'outline_width': '0.3'
         })
         border.setSymbol(symbol)
         border.setLocked(True) # Travar para não atrapalhar
@@ -162,6 +163,11 @@ class GerarPdfTool(AqueductTool):
         
         # Formato das Coordenadas
         grid.setAnnotationFormat(QgsLayoutItemMapGrid.Decimal)
+        
+        # Reduzir fonte das labels da grade (30% menor)
+        # Padrao costuma ser ~10. Vamos para 7.
+        font_grid = QFont("Arial", 7)
+        grid.setAnnotationFont(font_grid)
         # -------------------------------------
         
         # Ajusta tamanho do mapa (ocupa quase tudo, deixa espaço pra legenda na direita)
@@ -170,6 +176,98 @@ class GerarPdfTool(AqueductTool):
         map_item.attemptResize(QgsLayoutSize(220, 190, QgsUnitTypes.LayoutMillimeters))
         layout.addLayoutItem(map_item)
         
+        # --- Logotipo ---
+        logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'img', 'logo tocantins agropecuária ltda.png')
+        
+        # Centralizar na coluna lateral
+        # Mapa vai até 10 (margin) + 220 (width) = 230
+        # Página vai até 297. Margem direita 10 -> Área útil até 287.
+        # Espaço lateral = 287 - 230 = 57mm.
+        sidebar_start_x = 230
+        sidebar_width = 57
+        logo_width = 50
+        
+        # X centralizado com padding de 5mm a esquerda (desloca para direita)
+        logo_x = sidebar_start_x + (sidebar_width - logo_width) / 2 + 5
+        logo_y = margin
+        
+        if os.path.exists(logo_path):
+            logo = QgsLayoutItemPicture(layout)
+            logo.setPicturePath(logo_path)
+            logo.setResizeMode(QgsLayoutItemPicture.Zoom)
+            
+            # Ajustando altura reservada para 25mm (para reduzir espaço em branco se o logo for wide)
+            logo_height = 25
+            logo.attemptMove(QgsLayoutPoint(logo_x, logo_y, QgsUnitTypes.LayoutMillimeters))
+            logo.attemptResize(QgsLayoutSize(logo_width, logo_height, QgsUnitTypes.LayoutMillimeters))
+            layout.addLayoutItem(logo)
+            
+            # Espaçamento entre imagem e informações
+            info_gap = 3
+            info_y = logo_y + logo_height + info_gap
+        else:
+            self.iface.messageBar().pushMessage("Aqueduct", f"Logo não encontrado em: {logo_path}", level=1)
+            info_y = margin
+
+        # --- Informações Agronômicas ---
+        # Tenta ler dados_projeto.json
+        project_home = QgsProject.instance().homePath()
+        json_path = os.path.join(project_home, 'dados_projeto.json')
+        
+        info_html = ""
+        if os.path.exists(json_path):
+            try:
+                import json
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    
+                # Formata HTML
+                info_html = f"""
+                <div style="font-family: Arial; font-size: 8pt; color: black;">
+                    <b style="font-size: 10pt;">Informações Agronômicas</b><br>
+                    <b>Cliente:</b> {data.get('cliente', '-')}<br>
+                    <b>Local:</b> {data.get('local', '-')}<br>
+                    <b>Área Total:</b> {data.get('area_total', '-')} ha<br>
+                    <b>Vazão Projeto:</b> {data.get('vazao_projeto', '-')} m³/h<br>
+                    <b>Vazão Diária:</b> {data.get('vazao_diaria', '-')} m³<br>
+                    <b>Tempo Total:</b> {data.get('tempo_total', '-')} h
+                </div>
+                """
+            except:
+                info_html = "Erro ao ler dados do projeto."
+        else:
+             info_html = """
+             <div style="font-family: Arial; font-size: 8pt;">
+                <b style="font-size: 10pt;">Informações Agronômicas</b><br>
+                Dados não calculados.<br>
+                Use a ferramenta 'Informações do Projeto'.
+             </div>
+             """
+
+        # Cria item de label (com renderização HTML)
+        info_label = QgsLayoutItemLabel(layout)
+        info_label.setText(info_html)
+        info_label.setMode(QgsLayoutItemLabel.ModeHtml)
+        
+        # Posição e Largura
+        # Alinhado com a coluna lateral
+        # Vamos usar um pouco de padding interno visual
+        info_x = sidebar_start_x + 2 
+        info_width = sidebar_width - 4
+        
+        # Altura estimada
+        info_height = 40 
+        
+        info_label.attemptMove(QgsLayoutPoint(info_x, info_y, QgsUnitTypes.LayoutMillimeters))
+        info_label.attemptResize(QgsLayoutSize(info_width, info_height, QgsUnitTypes.LayoutMillimeters))
+        layout.addLayoutItem(info_label)
+        
+        # Legenda desce depois das informações
+        legend_gap = 3
+        # Se subimos 10mm antes, agora temos info no meio.
+        # Vamos manter o gap curto.
+        legend_y = info_y + info_height + legend_gap
+        
         # Legenda
         legend = QgsLayoutItemLegend(layout)
         legend.setTitle("Legenda")
@@ -177,7 +275,30 @@ class GerarPdfTool(AqueductTool):
         # Filtra para mostrar apenas itens visíveis no mapa dentro da extensão
         legend.setLegendFilterByMapEnabled(True)
         
-        legend.attemptMove(QgsLayoutPoint(235, margin, QgsUnitTypes.LayoutMillimeters))
+        # Reduzind fontes em ~20%
+        # Padrão aprox: Title=16, Group=14, Item=12
+        # Novos: Title=13, Group=11, Item=10
+        
+        font_title = QFont("Arial", 13)
+        font_title.setBold(True)
+        legend.setStyleFont(QgsLegendStyle.Title, font_title)
+        
+        font_group = QFont("Arial", 11)
+        legend.setStyleFont(QgsLegendStyle.Group, font_group)
+        legend.setStyleFont(QgsLegendStyle.Subgroup, font_group)
+        
+        font_item = QFont("Arial", 10)
+        legend.setStyleFont(QgsLegendStyle.SymbolLabel, font_item)
+        
+        # Centralizar Legenda também? Ou alinhar à esquerda da coluna?
+        # Geralmente centralizado fica melhor se o logo está centralizado.
+        # Mas QgsLayoutItemLegend não tem alinhamento fácil sem saber a largura.
+        # Vamos manter alinhado com o logo X ou padrão.
+        # O usuário só pediu para centralizar a imagem. A legenda vou manter um pouco recuada ou alinhar com a imagem.
+        # Vou usar sidebar_start_x + um pouco de padding (5mm) para a legenda não colar no mapa.
+        legend_x = sidebar_start_x + 5
+        
+        legend.attemptMove(QgsLayoutPoint(legend_x, legend_y, QgsUnitTypes.LayoutMillimeters))
         layout.addLayoutItem(legend)
         
         # Barra de Escala
