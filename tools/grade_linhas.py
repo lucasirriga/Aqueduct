@@ -170,26 +170,31 @@ class GradeLinhasDialog(QDialog):
             # Gera linhas
             # Começa do min_v ajustado
             # (Adiciona uma margem extra para garantir cobertura)
-            min_u -= spacing
-            max_u += spacing
-            min_v -= spacing
-            max_v += spacing
+            # Margem de segurança para garantir que a linha atravesse todo o polígono
+            # O bounding box calculado (min_u, max_u) é exato para os vértices, 
+            # mas vamos dar uma folga extra de 1x o espaçamento para evitar problemas de precisão nas bordas.
+            margin = spacing * 2
+            start_line_u = min_u - margin
+            end_line_u = max_u + margin
             
-            curr_v = min_v
-            
+            # Ajuste do loop V
+            # Começar um pouco antes e terminar um pouco depois
+            curr_v = min_v - margin
+            end_loop_v = max_v + margin
+
             cos_rot = math.cos(angle_rad)
             sin_rot = math.sin(angle_rad)
             
-            while curr_v <= max_v:
-                # Linha no espaço U,V: (min_u, curr_v) -> (max_u, curr_v)
+            while curr_v <= end_loop_v:
+                # Linha no espaço U,V: (start_line_u, curr_v) -> (end_line_u, curr_v)
                 
-                # Transforma P1
-                p1_u, p1_v = min_u, curr_v
+                # Transforma P1 (Inicio da linha)
+                p1_u, p1_v = start_line_u, curr_v
                 p1_x = cx + (p1_u * cos_rot - p1_v * sin_rot)
                 p1_y = cy + (p1_u * sin_rot + p1_v * cos_rot)
                 
-                # Transforma P2
-                p2_u, p2_v = max_u, curr_v
+                # Transforma P2 (Fim da linha)
+                p2_u, p2_v = end_line_u, curr_v
                 p2_x = cx + (p2_u * cos_rot - p2_v * sin_rot)
                 p2_y = cy + (p2_u * sin_rot + p2_v * cos_rot)
                 
