@@ -22,5 +22,6 @@
         <file>icons/icone_info.svg</file>
         <file>icons/icone_grade.svg</file>
         <file>icons/icone_grade_poligono.svg</file>
+        <file>icons/icone_grade_linhas.svg</file>
     </qresource>
 </RCC>
