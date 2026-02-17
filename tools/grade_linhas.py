@@ -18,7 +18,7 @@ class GradeLinhasDialog(QDialog):
         super().__init__(parent)
         self.iface = iface
         self.setWindowTitle("Aqueduct - Grade de Linhas")
-        self.resize(400, 400)
+        self.resize(400, 450)
         self.setup_ui()
         
     def setup_ui(self):
@@ -61,12 +61,12 @@ class GradeLinhasDialog(QDialog):
         layout_angle.addWidget(self.spin_angle)
         layout_angle.addWidget(self.btn_get_angle)
         
-        form_rot.addRow("Ângulo das Linhas:", layout_angle)
+        form_rot.addRow("Ângulo (Azimute):", layout_angle)
         group_rot.setLayout(form_rot)
         layout.addWidget(group_rot)
         
         # Action
-        self.btn_run = QPushButton("Gerar Linhas Recortadas")
+        self.btn_run = QPushButton("Gerar Linhas")
         self.btn_run.clicked.connect(self.run_process)
         layout.addWidget(self.btn_run)
         
@@ -146,68 +146,52 @@ class GradeLinhasDialog(QDialog):
             center = bbox.center()
             cx, cy = center.x(), center.y()
             
-            # Inverse Rotation (Mundo -> Grade local alinhada com Eixos)
-            # Queremos linhas horizontais (constantes em V) no sistema rotacionado.
+            # --- Lógica de Varredura Robusta ---
+            # 1. Definir extensão baseada na diagonal para garantir cobertura em qualquer rotação
+            diag = math.sqrt(bbox.width()**2 + bbox.height()**2)
+            extent = diag * 1.5
             
-            min_u, max_u = float('inf'), float('-inf')
-            min_v, max_v = float('inf'), float('-inf')
+            # 2. Definir limites locais (u, v) centralizados
+            min_local = -extent / 2
+            max_local = extent / 2
             
-            for v_pt in limit_geom.vertices():
-                dx = v_pt.x() - cx
-                dy = v_pt.y() - cy
-                
-                cos_a = math.cos(-angle_rad)
-                sin_a = math.sin(-angle_rad)
-                
-                u = dx * cos_a - dy * sin_a
-                v = dx * sin_a + dy * cos_a
-                
-                min_u = min(min_u, u)
-                max_u = max(max_u, u)
-                min_v = min(min_v, v)
-                max_v = max(max_v, v)
-                
-            # Gera linhas
-            # Começa do min_v ajustado
-            # (Adiciona uma margem extra para garantir cobertura)
-            # Margem de segurança para garantir que a linha atravesse todo o polígono
-            # O bounding box calculado (min_u, max_u) é exato para os vértices, 
-            # mas vamos dar uma folga extra de 1x o espaçamento para evitar problemas de precisão nas bordas.
-            margin = spacing * 2
-            start_line_u = min_u - margin
-            end_line_u = max_u + margin
+            # 3. Iterar V (linhas)
+            curr_v = min_local
             
-            # Ajuste do loop V
-            # Começar um pouco antes e terminar um pouco depois
-            curr_v = min_v - margin
-            end_loop_v = max_v + margin
-
             cos_rot = math.cos(angle_rad)
             sin_rot = math.sin(angle_rad)
             
-            while curr_v <= end_loop_v:
-                # Linha no espaço U,V: (start_line_u, curr_v) -> (end_line_u, curr_v)
+            while curr_v <= max_local:
+                # Criar Linha Horizontal no sistema Local: (min, v) -> (max, v)
+                u1, v1 = min_local, curr_v
+                u2, v2 = max_local, curr_v
                 
-                # Transforma P1 (Inicio da linha)
-                p1_u, p1_v = start_line_u, curr_v
-                p1_x = cx + (p1_u * cos_rot - p1_v * sin_rot)
-                p1_y = cy + (p1_u * sin_rot + p1_v * cos_rot)
+                # Transformar para Global (Rotação + Translação)
+                # x = cx + u*cos - v*sin
+                # y = cy + u*sin + v*cos
+                # Nota: Usei -v*sin e +v*cos na grade de pontos (rotação padrão).
+                # Se grade_pontos usa:
+                # rot_x = curr_u * cos_a - curr_v * sin_a
+                # rot_y = curr_u * sin_a + curr_v * cos_a
+                # Então aqui deve ser igual.
                 
-                # Transforma P2 (Fim da linha)
-                p2_u, p2_v = end_line_u, curr_v
-                p2_x = cx + (p2_u * cos_rot - p2_v * sin_rot)
-                p2_y = cy + (p2_u * sin_rot + p2_v * cos_rot)
+                p1_x = cx + (u1 * cos_rot - v1 * sin_rot)
+                p1_y = cy + (u1 * sin_rot + v1 * cos_rot)
+                
+                p2_x = cx + (u2 * cos_rot - v2 * sin_rot)
+                p2_y = cy + (u2 * sin_rot + v2 * cos_rot)
                 
                 line_geom = QgsGeometry.fromPolylineXY([
                     QgsPointXY(p1_x, p1_y),
                     QgsPointXY(p2_x, p2_y)
                 ])
                 
-                # Interseção
+                # Clip / Interseção
                 if line_geom.intersects(limit_geom):
                     clipped_geom = line_geom.intersection(limit_geom)
                     
                     if not clipped_geom.isEmpty():
+                        # Lidar com multilinhas (polígono côncavo pode dividir a linha)
                         if clipped_geom.isMultipart():
                             parts = clipped_geom.asMultiPolyline()
                             for part in parts:
@@ -222,15 +206,15 @@ class GradeLinhasDialog(QDialog):
                             f.setAttributes([feat_id])
                             new_features.append(f)
                             feat_id += 1
-                            
+                
                 curr_v += spacing
                 
         if new_features:
             pr.addFeatures(new_features)
             QgsProject.instance().addMapLayer(vl)
-            QMessageBox.information(self, "Sucesso", f"{len(new_features)} segmentos de linha gerados.")
+            QMessageBox.information(self, "Sucesso", f"{len(new_features)} linhas geradas.")
         else:
-            QMessageBox.warning(self, "Aviso", "Nenhuma linha gerada.")
+            QMessageBox.warning(self, "Aviso", "Nenhuma linha gerada no recorte.")
 
 class GradeLinhasTool(AqueductTool):
     def initGui(self):
