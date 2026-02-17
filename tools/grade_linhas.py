@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import (
     QAction, QDialog, QVBoxLayout, QFormLayout, QComboBox, QDoubleSpinBox, 
-    QPushButton, QMessageBox, QLabel, QHBoxLayout, QGroupBox
+    QPushButton, QMessageBox, QLabel, QGroupBox
 )
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import (
@@ -17,8 +17,8 @@ class GradeLinhasDialog(QDialog):
     def __init__(self, iface, parent=None):
         super().__init__(parent)
         self.iface = iface
-        self.setWindowTitle("Aqueduct - Grade de Linhas")
-        self.resize(400, 450)
+        self.setWindowTitle("Aqueduct - Grade de Linhas (Paralelas)")
+        self.resize(400, 400)
         self.setup_ui()
         
     def setup_ui(self):
@@ -26,108 +26,90 @@ class GradeLinhasDialog(QDialog):
         
         # 1. Seleção de Polígono (Limite)
         layout.addWidget(QLabel("<b>1. Limite do Recorte (Polígono):</b>"))
-        self.combo_layer = QComboBox()
-        self.populate_layers()
-        layout.addWidget(self.combo_layer)
+        self.combo_poly = QComboBox()
+        layout.addWidget(self.combo_poly)
         
-        # 2. Espaçamento
-        group_dims = QGroupBox("2. Espaçamento (metros)")
+        # 2. Seleção de Linha (Referência)
+        layout.addWidget(QLabel("<b>2. Linha de Referência (Base):</b>"))
+        self.combo_line = QComboBox()
+        layout.addWidget(self.combo_line)
+        
+        self.populate_layers()
+        
+        # 3. Espaçamento
+        group_dims = QGroupBox("3. Parâmetros")
         form_dims = QFormLayout()
         
         self.spin_spacing = QDoubleSpinBox()
-        self.spin_spacing.setRange(0.1, 10000.0)
+        self.spin_spacing.setRange(0.0001, 10000.0)
+        self.spin_spacing.setDecimals(4)
         self.spin_spacing.setValue(10.0)
+        self.spin_spacing.setSuffix(" m")
         
-        form_dims.addRow("Distância entre Linhas:", self.spin_spacing)
+        form_dims.addRow("Espaçamento entre Linhas:", self.spin_spacing)
         
         group_dims.setLayout(form_dims)
         layout.addWidget(group_dims)
         
-        # 3. Alinhamento
-        group_rot = QGroupBox("3. Alinhamento")
-        form_rot = QFormLayout()
-        
-        self.spin_angle = QDoubleSpinBox()
-        self.spin_angle.setRange(0.0, 360.0)
-        self.spin_angle.setDecimals(3)
-        self.spin_angle.setValue(0.0)
-        self.spin_angle.setSuffix(" °")
-        
-        self.btn_get_angle = QPushButton("Pegar da Seleção")
-        self.btn_get_angle.setToolTip("Calcula o ângulo da linha selecionada na camada ativa")
-        self.btn_get_angle.clicked.connect(self.get_angle_from_selection)
-        
-        layout_angle = QHBoxLayout()
-        layout_angle.addWidget(self.spin_angle)
-        layout_angle.addWidget(self.btn_get_angle)
-        
-        form_rot.addRow("Ângulo (Azimute):", layout_angle)
-        group_rot.setLayout(form_rot)
-        layout.addWidget(group_rot)
-        
         # Action
-        self.btn_run = QPushButton("Gerar Linhas")
+        self.btn_run = QPushButton("Gerar Linhas Paralelas")
         self.btn_run.clicked.connect(self.run_process)
         layout.addWidget(self.btn_run)
         
         self.setLayout(layout)
 
     def populate_layers(self):
-        self.combo_layer.clear()
+        self.combo_poly.clear()
+        self.combo_line.clear()
+        
         layers = QgsProject.instance().mapLayers().values()
         for layer in layers:
-            if layer.type() == layer.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-                self.combo_layer.addItem(layer.name(), layer)
-
-    def get_angle_from_selection(self):
-        layer = self.iface.activeLayer()
-        if not layer or layer.type() != QgsVectorLayer.VectorLayer:
-            QMessageBox.warning(self, "Aviso", "Selecione uma camada vetorial de Linha (Ativa).")
-            return
-            
-        if layer.geometryType() != QgsWkbTypes.LineGeometry:
-            QMessageBox.warning(self, "Aviso", "A camada ativa deve ser de Linha.")
-            return
-            
-        features = layer.selectedFeatures()
-        if len(features) != 1:
-            QMessageBox.warning(self, "Aviso", "Selecione exatamente UMA linha na camada ativa.")
-            return
-            
-        feat = features[0]
-        geom = feat.geometry()
-        
-        if geom.isMultipart():
-            geom = geom.asMultiPolyline()[0]
-            p1 = geom[0]
-            p2 = geom[1]
-        else:
-            p1 = geom.vertexAt(0)
-            p2 = geom.vertexAt(1)
-            
-        dx = p2.x() - p1.x()
-        dy = p2.y() - p1.y()
-        rad = math.atan2(dy, dx)
-        deg = math.degrees(rad)
-        
-        if deg < 0:
-            deg += 360
-            
-        self.spin_angle.setValue(deg)
+            if layer.type() == layer.VectorLayer:
+                if layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+                    self.combo_poly.addItem(layer.name(), layer)
+                elif layer.geometryType() == QgsWkbTypes.LineGeometry:
+                    self.combo_line.addItem(layer.name(), layer)
 
     def run_process(self):
-        layer = self.combo_layer.currentData()
-        if not layer:
-            QMessageBox.warning(self, "Erro", "Selecione uma camada de polígono limite.")
+        poly_layer = self.combo_poly.currentData()
+        line_layer = self.combo_line.currentData()
+        
+        if not poly_layer:
+            QMessageBox.warning(self, "Erro", "Selecione uma camada de Polígono (Limite).")
+            return
+            
+        if not line_layer:
+            QMessageBox.warning(self, "Erro", "Selecione uma camada de Linha (Referência).")
             return
             
         spacing = self.spin_spacing.value()
-        angle_deg = self.spin_angle.value()
-        angle_rad = math.radians(angle_deg)
         
-        # Cria camada temporária
-        crs = layer.crs()
-        vl = QgsVectorLayer(f"LineString?crs={crs.authid()}", "Grade Linhas", "memory")
+        # 1. Obter a Linha de Referência (Apenas UMA)
+        ref_features = line_layer.selectedFeatures()
+        if not ref_features:
+            # Se não houver seleção, avisa ou pega a primeira?
+            # Usuário disse "pegue A LINHA que informei". Melhor exigir seleção ou pegar a única se só tiver uma.
+            if line_layer.featureCount() == 1:
+                ref_features = list(line_layer.getFeatures())
+            else:
+                QMessageBox.warning(self, "Aviso", "Selecione UMA linha na camada de referência para servir de base.")
+                return
+
+        if len(ref_features) != 1:
+             QMessageBox.warning(self, "Aviso", "Selecione exatamente UMA linha na camada de referência.")
+             return
+
+        ref_feat = ref_features[0]
+        ref_geom = ref_feat.geometry()
+        
+        # Simplificando para Single Line se for Multi
+        if ref_geom.isMultipart():
+            # Pega a parte mais longa? Ou a primeira. Vamos na primeira.
+            ref_geom = QgsGeometry.fromPolylineXY(ref_geom.asMultiPolyline()[0])
+            
+        # 2. Setup Output
+        crs = poly_layer.crs()
+        vl = QgsVectorLayer(f"LineString?crs={crs.authid()}", "Linhas Paralelas", "memory")
         pr = vl.dataProvider()
         pr.addAttributes([QgsField("ID_Line", QVariant.Int)])
         vl.updateFields()
@@ -135,65 +117,68 @@ class GradeLinhasDialog(QDialog):
         new_features = []
         feat_id = 1
         
-        features = layer.selectedFeatures()
-        if not features:
-            features = layer.getFeatures()
+        # 3. Processamento por Polígono Limite
+        limit_features = poly_layer.selectedFeatures()
+        if not limit_features:
+            limit_features = poly_layer.getFeatures()
             
-        for feat in features:
-            limit_geom = feat.geometry()
+        for limit_feat in limit_features:
+            limit_geom = limit_feat.geometry()
             bbox = limit_geom.boundingBox()
             
-            center = bbox.center()
-            cx, cy = center.x(), center.y()
-            
-            # --- Lógica de Varredura Robusta ---
-            # 1. Definir extensão baseada na diagonal para garantir cobertura em qualquer rotação
+            # Cálculo da Extensão Necessária (Diagonal do Polígono + Margem)
             diag = math.sqrt(bbox.width()**2 + bbox.height()**2)
-            extent = diag * 1.5
+            extension_len = diag * 1.5 # 1.5x a diagonal para garantir (corresponde ao 1km+ pedido)
+            if extension_len < 1000: extension_len = 1000 # Mínimo 1km se o poli for pequeno
             
-            # 2. Definir limites locais (u, v) centralizados
-            min_local = -extent / 2
-            max_local = extent / 2
+            # 4. Estender a Linha Base
+            # Precisamos dos vetores da linha base.
+            # Se for polilinha complexa, "estender" é ambíguo.
+            # Vamos assumir que a 'direção' geral é dada pelo primeiro e último ponto ou segmento principal?
+            # Ou fazemos offset da geometria inteira?
+            # Usuário disse "aumente em 1km... depois copie paralelamente".
+            # Isso sugere offset geométrico da linha inteira.
+            # Mas para "estender", QgsGeometry.extendLine é útil se for linha reta.
+            # Se for curva, extendemos os finais.
             
-            # 3. Iterar V (linhas)
-            curr_v = min_local
+            # Vamos criar uma versão estendida da linha base.
+            extended_base = QgsGeometry(ref_geom)
+            extended_base.extendLine(extension_len, extension_len)
             
-            cos_rot = math.cos(angle_rad)
-            sin_rot = math.sin(angle_rad)
+            # Agora geramos offsets paralelos para ambos os lados
+            # Até cobrir o polígono.
             
-            while curr_v <= max_local:
-                # Criar Linha Horizontal no sistema Local: (min, v) -> (max, v)
-                u1, v1 = min_local, curr_v
-                u2, v2 = max_local, curr_v
-                
-                # Transformar para Global (Rotação + Translação)
-                # x = cx + u*cos - v*sin
-                # y = cy + u*sin + v*cos
-                # Nota: Usei -v*sin e +v*cos na grade de pontos (rotação padrão).
-                # Se grade_pontos usa:
-                # rot_x = curr_u * cos_a - curr_v * sin_a
-                # rot_y = curr_u * sin_a + curr_v * cos_a
-                # Então aqui deve ser igual.
-                
-                p1_x = cx + (u1 * cos_rot - v1 * sin_rot)
-                p1_y = cy + (u1 * sin_rot + v1 * cos_rot)
-                
-                p2_x = cx + (u2 * cos_rot - v2 * sin_rot)
-                p2_y = cy + (u2 * sin_rot + v2 * cos_rot)
-                
-                line_geom = QgsGeometry.fromPolylineXY([
-                    QgsPointXY(p1_x, p1_y),
-                    QgsPointXY(p2_x, p2_y)
-                ])
-                
-                # Clip / Interseção
-                if line_geom.intersects(limit_geom):
-                    clipped_geom = line_geom.intersection(limit_geom)
-                    
-                    if not clipped_geom.isEmpty():
-                        # Lidar com multilinhas (polígono côncavo pode dividir a linha)
-                        if clipped_geom.isMultipart():
-                            parts = clipped_geom.asMultiPolyline()
+            # Quantos offsets?
+            # Podemos estimar pela diagonal do polígono / espaçamento
+            max_lines_per_side = int((diag / spacing) * 1.5) + 5
+            
+            # Lista de geometrias para testar (Base + Offsets Positivos + Offsets Negativos)
+            lines_to_process = [extended_base]
+            
+            # Lado Esquerdo (Distâncias Positivas)
+            for i in range(1, max_lines_per_side):
+                dist = i * spacing
+                # offsetCurve(distance, segments, joinStyle, miterLimit)
+                # JoinStyle: 0=Round, 1=Miter, 2=Bevel.
+                # Precisamos passar o Enum, não int.
+                off_geom = extended_base.offsetCurve(dist, 1, QgsGeometry.JoinStyle.Miter, 5.0)
+                if off_geom and not off_geom.isEmpty():
+                     lines_to_process.append(off_geom)
+            
+            # Lado Direito (Distâncias Negativas)
+            for i in range(1, max_lines_per_side):
+                dist = -i * spacing
+                off_geom = extended_base.offsetCurve(dist, 1, QgsGeometry.JoinStyle.Miter, 5.0)
+                if off_geom and not off_geom.isEmpty():
+                     lines_to_process.append(off_geom)
+                     
+            # 5. Clipar
+            for line in lines_to_process:
+                if line.intersects(limit_geom):
+                    clipped = line.intersection(limit_geom)
+                    if not clipped.isEmpty():
+                        if clipped.isMultipart():
+                            parts = clipped.asMultiPolyline()
                             for part in parts:
                                 f = QgsFeature()
                                 f.setGeometry(QgsGeometry.fromPolylineXY(part))
@@ -202,19 +187,17 @@ class GradeLinhasDialog(QDialog):
                                 feat_id += 1
                         else:
                             f = QgsFeature()
-                            f.setGeometry(clipped_geom)
+                            f.setGeometry(clipped)
                             f.setAttributes([feat_id])
                             new_features.append(f)
                             feat_id += 1
-                
-                curr_v += spacing
-                
+
         if new_features:
             pr.addFeatures(new_features)
             QgsProject.instance().addMapLayer(vl)
             QMessageBox.information(self, "Sucesso", f"{len(new_features)} linhas geradas.")
         else:
-            QMessageBox.warning(self, "Aviso", "Nenhuma linha gerada no recorte.")
+            QMessageBox.warning(self, "Aviso", "Nenhuma linha gerada. Verifique se a linha de referência está próxima ou se o espaçamento é adequado.")
 
 class GradeLinhasTool(AqueductTool):
     def initGui(self):
