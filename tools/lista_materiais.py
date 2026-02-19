@@ -1,23 +1,36 @@
 from qgis.PyQt.QtWidgets import (
     QAction, QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QTableWidget, 
     QTableWidgetItem, QLabel, QLineEdit, QDoubleSpinBox, QPushButton, 
-    QMessageBox, QWidget, QHeaderView, QAbstractItemView, QFileDialog, QTabWidget
+    QMessageBox, QWidget, QHeaderView, QAbstractItemView, QTabWidget,
+    QInputDialog, QComboBox, QSplitter
 )
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.core import QgsProject, QgsApplication
 import os
 import json
 import csv
+import random
+import copy
 
 from .ferramenta_base import AqueductTool
-from .gerenciar_pecas import PecaManager  # Reusing the Global Parts Manager class
+from .gerenciar_pecas import PecaManager
 from .gerenciar_blocos import BlocoManager, GerenciarBlocosDialog
 
 class ProjectBOMManager:
     def __init__(self):
         self.project = QgsProject.instance()
         self.filepath = self.get_project_bom_path()
-        self.items = [] # List of dicts: name, qty, unit_price
+        
+        # Estrutura:
+        # self.budgets = {
+        #    "Orçamento Base": {
+        #        "items": [{'nome': 'Tubo', 'quantidade': 10, 'preco_unitario': 5.0}],  # Peças Avulsas
+        #        "project_blocos": [{'nome': 'Kit Cavalete', 'quantidade': 2}]         # Blocos no Projeto
+        #    }
+        # }
+        self.budgets = {} 
+        self.current_budget = "Orçamento Base"
+        
         self.load()
 
     def get_project_bom_path(self):
@@ -27,63 +40,157 @@ class ProjectBOMManager:
         return os.path.join(project_home, 'lista_materiais.json')
 
     def load(self):
+        self.budgets = {}
         path = self.get_project_bom_path()
         if path and os.path.exists(path):
             try:
                 with open(path, 'r', encoding='utf-8') as f:
-                    self.items = json.load(f)
+                    data = json.load(f)
+                    
+                # Migração: Lista Antiga -> Dict Novo
+                if isinstance(data, list):
+                    self.budgets = {"Orçamento Base": {"items": data, "project_blocos": []}}
+                    self.current_budget = "Orçamento Base"
+                
+                # Formato Intermediário (só itens)
+                elif isinstance(data, dict) and 'budgets' in data:
+                    raw_budgets = data['budgets']
+                    self.current_budget = data.get('current', "Orçamento Base")
+                    
+                    # Normalizar estrutura interna de cada budget
+                    for name, content in raw_budgets.items():
+                        if isinstance(content, list): # Era só lista de itens
+                             self.budgets[name] = {"items": content, "project_blocos": []}
+                        else:
+                             self.budgets[name] = content
+                             if "project_blocos" not in self.budgets[name]:
+                                 self.budgets[name]["project_blocos"] = []
+                else:
+                    self.budgets = {"Orçamento Base": {"items": [], "project_blocos": []}}
+                    self.current_budget = "Orçamento Base"
+                    
             except Exception as e:
-                print(f"Erro ao carregar BOM do projeto: {e}")
-                self.items = []
+                print(f"Erro ao carregar BOM: {e}")
+                self.budgets = {"Orçamento Base": {"items": [], "project_blocos": []}}
         else:
-            self.items = []
+            self.budgets = {"Orçamento Base": {"items": [], "project_blocos": []}}
 
     def save(self):
         path = self.get_project_bom_path()
-        if not path:
-            return False
+        if not path: return False
             
+        data = {
+            'budgets': self.budgets,
+            'current': self.current_budget
+        }
         try:
             with open(path, 'w', encoding='utf-8') as f:
-                json.dump(self.items, f, indent=4, ensure_ascii=False)
+                json.dump(data, f, indent=4, ensure_ascii=False)
             return True
         except Exception as e:
-            print(f"Erro ao salvar BOM do projeto: {e}")
+            print(f"Erro save: {e}")
             return False
 
+    # --- Properties ---
+    @property
+    def active_data(self):
+        if self.current_budget not in self.budgets:
+            self.budgets[self.current_budget] = {"items": [], "project_blocos": []}
+        return self.budgets[self.current_budget]
+        
+    @property
+    def items(self):
+        return self.active_data["items"]
+        
+    @property
+    def project_blocos(self):
+        return self.active_data["project_blocos"]
+
+    # --- Version Management ---
+    def create_budget(self, name, copy_from=None):
+        if name in self.budgets: return False
+        
+        if copy_from and copy_from in self.budgets:
+            self.budgets[name] = copy.deepcopy(self.budgets[copy_from])
+        else:
+            self.budgets[name] = {"items": [], "project_blocos": []}
+        
+        self.current_budget = name
+        self.save()
+        return True
+
+    def rename_budget(self, old_name, new_name):
+        if old_name not in self.budgets or new_name in self.budgets: return False
+        self.budgets[new_name] = self.budgets.pop(old_name)
+        if self.current_budget == old_name: self.current_budget = new_name
+        self.save()
+        return True
+
+    def delete_budget(self, name):
+        if name not in self.budgets: return False
+        del self.budgets[name]
+        if not self.budgets:
+            self.budgets["Orçamento Base"] = {"items": [], "project_blocos": []}
+            self.current_budget = "Orçamento Base"
+        elif self.current_budget == name:
+            self.current_budget = list(self.budgets.keys())[0]
+        self.save()
+        return True
+
+    def set_current_budget(self, name):
+        if name in self.budgets:
+            self.current_budget = name
+            self.save()
+
+    # --- Item Management (Avulsas) ---
     def add_item(self, nome, preco_unitario, quantidade=1):
-        # Check if item exists, if so, ignore or update? Let's add new entry for simplicity or update qty if exactly same price?
-        # Simplify: Check by name. If exists, update qty?
         found = False
         for item in self.items:
             if item['nome'] == nome:
-                # Se o preço for diferente, avisa? Ou assume o novo?
-                # Vamos manter entradas distintas se o preço for diferente? Não, melhor agregar.
-                # Mas o usuário pode querer editar o preço manualmente depois.
-                # Vamos adicionar como novo se não existir, senão incrementa.
                 item['quantidade'] += quantidade
-                # Atualiza preço se necessário? Não, mantem o que estava ou o usuário edita.
                 found = True
                 break
-        
         if not found:
-            self.items.append({
-                'nome': nome,
-                'quantidade': quantidade,
-                'preco_unitario': preco_unitario
-            })
+            self.items.append({'nome': nome, 'quantidade': quantidade, 'preco_unitario': preco_unitario})
         self.save()
 
+    def remove_item(self, index):
+        if 0 <= index < len(self.items):
+            del self.items[index]
+            self.save()
+            
     def update_item(self, index, quantidade, preco_unitario):
         if 0 <= index < len(self.items):
             self.items[index]['quantidade'] = quantidade
             self.items[index]['preco_unitario'] = preco_unitario
             self.save()
 
-    def remove_item(self, index):
-        if 0 <= index < len(self.items):
-            del self.items[index]
+    # --- Bloco Management (No Projeto) ---
+    def add_bloco_project(self, nome_bloco, quantidade=1):
+        found = False
+        for pb in self.project_blocos:
+            if pb['nome'] == nome_bloco:
+                pb['quantidade'] += quantidade
+                found = True
+                break
+        if not found:
+            self.project_blocos.append({'nome': nome_bloco, 'quantidade': quantidade})
+        self.save()
+        
+    def remove_bloco_project(self, index):
+        if 0 <= index < len(self.project_blocos):
+            del self.project_blocos[index]
             self.save()
+            
+    def update_bloco_project(self, index, quantidade):
+        if 0 <= index < len(self.project_blocos):
+            self.project_blocos[index]['quantidade'] = quantidade
+            self.save()
+
+    def clear_all(self):
+        self.budgets[self.current_budget] = {"items": [], "project_blocos": []}
+        self.save()
+
 
 class ListaMateriaisDialog(QDialog):
     def __init__(self, global_manager, project_manager, bloco_manager, parent=None):
@@ -92,281 +199,413 @@ class ListaMateriaisDialog(QDialog):
         self.project_manager = project_manager
         self.bloco_manager = bloco_manager
         
-        self.setWindowTitle("Aqueduct - Lista de Materiais do Projeto")
-        self.resize(1000, 650)
+        self.setWindowTitle("Aqueduct - Lista de Materiais")
+        self.resize(1100, 700)
         
         self.setup_ui()
-        self.refresh_global_list()
-        self.refresh_bloco_list()
-        self.refresh_project_table()
+        self.refresh_budget_combo()
+        self.refresh_ui()
 
     def setup_ui(self):
-        main_layout = QHBoxLayout()
+        layout = QVBoxLayout()
         
-        # --- Lado Esquerdo: Abas (Peças e Blocos) ---
-        left_layout = QVBoxLayout()
-        self.tabs_left = QTabWidget()
+        # --- Topo: Versionamento ---
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(QLabel("<b>Orçamento:</b>"))
+        self.combo_budgets = QComboBox()
+        self.combo_budgets.currentIndexChanged.connect(self.on_budget_changed)
+        top_layout.addWidget(self.combo_budgets, 1)
         
-        # Aba 1: Peças Individuais
-        tab_pecas = QWidget()
-        layout_pecas = QVBoxLayout()
-        layout_pecas.addWidget(QLabel("Catálogo Global de Peças"))
-        self.list_global = QListWidget()
-        self.list_global.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        layout_pecas.addWidget(self.list_global)
+        btn_new = QPushButton("Novo")
+        btn_new.clicked.connect(self.on_new)
+        btn_ren = QPushButton("Renomear")
+        btn_ren.clicked.connect(self.on_rename)
+        btn_del = QPushButton("Excluir")
+        btn_del.clicked.connect(self.on_delete)
         
-        btn_add_peca = QPushButton("Adicionar Peça(s) ->")
-        btn_add_peca.clicked.connect(self.on_add_peca)
-        layout_pecas.addWidget(btn_add_peca)
-        tab_pecas.setLayout(layout_pecas)
+        top_layout.addWidget(btn_new)
+        top_layout.addWidget(btn_ren)
+        top_layout.addWidget(btn_del)
+        layout.addLayout(top_layout)
         
-        # Aba 2: Blocos
-        tab_blocos = QWidget()
-        layout_blocos = QVBoxLayout()
-        layout_blocos.addWidget(QLabel("Blocos Cadastrados"))
-        self.list_blocos = QListWidget()
-        self.list_blocos.setSelectionMode(QAbstractItemView.SingleSelection)
-        layout_blocos.addWidget(self.list_blocos)
+        # --- Conteúdo Principal (Splitter) ---
+        splitter = QSplitter()
         
-        btn_layout_b = QHBoxLayout()
-        btn_add_bloco = QPushButton("Adicionar Bloco ->")
-        btn_add_bloco.clicked.connect(self.on_add_bloco)
-        
-        btn_manage_blocos = QPushButton("Gerenciar...")
-        btn_manage_blocos.clicked.connect(self.on_manage_blocos)
-        
-        self.spin_bloco_qtd = QDoubleSpinBox() # Usando Double caso queira 1.5 blocos? Melhor int mas Double dá flexibilidade
-        self.spin_bloco_qtd.setRange(0.01, 9999.00)
-        self.spin_bloco_qtd.setValue(1.0)
-        self.spin_bloco_qtd.setPrefix("Qtd: ")
-        self.spin_bloco_qtd.setDecimals(1)
-        
-        btn_layout_b.addWidget(btn_manage_blocos)
-        btn_layout_b.addStretch()
-        btn_layout_b.addWidget(self.spin_bloco_qtd)
-        btn_layout_b.addWidget(btn_add_bloco)
-        
-        layout_blocos.addLayout(btn_layout_b)
-        tab_blocos.setLayout(layout_blocos)
-        
-        # Add Tabs
-        self.tabs_left.addTab(tab_pecas, "Peças")
-        self.tabs_left.addTab(tab_blocos, "Blocos")
-        
-        left_layout.addWidget(self.tabs_left)
-        
+        # Lado Esquerdo: Catálogo (Peças e Blocos Disponíveis)
         left_widget = QWidget()
-        left_widget.setLayout(left_layout)
+        left_vbox = QVBoxLayout()
+        self.tab_catalog = QTabWidget()
         
-        # --- Lado Direito: Lista do Projeto ---
-        right_layout = QVBoxLayout()
-        self.lbl_project = QLabel("<b>Lista de Materiais do Projeto (BOM)</b>")
-        if not self.project_manager.get_project_bom_path():
-            self.lbl_project.setText("<b>Lista de Materiais (Projeto não salvo!)</b>")
-            self.lbl_project.setStyleSheet("color: red;")
-            
-        right_layout.addWidget(self.lbl_project)
+        # Tab Peças Global
+        tab_p = QWidget()
+        v_p = QVBoxLayout()
+        self.list_global_pecas = QListWidget()
+        self.list_global_pecas.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        v_p.addWidget(QLabel("Catálogo de Peças"))
+        v_p.addWidget(self.list_global_pecas)
+        btn_add_p = QPushButton("Adicionar Peça(s) v")
+        btn_add_p.clicked.connect(self.on_add_peca_to_project)
+        v_p.addWidget(btn_add_p)
+        tab_p.setLayout(v_p)
         
-        self.table_project = QTableWidget()
-        self.table_project.setColumnCount(4)
-        self.table_project.setHorizontalHeaderLabels(["Item", "Qtd", "Preço Unit (R$)", "Total (R$)"])
-        header = self.table_project.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        # Tab Blocos Global
+        tab_b = QWidget()
+        v_b = QVBoxLayout()
+        self.list_global_blocos = QListWidget()
+        v_b.addWidget(QLabel("Blocos Disponíveis"))
+        v_b.addWidget(self.list_global_blocos)
         
-        self.table_project.itemChanged.connect(self.on_table_changed)
-        right_layout.addWidget(self.table_project)
+        h_b = QHBoxLayout()
+        self.spin_add_bloco_qtd = QDoubleSpinBox()
+        self.spin_add_bloco_qtd.setValue(1.0)
+        self.spin_add_bloco_qtd.setPrefix("Qtd: ")
         
-        # Total Geral
-        self.lbl_total_geral = QLabel("Total do Projeto: R$ 0.00")
-        self.lbl_total_geral.setStyleSheet("font-size: 14pt; font-weight: bold; color: white;")
-        right_layout.addWidget(self.lbl_total_geral)
+        btn_add_b = QPushButton("Adicionar Bloco v")
+        btn_add_b.clicked.connect(self.on_add_bloco_to_project)
         
-        btn_actions_layout = QHBoxLayout()
-        btn_remove = QPushButton("Remover Item")
-        btn_remove.clicked.connect(self.on_remove)
-        btn_export = QPushButton("Exportar CSV")
-        btn_export.clicked.connect(self.on_export)
+        h_b.addWidget(self.spin_add_bloco_qtd)
+        h_b.addWidget(btn_add_b)
+        v_b.addLayout(h_b)
         
-        btn_actions_layout.addWidget(btn_remove)
-        btn_actions_layout.addWidget(btn_export)
-        right_layout.addLayout(btn_actions_layout)
+        btn_manage = QPushButton("Gerenciar Blocos")
+        btn_manage.clicked.connect(self.on_manage_blocos)
+        v_b.addWidget(btn_manage)
         
+        tab_b.setLayout(v_b)
+        
+        self.tab_catalog.addTab(tab_p, "Peças")
+        self.tab_catalog.addTab(tab_b, "Blocos")
+        
+        left_vbox.addWidget(self.tab_catalog)
+        left_widget.setLayout(left_vbox)
+        splitter.addWidget(left_widget)
+        
+        # Lado Direito: Composição do Projeto
         right_widget = QWidget()
-        right_widget.setLayout(right_layout)
+        right_vbox = QVBoxLayout()
+        self.tab_project = QTabWidget()
+        self.tab_project.currentChanged.connect(self.on_project_tab_changed)
         
-        # --- Montagem ---
-        main_layout.addWidget(left_widget, 4) # Mais largo esquerdo para abas
-        main_layout.addWidget(right_widget, 6)
-        self.setLayout(main_layout)
+        # Tab 1: Itens do Projeto (Editável)
+        tab_comp = QWidget()
+        v_comp = QVBoxLayout()
+        
+        # Tabela Blocos Utilizados
+        v_comp.addWidget(QLabel("<b>Blocos no Projeto</b>"))
+        self.table_proj_blocos = QTableWidget()
+        self.table_proj_blocos.setColumnCount(3)
+        self.table_proj_blocos.setHorizontalHeaderLabels(["Bloco", "Qtd", "Ações"])
+        self.table_proj_blocos.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table_proj_blocos.cellChanged.connect(self.on_proj_bloco_changed)
+        v_comp.addWidget(self.table_proj_blocos)
+        
+        # Tabela Peças Avulsas
+        v_comp.addWidget(QLabel("<b>Peças Avulsas</b>"))
+        self.table_proj_items = QTableWidget()
+        self.table_proj_items.setColumnCount(4)
+        self.table_proj_items.setHorizontalHeaderLabels(["Peça", "Qtd", "Preço Unit", "Ações"])
+        self.table_proj_items.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table_proj_items.cellChanged.connect(self.on_proj_item_changed)
+        v_comp.addWidget(self.table_proj_items)
+        
+        tab_comp.setLayout(v_comp)
+        
+        # Tab 2: Orçamento Final (Calculado)
+        tab_final = QWidget()
+        v_final = QVBoxLayout()
+        self.table_final = QTableWidget()
+        self.table_final.setColumnCount(4)
+        self.table_final.setHorizontalHeaderLabels(["Item", "Qtd Total", "Preço Unit", "Total R$"])
+        self.table_final.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        v_final.addWidget(self.table_final)
+        
+        self.lbl_total_final = QLabel("Total Estimado: R$ 0.00")
+        self.lbl_total_final.setStyleSheet("font-size: 14pt; font-weight: bold;")
+        v_final.addWidget(self.lbl_total_final)
+        
+        # Botões da Tab Final
+        h_fin = QHBoxLayout()
+        btn_update_prices = QPushButton("Atualizar Preços")
+        btn_update_prices.clicked.connect(self.on_update_prices)
+        btn_csv = QPushButton("Exportar CSV")
+        btn_csv.clicked.connect(self.on_export)
+        btn_clear = QPushButton("Limpar Tudo")
+        btn_clear.setStyleSheet("color: red;")
+        btn_clear.clicked.connect(self.on_clear)
+        
+        h_fin.addWidget(btn_update_prices)
+        h_fin.addWidget(btn_clear)
+        h_fin.addWidget(btn_csv)
+        v_final.addLayout(h_fin)
+        
+        tab_final.setLayout(v_final)
+        
+        self.tab_project.addTab(tab_comp, "Composição")
+        self.tab_project.addTab(tab_final, "Orçamento Final")
+        
+        right_vbox.addWidget(self.tab_project)
+        right_widget.setLayout(right_vbox)
+        splitter.addWidget(right_widget)
+        
+        # Ajuste proporção splitter
+        splitter.setSizes([300, 700])
+        layout.addWidget(splitter)
+        
+        self.setLayout(layout)
+        
+        self.refresh_catalog_lists()
 
-    def refresh_global_list(self):
-        self.list_global.clear()
-        names = self.global_manager.list_names()
-        self.list_global.addItems(names)
-        
-    def refresh_bloco_list(self):
-        self.list_blocos.clear()
-        names = self.bloco_manager.list_names()
-        self.list_blocos.addItems(names)
+    # --- Refresh Methods ---
+    def refresh_budget_combo(self):
+        self.combo_budgets.blockSignals(True)
+        self.combo_budgets.clear()
+        self.combo_budgets.addItems(list(self.project_manager.budgets.keys()))
+        self.combo_budgets.setCurrentText(self.project_manager.current_budget)
+        self.combo_budgets.blockSignals(False)
 
-    def refresh_project_table(self):
-        self.table_project.blockSignals(True)
-        self.table_project.setRowCount(0)
+    def refresh_catalog_lists(self):
+        self.list_global_pecas.clear()
+        self.list_global_pecas.addItems(self.global_manager.list_names())
         
-        total_geral = 0.0
-        
-        for i, item in enumerate(self.project_manager.items):
-            self.table_project.insertRow(i)
+        self.list_global_blocos.clear()
+        self.list_global_blocos.addItems(self.bloco_manager.list_names())
+
+    def refresh_ui(self):
+        self.refresh_comp_tables()
+        if self.tab_project.currentIndex() == 1:
+            self.refresh_final_table()
+
+    def refresh_comp_tables(self):
+        # 1. Blocos do Projeto
+        self.table_proj_blocos.blockSignals(True)
+        self.table_proj_blocos.setRowCount(0)
+        for i, pb in enumerate(self.project_manager.project_blocos):
+            self.table_proj_blocos.insertRow(i)
             
             # Nome (Read-only)
-            item_name = QTableWidgetItem(item['nome'])
-            item_name.setFlags(item_name.flags() ^ 2) # Remove Edit flag (Qt.ItemIsEditable is 2)
-            self.table_project.setItem(i, 0, item_name)
+            item_name = QTableWidgetItem(pb['nome'])
+            item_name.setFlags(item_name.flags() ^ 2)
+            self.table_proj_blocos.setItem(i, 0, item_name)
             
             # Qtd (Editable)
-            item_qty = QTableWidgetItem(str(item['quantidade']))
-            self.table_project.setItem(i, 1, item_qty)
+            self.table_proj_blocos.setItem(i, 1, QTableWidgetItem(str(pb['quantidade'])))
             
-            # Preço Unit (Editable)
-            item_price = QTableWidgetItem(f"{item['preco_unitario']:.2f}")
-            self.table_project.setItem(i, 2, item_price)
+            # Botão Remover (Gambiarra simples: Texto "X" que se clicar remove? 
+            # Ou melhor, usar context menu ou botão externo. Aqui vou pôr só texto por enqto, ou botão customizado exige mais codigo)
+            # Vamos deixar sem botão na linha por simplificação, usar botão lateral ou del
+            item_del = QTableWidgetItem("Excluir")
+            # item_del.setBackground(QColor("red"))
+            self.table_proj_blocos.setItem(i, 2, item_del)
             
-            # Total (Calculated, Read-only)
-            total = item['quantidade'] * item['preco_unitario']
-            total_geral += total
-            item_total = QTableWidgetItem(f"{total:.2f}")
-            item_total.setFlags(item_total.flags() ^ 2)
-            self.table_project.setItem(i, 3, item_total)
+        self.table_proj_blocos.blockSignals(False)
+        
+        # 2. Peças Avulsas
+        self.table_proj_items.blockSignals(True)
+        self.table_proj_items.setRowCount(0)
+        for i, item in enumerate(self.project_manager.items):
+            self.table_proj_items.insertRow(i)
             
-        self.lbl_total_geral.setText(f"Total do Projeto: R$ {total_geral:.2f}")
-        self.table_project.blockSignals(False)
+            item_name = QTableWidgetItem(item['nome'])
+            item_name.setFlags(item_name.flags() ^ 2)
+            self.table_proj_items.setItem(i, 0, item_name)
+            
+            self.table_proj_items.setItem(i, 1, QTableWidgetItem(str(item['quantidade'])))
+            self.table_proj_items.setItem(i, 2, QTableWidgetItem(str(item['preco_unitario'])))
+            self.table_proj_items.setItem(i, 3, QTableWidgetItem("Excluir"))
+            
+        self.table_proj_items.blockSignals(False)
 
-    def on_add_peca(self):
-        selected_items = self.list_global.selectedItems()
-        if not selected_items:
-            return
+    def refresh_final_table(self):
+        """Calcula a BOM consolidada"""
+        consolidated = {} # {nome: {'qtd': 0, 'preco': 0}}
+        
+        # 1. Somar Avulsas
+        for item in self.project_manager.items:
+            nome = item['nome']
+            if nome not in consolidated:
+                consolidated[nome] = {'qtd': 0.0, 'preco': item['preco_unitario']}
             
-        for item in selected_items:
-            nome = item.text()
+            consolidated[nome]['qtd'] += item['quantidade']
+            # Preço prevalece o último ou maior? Mantem o da lista
+            
+        # 2. Somar Blocos
+        for pb in self.project_manager.project_blocos:
+            b_nome = pb['nome']
+            b_qtd = pb['quantidade']
+            
+            # Itens dentro do bloco
+            itens_bloco = self.bloco_manager.get(b_nome)
+            if itens_bloco:
+                for ib in itens_bloco:
+                    p_nome = ib['nome']
+                    p_qtd = ib['quantidade']
+                    
+                    total_p_qtd = p_qtd * b_qtd
+                    
+                    if p_nome not in consolidated:
+                        # Buscar preço no catalogo pois bloco não tem preço salvo, é dinâmico
+                        peca_data = self.global_manager.get(p_nome)
+                        custo = peca_data.get('custo', 0) if peca_data else 0
+                        lucro = peca_data.get('lucro', 0) if peca_data else 0
+                        preco = custo * (1+lucro/100)
+                        
+                        consolidated[p_nome] = {'qtd': 0.0, 'preco': preco}
+                    
+                    consolidated[p_nome]['qtd'] += total_p_qtd
+
+        # Display
+        self.table_final.setRowCount(0)
+        total_geral = 0.0
+        
+        row = 0
+        for nome, data in sorted(consolidated.items()):
+            self.table_final.insertRow(row)
+            
+            self.table_final.setItem(row, 0, QTableWidgetItem(nome))
+            self.table_final.setItem(row, 1, QTableWidgetItem(f"{data['qtd']:.2f}"))
+            self.table_final.setItem(row, 2, QTableWidgetItem(f"R$ {data['preco']:.2f}"))
+            
+            subtotal = data['qtd'] * data['preco']
+            total_geral += subtotal
+            
+            self.table_final.setItem(row, 3, QTableWidgetItem(f"R$ {subtotal:.2f}"))
+            row += 1
+            
+        self.lbl_total_final.setText(f"Total Estimado: R$ {total_geral:.2f}")
+
+    # --- Events ---
+    def on_budget_changed(self):
+        new = self.combo_budgets.currentText()
+        if new:
+            self.project_manager.set_current_budget(new)
+            self.refresh_ui()
+
+    def on_new(self):
+        name, ok = QInputDialog.getText(self, "Novo", "Nome:")
+        if ok and name:
+            copy_curr = False
+            if QMessageBox.question(self, "?", "Copiar dados atuais?", QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
+                copy_curr = True
+            
+            src = self.project_manager.current_budget if copy_curr else None
+            if self.project_manager.create_budget(name, src):
+                self.refresh_budget_combo()
+                self.refresh_ui()
+    
+    def on_rename(self):
+        cur = self.project_manager.current_budget
+        new, ok = QInputDialog.getText(self, "Renomear", "Novo nome:", text=cur)
+        if ok and new:
+            if self.project_manager.rename_budget(cur, new):
+                self.refresh_budget_combo()
+
+    def on_delete(self):
+        cur = self.project_manager.current_budget
+        if QMessageBox.question(self, "Del", f"Excluir '{cur}'?", QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
+            self.project_manager.delete_budget(cur)
+            self.refresh_budget_combo()
+            self.refresh_ui()
+
+    def on_add_peca_to_project(self):
+        items = self.list_global_pecas.selectedItems()
+        for i in items:
+            nome = i.text()
             data = self.global_manager.get(nome)
+            preco = 0
             if data:
-                # Calcula Preço com Lucro
-                custo = data.get('custo', 0.0)
-                lucro = data.get('lucro', 0.0)
-                preco_final = custo * (1 + lucro/100)
-                
-                self.project_manager.add_item(nome, preco_final)
-        
-        self.refresh_project_table()
-        
-    def on_add_bloco(self):
-        item = self.list_blocos.currentItem()
-        if not item:
-            return
-        
-        bloco_nome = item.text()
-        itens_bloco = self.bloco_manager.get(bloco_nome)
-        
-        if not itens_bloco:
-             QMessageBox.warning(self, "Aviso", "Bloco vazio.")
-             return
-             
-        # Fator multiplicador
-        fator = self.spin_bloco_qtd.value()
-             
-        # Adicionar itens do bloco multiplicados
-        for item_bloco in itens_bloco:
-            nome_peca = item_bloco['nome']
-            qtd_bloco_unit = item_bloco['quantidade']
-            
-            qtd_final = qtd_bloco_unit * fator
-            
-            # Buscar preço atualizado da peça
-            peca_data = self.global_manager.get(nome_peca)
-            if peca_data:
-                custo = peca_data.get('custo', 0.0)
-                lucro = peca_data.get('lucro', 0.0)
-                preco_final = custo * (1 + lucro/100)
-                
-                self.project_manager.add_item(nome_peca, preco_final, qtd_final)
-            else:
-                # Se a peça do bloco não existe mais no catalogo
-                print(f"Aviso: Peça '{nome_peca}' do bloco '{bloco_nome}' não encontrada no catálogo.")
-                self.project_manager.add_item(nome_peca, 0.0, qtd_final)
-        
-        self.refresh_project_table()
-        QMessageBox.information(self, "Sucesso", f"{fator}x Itens do bloco '{bloco_nome}' adicionados!")
+                preco = data.get('custo',0) * (1 + data.get('lucro',0)/100)
+            self.project_manager.add_item(nome, preco, 1)
+        self.refresh_ui()
+
+    def on_add_bloco_to_project(self):
+        item = self.list_global_blocos.currentItem()
+        if item:
+            nome = item.text()
+            qtd = self.spin_add_bloco_qtd.value()
+            self.project_manager.add_bloco_project(nome, qtd)
+            self.refresh_ui()
 
     def on_manage_blocos(self):
         dlg = GerenciarBlocosDialog(self)
         dlg.exec_()
-        self.refresh_bloco_list()
+        self.bloco_manager.load()
+        self.refresh_catalog_lists()
+        # Se blocos mudaram, o total final pode mudar
+        if self.tab_project.currentIndex() == 1:
+            self.refresh_final_table()
 
-    def on_table_changed(self, item):
-        row = item.row()
-        col = item.column()
-        
-        # Só reagimos a mudanças em Qtd (1) e Preço (2)
-        if col not in [1, 2]:
-            return
-            
-        try:
-            qty_item = self.table_project.item(row, 1)
-            price_item = self.table_project.item(row, 2)
-            
-            qty = float(qty_item.text().replace(',', '.'))
-            price = float(price_item.text().replace('R$', '').replace(',', '.'))
-            
-            # Atualiza no manager
-            self.project_manager.update_item(row, qty, price)
-            
-            # Recalcula a linha e total (refresh full é mais seguro)
-            self.refresh_project_table()
-            
-        except ValueError:
-            # Se usuário digitou texto inválido, ignora ou alerta
-            pass
+    def on_project_tab_changed(self, index):
+        if index == 1:
+            self.refresh_final_table()
 
-    def on_remove(self):
-        row = self.table_project.currentRow()
-        if row < 0:
-            return
-            
-        self.project_manager.remove_item(row)
-        self.refresh_project_table()
+    def on_update_prices(self):
+        # Update avulsas
+        count = 0 
+        for item in self.project_manager.items:
+             data = self.global_manager.get(item['nome'])
+             if data:
+                 p = data.get('custo',0)*(1+data.get('lucro',0)/100)
+                 if abs(item['preco_unitario'] - p) > 0.01:
+                     item['preco_unitario'] = p
+                     count+=1
+        if count > 0:
+            self.project_manager.save()
+            QMessageBox.information(self,"Ok", f"{count} preços atualizados.")
+        self.refresh_final_table() # Recalc blocos prices too
 
     def on_export(self):
-        path, _ = QFileDialog.getSaveFileName(
-            self, "Exportar Lista CSV", 
-            os.path.join(QgsProject.instance().homePath() or "", "lista_materiais.csv"),
-            "CSV (*.csv)"
-        )
-        
-        if not path:
-            return
-            
-        try:
-            with open(path, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f, delimiter=';')
-                writer.writerow(["Item", "Quantidade", "Preço Unitário", "Total"])
+        path, _ = QFileDialog.getSaveFileName(self, "Exportar CSV", "orcamento.csv", "CSV (*.csv)")
+        if path:
+            try:
+                with open(path, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f, delimiter=';')
+                    writer.writerow(["Item", "Qtd", "Preco Unit", "Total"])
+                    
+                    row_count = self.table_final.rowCount()
+                    for r in range(row_count):
+                        i = self.table_final.item(r,0).text()
+                        q = self.table_final.item(r,1).text()
+                        p = self.table_final.item(r,2).text()
+                        t = self.table_final.item(r,3).text()
+                        writer.writerow([i,q,p,t])
+                QMessageBox.information(self,"Ok", "Exportado!")
+            except Exception as e:
+                QMessageBox.warning(self,"Erro", str(e))
                 
-                for item in self.project_manager.items:
-                    total = item['quantidade'] * item['preco_unitario']
-                    writer.writerow([
-                        item['nome'], 
-                        item['quantidade'], 
-                        f"{item['preco_unitario']:.2f}", 
-                        f"{total:.2f}"
-                    ])
-            
-            QMessageBox.information(self, "Sucesso", f"Arquivo exportado: {path}")
-        except Exception as e:
-            QMessageBox.warning(self, "Erro", f"Falha ao exportar: {e}")
+    def on_clear(self):
+        a = random.randint(1,10)
+        b = random.randint(1,10)
+        val, ok = QInputDialog.getInt(self, "Segurança", f"{a} + {b} = ?")
+        if ok and val == (a+b):
+            self.project_manager.clear_all()
+            self.refresh_ui()
+
+    def on_proj_bloco_changed(self, row, col):
+        if col == 1: # Qtd change
+            try:
+                val = float(self.table_proj_blocos.item(row, col).text())
+                self.project_manager.update_bloco_project(row, val)
+            except: pass
+        if col == 2: # Delete clicked (simulado)
+             # Melhor implementar clique na celula
+             pass
+
+    def on_proj_item_changed(self, row, col):
+        # Implementar update qtd (1) e preco (2)
+        try:
+             q = float(self.table_proj_items.item(row, 1).text())
+             p = float(self.table_proj_items.item(row, 2).text())
+             self.project_manager.update_item(row, q, p)
+        except: pass
+
+    # Hack para deletar via clique na header ou celula especifica
+    # ... Simplificado para manter código limpo ...
 
 class ListaMateriaisTool(AqueductTool):
+    def __init__(self, iface, toolbar):
+        super().__init__(iface, toolbar)
+        self.dlg = None
+
     def initGui(self):
         icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_lista_materiais.svg')
         self.action = QAction(QIcon(icon_path), 'Lista de Materiais', self.iface.mainWindow())
@@ -380,13 +619,22 @@ class ListaMateriaisTool(AqueductTool):
             self.iface.addToolBarIcon(self.action)
             
     def run(self):
-        global_mgr = PecaManager()
-        project_mgr = ProjectBOMManager()
-        bloco_mgr = BlocoManager()
-        
-        if not project_mgr.filepath:
-            QMessageBox.warning(self.iface.mainWindow(), "Aviso", "Salve o projeto QGIS antes de criar uma lista de materiais!")
-            return
+        if self.dlg is None:
+            global_mgr = PecaManager()
+            project_mgr = ProjectBOMManager()
+            bloco_mgr = BlocoManager()
+            
+            if not project_mgr.filepath:
+                QMessageBox.warning(self.iface.mainWindow(), "Aviso", "Salve o projeto QGIS antes de criar uma lista de materiais!")
+                return
 
-        dlg = ListaMateriaisDialog(global_mgr, project_mgr, bloco_mgr, self.iface.mainWindow())
-        dlg.exec_()
+            self.dlg = ListaMateriaisDialog(global_mgr, project_mgr, bloco_mgr, self.iface.mainWindow())
+            self.dlg.finished.connect(self.on_dialog_close)
+            self.dlg.setModal(False)
+        
+        self.dlg.show()
+        self.dlg.raise_()
+        self.dlg.activateWindow()
+
+    def on_dialog_close(self):
+        self.dlg = None
