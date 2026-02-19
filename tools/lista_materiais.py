@@ -1,7 +1,7 @@
 from qgis.PyQt.QtWidgets import (
     QAction, QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QTableWidget, 
     QTableWidgetItem, QLabel, QLineEdit, QDoubleSpinBox, QPushButton, 
-    QMessageBox, QWidget, QHeaderView, QAbstractItemView, QFileDialog
+    QMessageBox, QWidget, QHeaderView, QAbstractItemView, QFileDialog, QTabWidget
 )
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.core import QgsProject, QgsApplication
@@ -11,6 +11,7 @@ import csv
 
 from .ferramenta_base import AqueductTool
 from .gerenciar_pecas import PecaManager  # Reusing the Global Parts Manager class
+from .gerenciar_blocos import BlocoManager, GerenciarBlocosDialog
 
 class ProjectBOMManager:
     def __init__(self):
@@ -85,31 +86,74 @@ class ProjectBOMManager:
             self.save()
 
 class ListaMateriaisDialog(QDialog):
-    def __init__(self, global_manager, project_manager, parent=None):
+    def __init__(self, global_manager, project_manager, bloco_manager, parent=None):
         super().__init__(parent)
         self.global_manager = global_manager
         self.project_manager = project_manager
+        self.bloco_manager = bloco_manager
         
         self.setWindowTitle("Aqueduct - Lista de Materiais do Projeto")
-        self.resize(900, 600)
+        self.resize(1000, 650)
         
         self.setup_ui()
         self.refresh_global_list()
+        self.refresh_bloco_list()
         self.refresh_project_table()
 
     def setup_ui(self):
         main_layout = QHBoxLayout()
         
-        # --- Lado Esquerdo: Peças Globais ---
+        # --- Lado Esquerdo: Abas (Peças e Blocos) ---
         left_layout = QVBoxLayout()
-        left_layout.addWidget(QLabel("<b>Catálogo Global de Peças</b>"))
+        self.tabs_left = QTabWidget()
+        
+        # Aba 1: Peças Individuais
+        tab_pecas = QWidget()
+        layout_pecas = QVBoxLayout()
+        layout_pecas.addWidget(QLabel("Catálogo Global de Peças"))
         self.list_global = QListWidget()
         self.list_global.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        left_layout.addWidget(self.list_global)
+        layout_pecas.addWidget(self.list_global)
         
-        btn_add = QPushButton("Adicionar ao Projeto ->")
-        btn_add.clicked.connect(self.on_add)
-        left_layout.addWidget(btn_add)
+        btn_add_peca = QPushButton("Adicionar Peça(s) ->")
+        btn_add_peca.clicked.connect(self.on_add_peca)
+        layout_pecas.addWidget(btn_add_peca)
+        tab_pecas.setLayout(layout_pecas)
+        
+        # Aba 2: Blocos
+        tab_blocos = QWidget()
+        layout_blocos = QVBoxLayout()
+        layout_blocos.addWidget(QLabel("Blocos Cadastrados"))
+        self.list_blocos = QListWidget()
+        self.list_blocos.setSelectionMode(QAbstractItemView.SingleSelection)
+        layout_blocos.addWidget(self.list_blocos)
+        
+        btn_layout_b = QHBoxLayout()
+        btn_add_bloco = QPushButton("Adicionar Bloco ->")
+        btn_add_bloco.clicked.connect(self.on_add_bloco)
+        
+        btn_manage_blocos = QPushButton("Gerenciar...")
+        btn_manage_blocos.clicked.connect(self.on_manage_blocos)
+        
+        self.spin_bloco_qtd = QDoubleSpinBox() # Usando Double caso queira 1.5 blocos? Melhor int mas Double dá flexibilidade
+        self.spin_bloco_qtd.setRange(0.01, 9999.00)
+        self.spin_bloco_qtd.setValue(1.0)
+        self.spin_bloco_qtd.setPrefix("Qtd: ")
+        self.spin_bloco_qtd.setDecimals(1)
+        
+        btn_layout_b.addWidget(btn_manage_blocos)
+        btn_layout_b.addStretch()
+        btn_layout_b.addWidget(self.spin_bloco_qtd)
+        btn_layout_b.addWidget(btn_add_bloco)
+        
+        layout_blocos.addLayout(btn_layout_b)
+        tab_blocos.setLayout(layout_blocos)
+        
+        # Add Tabs
+        self.tabs_left.addTab(tab_pecas, "Peças")
+        self.tabs_left.addTab(tab_blocos, "Blocos")
+        
+        left_layout.addWidget(self.tabs_left)
         
         left_widget = QWidget()
         left_widget.setLayout(left_layout)
@@ -154,14 +198,19 @@ class ListaMateriaisDialog(QDialog):
         right_widget.setLayout(right_layout)
         
         # --- Montagem ---
-        main_layout.addWidget(left_widget, 1)
-        main_layout.addWidget(right_widget, 2)
+        main_layout.addWidget(left_widget, 4) # Mais largo esquerdo para abas
+        main_layout.addWidget(right_widget, 6)
         self.setLayout(main_layout)
 
     def refresh_global_list(self):
         self.list_global.clear()
         names = self.global_manager.list_names()
         self.list_global.addItems(names)
+        
+    def refresh_bloco_list(self):
+        self.list_blocos.clear()
+        names = self.bloco_manager.list_names()
+        self.list_blocos.addItems(names)
 
     def refresh_project_table(self):
         self.table_project.blockSignals(True)
@@ -195,7 +244,7 @@ class ListaMateriaisDialog(QDialog):
         self.lbl_total_geral.setText(f"Total do Projeto: R$ {total_geral:.2f}")
         self.table_project.blockSignals(False)
 
-    def on_add(self):
+    def on_add_peca(self):
         selected_items = self.list_global.selectedItems()
         if not selected_items:
             return
@@ -212,6 +261,49 @@ class ListaMateriaisDialog(QDialog):
                 self.project_manager.add_item(nome, preco_final)
         
         self.refresh_project_table()
+        
+    def on_add_bloco(self):
+        item = self.list_blocos.currentItem()
+        if not item:
+            return
+        
+        bloco_nome = item.text()
+        itens_bloco = self.bloco_manager.get(bloco_nome)
+        
+        if not itens_bloco:
+             QMessageBox.warning(self, "Aviso", "Bloco vazio.")
+             return
+             
+        # Fator multiplicador
+        fator = self.spin_bloco_qtd.value()
+             
+        # Adicionar itens do bloco multiplicados
+        for item_bloco in itens_bloco:
+            nome_peca = item_bloco['nome']
+            qtd_bloco_unit = item_bloco['quantidade']
+            
+            qtd_final = qtd_bloco_unit * fator
+            
+            # Buscar preço atualizado da peça
+            peca_data = self.global_manager.get(nome_peca)
+            if peca_data:
+                custo = peca_data.get('custo', 0.0)
+                lucro = peca_data.get('lucro', 0.0)
+                preco_final = custo * (1 + lucro/100)
+                
+                self.project_manager.add_item(nome_peca, preco_final, qtd_final)
+            else:
+                # Se a peça do bloco não existe mais no catalogo
+                print(f"Aviso: Peça '{nome_peca}' do bloco '{bloco_nome}' não encontrada no catálogo.")
+                self.project_manager.add_item(nome_peca, 0.0, qtd_final)
+        
+        self.refresh_project_table()
+        QMessageBox.information(self, "Sucesso", f"{fator}x Itens do bloco '{bloco_nome}' adicionados!")
+
+    def on_manage_blocos(self):
+        dlg = GerenciarBlocosDialog(self)
+        dlg.exec_()
+        self.refresh_bloco_list()
 
     def on_table_changed(self, item):
         row = item.row()
@@ -290,10 +382,11 @@ class ListaMateriaisTool(AqueductTool):
     def run(self):
         global_mgr = PecaManager()
         project_mgr = ProjectBOMManager()
+        bloco_mgr = BlocoManager()
         
         if not project_mgr.filepath:
             QMessageBox.warning(self.iface.mainWindow(), "Aviso", "Salve o projeto QGIS antes de criar uma lista de materiais!")
             return
 
-        dlg = ListaMateriaisDialog(global_mgr, project_mgr, self.iface.mainWindow())
+        dlg = ListaMateriaisDialog(global_mgr, project_mgr, bloco_mgr, self.iface.mainWindow())
         dlg.exec_()

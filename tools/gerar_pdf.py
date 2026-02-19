@@ -7,6 +7,8 @@ from qgis.core import (
     QgsLayoutItemShape, QgsFillSymbol, QgsLegendStyle, QgsLayoutItemPicture
 )
 from qgis.PyQt.QtGui import QIcon, QFont
+import os
+import json
 
 from .ferramenta_base import AqueductTool
 
@@ -228,8 +230,8 @@ class GerarPdfTool(AqueductTool):
                     data = json.load(f)
                     
                 info_html = f"""
-                <div style="font-family: Arial; font-size: 10.5pt; color: black;">
-                    <b style="font-size: 11pt;">INFORMAÇÕES AGRONÔMICAS</b><br>
+                <div style="font-family: Arial; font-size: 8.5pt; color: black;">
+                    <b style="font-size: 9pt;">INFORMAÇÕES AGRONÔMICAS</b><br>
                     <b>CLIENTE:</b> {data.get('cliente', '-').upper()}<br>
                     <b>LOCAL:</b> {data.get('local', '-').upper()}<br>
                     <b>ÁREA TOTAL:</b> {data.get('area_total', '-')} ha<br>
@@ -242,8 +244,8 @@ class GerarPdfTool(AqueductTool):
                 info_html = "Erro ao ler dados do projeto."
         else:
              info_html = """
-             <div style="font-family: Arial; font-size: 10.5pt;">
-                <b style="font-size: 11pt;">INFORMAÇÕES AGRONÔMICAS</b><br>
+             <div style="font-family: Arial; font-size: 8.5pt;">
+                <b style="font-size: 9pt;">INFORMAÇÕES AGRONÔMICAS</b><br>
                 Dados não calculados.<br>
              </div>
              """
