@@ -39,9 +39,6 @@ class MapLayoutGenerator:
         page_height = 210
         
         # 1. Borda
-        # Se standalone, padding 2mm (dentro da margem de impressao visual do plotter?) 
-        # Nao, original era 2mm do papel.
-        # Se nao standalone, padding 0.5mm para ficar na borda da imagem (que será a borda do conteudo no PDF)
         border_padding = 2 if standalone else 0
         
         border = QgsLayoutItemShape(layout)
