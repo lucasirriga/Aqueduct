@@ -62,6 +62,7 @@ class GerarOrcamentoTool(AqueductTool):
                         font-family: 'Times New Roman', Times, serif; 
                         margin: 0; 
                         padding: 0; 
+                        color: #333;
                     }}
                     .content {{
                         padding: 12mm 20mm 20mm 20mm; /* Top padding reduced */
