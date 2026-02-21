@@ -207,7 +207,11 @@ class MapLayoutGenerator:
                     <b>ÁREA TOTAL:</b> {data.get('area_total', '-')} ha<br>
                     <b>VAZÃO PROJETO:</b> {data.get('vazao_projeto', '-')} m³/h<br>
                     <b>VAZÃO DIÁRIA:</b> {data.get('vazao_diaria', '-')} m³<br>
-                    <b>TEMPO TOTAL:</b> {data.get('tempo_total', '-')} h
+                    <b>TEMPO TOTAL:</b> {data.get('tempo_total', '-')} h<br>
+                    <b>TEMPO/SETOR:</b> {data.get('tempo_setor', '-')} h<br>
+                    <b>ENERGIA:</b> {data.get('energia', '-').upper() if data.get('energia') else '-'}<br>
+                    <b>FONTE ÁGUA:</b> {data.get('fonte_agua', '-').upper() if data.get('fonte_agua') else '-'}<br>
+                    <b>QTD. FONTES:</b> {data.get('qtd_fontes', '-')}
                 </div>
                 """
             except:
@@ -221,7 +225,7 @@ class MapLayoutGenerator:
         
         final_x = x + 5
         final_w = width - 10
-        height = 50 
+        height = 80  # Aumentado para acomodar linhas adicionais
         
         label.attemptMove(QgsLayoutPoint(final_x, y, QgsUnitTypes.LayoutMillimeters))
         label.attemptResize(QgsLayoutSize(final_w, height, QgsUnitTypes.LayoutMillimeters))
