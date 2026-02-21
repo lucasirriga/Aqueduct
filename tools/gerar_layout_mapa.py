@@ -89,7 +89,8 @@ class MapLayoutGenerator:
         
         map_x = margin
         map_y = margin
-        map_width = sidebar_start_x - margin
+        gap_sidebar = 3  # Espaço de ~10px entre o mapa e o bloco lateral (em mm)
+        map_width = sidebar_start_x - margin - gap_sidebar
         map_height = page_height - (2 * margin)
         
         map_item.attemptMove(QgsLayoutPoint(map_x, map_y, QgsUnitTypes.LayoutMillimeters))

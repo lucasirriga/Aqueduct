@@ -283,18 +283,12 @@ class GerarOrcamentoTool(AqueductTool):
             # --- Termos ---
             termos_txt = self._get_termos()
             if termos_txt:
-                termos_linhas = ''.join(
-                    f'<p style="margin:2px 0;">{ln}</p>' if ln.strip() else '<br>'
-                    for ln in termos_txt.splitlines()
-                )
                 termos_html = f"""
                 <div style="margin-top:18px; border:1px solid #ddd; background:#f9f9f9; padding:12px 16px;">
                     <div style="font-weight:bold; color:#1B5E20; font-size:13pt; margin-bottom:6px;">
                         Termos e Condições
                     </div>
-                    <div style="font-size:9pt; color:#333; line-height:1.5; text-align:justify;">
-                        {termos_linhas}
-                    </div>
+                    <div style="font-size:8pt; color:#333; line-height:1.2; text-align:justify; white-space:pre-wrap;">{termos_txt.replace(chr(9), '&nbsp;&nbsp;&nbsp;&nbsp;')}</div>
                 </div>
                 """
             else:
@@ -387,11 +381,13 @@ class GerarOrcamentoTool(AqueductTool):
 
                 {termos_html}
 
-                {tabela_mat}
+                <div style="page-break-before: always; page-break-inside: auto;">
+                  {tabela_mat}
 
-                {tabela_serv}
+                  {tabela_serv}
 
-                {total_html}
+                  {total_html}
+                </div>
 
               </div>
             </body>
