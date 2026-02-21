@@ -297,6 +297,7 @@ class ListaMateriaisDialog(QDialog):
         self.table_proj_blocos.setHorizontalHeaderLabels(["Bloco", "Qtd", "Ações"])
         self.table_proj_blocos.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table_proj_blocos.cellChanged.connect(self.on_proj_bloco_changed)
+        self.table_proj_blocos.cellClicked.connect(self.on_proj_bloco_cell_clicked)
         v_comp.addWidget(self.table_proj_blocos)
         
         # Tabela Peças Avulsas
@@ -306,6 +307,7 @@ class ListaMateriaisDialog(QDialog):
         self.table_proj_items.setHorizontalHeaderLabels(["Peça", "Qtd", "Preço Unit", "Ações"])
         self.table_proj_items.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table_proj_items.cellChanged.connect(self.on_proj_item_changed)
+        self.table_proj_items.cellClicked.connect(self.on_proj_item_cell_clicked)
         v_comp.addWidget(self.table_proj_items)
         
         tab_comp.setLayout(v_comp)
@@ -390,11 +392,9 @@ class ListaMateriaisDialog(QDialog):
             # Qtd (Editable)
             self.table_proj_blocos.setItem(i, 1, QTableWidgetItem(str(pb['quantidade'])))
             
-            # Botão Remover (Gambiarra simples: Texto "X" que se clicar remove? 
-            # Ou melhor, usar context menu ou botão externo. Aqui vou pôr só texto por enqto, ou botão customizado exige mais codigo)
-            # Vamos deixar sem botão na linha por simplificação, usar botão lateral ou del
-            item_del = QTableWidgetItem("Excluir")
-            # item_del.setBackground(QColor("red"))
+            # Botão Excluir
+            item_del = QTableWidgetItem("X Excluir")
+            item_del.setFlags(item_del.flags() ^ 2)  # Read-only
             self.table_proj_blocos.setItem(i, 2, item_del)
             
         self.table_proj_blocos.blockSignals(False)
@@ -411,7 +411,9 @@ class ListaMateriaisDialog(QDialog):
             
             self.table_proj_items.setItem(i, 1, QTableWidgetItem(str(item['quantidade'])))
             self.table_proj_items.setItem(i, 2, QTableWidgetItem(str(item['preco_unitario'])))
-            self.table_proj_items.setItem(i, 3, QTableWidgetItem("Excluir"))
+            item_del = QTableWidgetItem("X Excluir")
+            item_del.setFlags(item_del.flags() ^ 2)  # Read-only
+            self.table_proj_items.setItem(i, 3, item_del)
             
         self.table_proj_items.blockSignals(False)
 
@@ -581,14 +583,12 @@ class ListaMateriaisDialog(QDialog):
             self.refresh_ui()
 
     def on_proj_bloco_changed(self, row, col):
-        if col == 1: # Qtd change
+        if col == 1:  # Alteração de Qtd
             try:
                 val = float(self.table_proj_blocos.item(row, col).text())
                 self.project_manager.update_bloco_project(row, val)
-            except: pass
-        if col == 2: # Delete clicked (simulado)
-             # Melhor implementar clique na celula
-             pass
+            except:
+                pass
 
     def on_proj_item_changed(self, row, col):
         # Implementar update qtd (1) e preco (2)
@@ -598,8 +598,31 @@ class ListaMateriaisDialog(QDialog):
              self.project_manager.update_item(row, q, p)
         except: pass
 
-    # Hack para deletar via clique na header ou celula especifica
-    # ... Simplificado para manter código limpo ...
+    def on_proj_bloco_cell_clicked(self, row, col):
+        """Exclui o bloco do projeto ao clicar na coluna de ações (col 2)."""
+        if col == 2:
+            nome = self.table_proj_blocos.item(row, 0).text()
+            resp = QMessageBox.question(
+                self, 'Confirmar',
+                f'Remover o bloco "{nome}" do projeto?',
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if resp == QMessageBox.Yes:
+                self.project_manager.remove_bloco_project(row)
+                self.refresh_comp_tables()
+
+    def on_proj_item_cell_clicked(self, row, col):
+        """Exclui a peça avulsa do projeto ao clicar na coluna de ações (col 3)."""
+        if col == 3:
+            nome = self.table_proj_items.item(row, 0).text()
+            resp = QMessageBox.question(
+                self, 'Confirmar',
+                f'Remover a peça "{nome}" do projeto?',
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if resp == QMessageBox.Yes:
+                self.project_manager.remove_item(row)
+                self.refresh_comp_tables()
 
 class ListaMateriaisTool(AqueductTool):
     def __init__(self, iface, toolbar):

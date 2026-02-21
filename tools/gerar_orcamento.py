@@ -67,30 +67,36 @@ class GerarOrcamentoTool(AqueductTool):
                 # Itens avulsos
                 items = list(budget.get('items', []))
                 # Expandir blocos do projeto
-                from qgis.core import QgsApplication
                 from .gerenciar_blocos import BlocoManager
-                bm = BlocoManager()
                 from .gerenciar_pecas import PecaManager
+                bm = BlocoManager()
                 pm = PecaManager()
                 for pb in budget.get('project_blocos', []):
-                    bloco = bm.get_bloco(pb.get('nome', ''))
-                    if bloco:
-                        mult = pb.get('quantidade', 1)
-                        for bi in bloco.get('items', []):
-                            peca = pm.get_peca(bi.get('peca_nome', ''))
-                            items.append({
-                                'nome': bi.get('peca_nome', ''),
-                                'quantidade': bi.get('quantidade', 0) * mult,
-                                'preco_unitario': peca.get('preco', 0) if peca else 0
-                            })
+                    nome_bloco = pb.get('nome', '')
+                    mult = pb.get('quantidade', 1)
+                    # bm.get() retorna lista de {'nome': ..., 'quantidade': ...}
+                    bloco_itens = bm.get(nome_bloco)
+                    for bi in bloco_itens:
+                        nome_peca = bi.get('nome', '')
+                        qtd_bi    = bi.get('quantidade', 0)
+                        peca = pm.get(nome_peca)  # {'custo': ..., 'lucro': ...} ou None
+                        if peca:
+                            preco = peca.get('custo', 0) * (1 + peca.get('lucro', 0) / 100)
+                        else:
+                            preco = 0.0
+                        items.append({
+                            'nome': nome_peca,
+                            'quantidade': qtd_bi * mult,
+                            'preco_unitario': preco
+                        })
             else:
                 items = []
 
             # Consolidar itens duplicados
             consolidated = {}
             for item in items:
-                nome = item.get('nome', '')
-                qtd  = float(item.get('quantidade', 0))
+                nome  = item.get('nome', '')
+                qtd   = float(item.get('quantidade', 0))
                 preco = float(item.get('preco_unitario', 0))
                 if nome in consolidated:
                     consolidated[nome]['qtd'] += qtd
@@ -266,7 +272,7 @@ class GerarOrcamentoTool(AqueductTool):
         pdf_path, _ = QFileDialog.getSaveFileName(
             self.iface.mainWindow(),
             'Salvar Orçamento PDF',
-            os.path.join(os.path.expanduser('~'), default_name),
+            os.path.join(project.homePath(), default_name),
             'Arquivos PDF (*.pdf)'
         )
         if not pdf_path:
@@ -298,10 +304,12 @@ class GerarOrcamentoTool(AqueductTool):
             materiais = self._load_materiais(project)
             total_mat = 0.0
             linhas_mat = []
+            # Formata valor em Real brasileiro: ponto para milhar, vírgula para decimal
+            def brl(v): return f'R$ {v:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
             for nome, qtd, preco in materiais:
                 sub = qtd * preco
                 total_mat += sub
-                linhas_mat.append((nome, f'{qtd:.2f}', f'R$ {preco:.2f}', f'R$ {sub:.2f}'))
+                linhas_mat.append((nome, f'{qtd:.2f}', brl(preco), brl(sub)))
 
             tabela_mat = self._build_data_table(
                 'Materiais',
@@ -316,7 +324,7 @@ class GerarOrcamentoTool(AqueductTool):
             for desc, qtd, valor in servicos:
                 sub = qtd * valor
                 total_serv += sub
-                linhas_serv.append((desc, f'{qtd:.2f}', f'R$ {valor:.2f}', f'R$ {sub:.2f}'))
+                linhas_serv.append((desc, f'{qtd:.2f}', brl(valor), brl(sub)))
 
             tabela_serv = self._build_data_table(
                 'Serviços',
@@ -328,12 +336,12 @@ class GerarOrcamentoTool(AqueductTool):
             total_html = f"""
             <div style="margin-top:16px; padding-top:10px; border-top:2px solid #1B5E20; text-align:right;">
                 <span style="font-size:10pt; color:#333;">
-                    Subtotal Materiais: <b>R$ {total_mat:.2f}</b> &nbsp;&nbsp;|&nbsp;&nbsp;
-                    Subtotal Serviços: <b>R$ {total_serv:.2f}</b>
+                    Subtotal Materiais: <b>{brl(total_mat)}</b> &nbsp;&nbsp;|&nbsp;&nbsp;
+                    Subtotal Serviços: <b>{brl(total_serv)}</b>
                 </span>
                 <br>
                 <span style="font-size:16pt; font-weight:bold; color:#1B5E20;">
-                    TOTAL GERAL: R$ {total_geral:.2f}
+                    TOTAL GERAL: {brl(total_geral)}
                 </span>
             </div>
             """
