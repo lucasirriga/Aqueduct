@@ -39,6 +39,23 @@ class InfoProjetoDialog(QDialog):
         
         form_cad.addRow("Nome do Cliente:", self.edit_cliente)
         form_cad.addRow("Localidade:", self.edit_local)
+        
+        # Novos Campos
+        self.combo_energia = QComboBox()
+        self.combo_energia.addItems(["Monofásico", "Bifásico", "Trifásico", "Diesel", "Solar", "Outro"])
+        self.combo_energia.setEditable(True)
+        
+        self.combo_fonte = QComboBox()
+        self.combo_fonte.addItems(["Rio", "Poço", "Represa", "Lago", "Outro"])
+        self.combo_fonte.setEditable(True)
+        
+        self.spin_qtd_fontes = QSpinBox()
+        self.spin_qtd_fontes.setRange(1, 10)
+        
+        form_cad.addRow("Energia:", self.combo_energia)
+        form_cad.addRow("Fonte de Água:", self.combo_fonte)
+        form_cad.addRow("Qtd. Fontes:", self.spin_qtd_fontes)
+        
         group_cad.setLayout(form_cad)
         layout.addWidget(group_cad)
         
@@ -193,6 +210,9 @@ class InfoProjetoDialog(QDialog):
                     data = json.load(f)
                     self.edit_cliente.setText(data.get('cliente', ''))
                     self.edit_local.setText(data.get('local', ''))
+                    self.combo_energia.setCurrentText(data.get('energia', 'Trifásico'))
+                    self.combo_fonte.setCurrentText(data.get('fonte_agua', 'Rio'))
+                    self.spin_qtd_fontes.setValue(data.get('qtd_fontes', 1))
                     self.spin_simultaneos.setValue(data.get('simultaneos', 1))
                     self.spin_tempo_setor.setValue(data.get('tempo_setor', 1.0))
                     
@@ -218,6 +238,9 @@ class InfoProjetoDialog(QDialog):
         data = {
             'cliente': self.edit_cliente.text(),
             'local': self.edit_local.text(),
+            'energia': self.combo_energia.currentText(),
+            'fonte_agua': self.combo_fonte.currentText(),
+            'qtd_fontes': self.spin_qtd_fontes.value(),
             'layer_name': self.combo_layer.currentText(),
             'simultaneos': self.spin_simultaneos.value(),
             'tempo_setor': self.spin_tempo_setor.value(),
