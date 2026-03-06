@@ -33,11 +33,11 @@ class SimbologiaDirecaoTool(AqueductTool):
         
         # 1. Validações
         if not layer or layer.type() != layer.VectorLayer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
         if layer.geometryType() != QgsWkbTypes.LineGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3, duration=5)
             return
 
         # 2. Criação do Símbolo Composto

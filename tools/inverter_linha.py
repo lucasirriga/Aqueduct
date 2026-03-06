@@ -29,17 +29,17 @@ class InverterLinhaTool(AqueductTool):
         
         # 1. Validações
         if not layer or layer.type() != layer.VectorLayer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
         if layer.geometryType() != QgsWkbTypes.LineGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3, duration=5)
             return
 
         # 2. Seleção Obrigatória
         selected_count = layer.selectedFeatureCount()
         if selected_count == 0:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma linha selecionada. Selecione as linhas que deseja inverter.", level=2)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma linha selecionada. Selecione as linhas que deseja inverter.", level=2, duration=5)
             return
 
         # 3. Confirmação (Opccional, mas bom para edições destrutivas em massa)

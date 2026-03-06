@@ -38,16 +38,16 @@ class SimbologiaDnTool(AqueductTool):
         
         # 1. Validações
         if not layer or layer.type() != layer.VectorLayer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
         if layer.geometryType() != QgsWkbTypes.LineGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3, duration=5)
             return
 
         idx_dn = layer.fields().indexOf("DN")
         if idx_dn == -1:
-             self.iface.messageBar().pushMessage("Aqueduct", "Campo 'DN' não encontrado na camada.", level=3)
+             self.iface.messageBar().pushMessage("Aqueduct", "Campo 'DN' não encontrado na camada.", level=3, duration=5)
              return
 
         # 2. Definição das Categorias

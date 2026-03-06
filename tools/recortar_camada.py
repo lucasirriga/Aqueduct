@@ -29,7 +29,7 @@ class RecortarCamadaTool(AqueductTool):
         
         # 1. Validação da Camada Alvo
         if not target_layer or target_layer.type() != target_layer.VectorLayer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione a camada que será RECORTADA (Alvo).", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione a camada que será RECORTADA (Alvo).", level=3, duration=5)
             return
 
         if not target_layer.isEditable():
@@ -53,7 +53,7 @@ class RecortarCamadaTool(AqueductTool):
                 valid_layers.append(layer)
         
         if not valid_layers:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de POLÍGONO encontrada para usar como máscara.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de POLÍGONO encontrada para usar como máscara.", level=3, duration=5)
             return
             
         layer_names = [l.name() for l in valid_layers]
@@ -79,7 +79,7 @@ class RecortarCamadaTool(AqueductTool):
             return
 
         # 3. Processamento
-        self.iface.messageBar().pushMessage("Aqueduct", "Preparando máscara... (Isso pode demorar)", level=0)
+        self.iface.messageBar().pushMessage("Aqueduct", "Preparando máscara... (Isso pode demorar)", level=0, duration=5)
         
         # Combinar geometrias da máscara (Union)
         # Se houver seleção na máscara, usa apenas a seleção
@@ -93,7 +93,7 @@ class RecortarCamadaTool(AqueductTool):
         combined_mask = QgsGeometry.unaryUnion([f.geometry() for f in mask_features])
         
         if combined_mask.isEmpty():
-             self.iface.messageBar().pushMessage("Aqueduct", "Geometria da máscara vazia.", level=3)
+             self.iface.messageBar().pushMessage("Aqueduct", "Geometria da máscara vazia.", level=3, duration=5)
              return
 
         # Determinar alvo
@@ -104,7 +104,7 @@ class RecortarCamadaTool(AqueductTool):
             target_features = target_layer.getFeatures()
             mode_msg = "em todas as feições"
 
-        self.iface.messageBar().pushMessage("Aqueduct", "Recortando...", level=0)
+        self.iface.messageBar().pushMessage("Aqueduct", "Recortando...", level=0, duration=5)
         
         count_mod = 0
         count_del = 0

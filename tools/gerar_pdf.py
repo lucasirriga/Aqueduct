@@ -35,7 +35,7 @@ class GerarPdfTool(AqueductTool):
                 valid_layers.append(layer)
         
         if not valid_layers:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de polígono encontrada para definir a área.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de polígono encontrada para definir a área.", level=3, duration=5)
             return
 
         layer_names = [l.name() for l in valid_layers]
@@ -90,4 +90,4 @@ class GerarPdfTool(AqueductTool):
             if os.name == 'nt':
                 os.startfile(pdf_path)
         else:
-            self.iface.messageBar().pushMessage("Aqueduct", "Erro ao exportar PDF.", level=2)
+            self.iface.messageBar().pushMessage("Aqueduct", "Erro ao exportar PDF.", level=2, duration=5)

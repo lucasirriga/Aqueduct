@@ -30,18 +30,18 @@ class AtribuirDnTool(AqueductTool):
         
         # 1. Validação da Camada
         if not layer or layer.type() != layer.VectorLayer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
         # Verifica Geometria (Linha)
         if layer.geometryType() != QgsWkbTypes.LineGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Operação permitida apenas em camadas de LINHA.", level=3, duration=5)
             return
 
         # 2. Validação da Seleção (Obrigatória)
         selected_count = layer.selectedFeatureCount()
         if selected_count == 0:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma linha selecionada. Selecione as linhas que deseja atualizar.", level=2)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma linha selecionada. Selecione as linhas que deseja atualizar.", level=2, duration=5)
             return
 
         # 3. Input do DN

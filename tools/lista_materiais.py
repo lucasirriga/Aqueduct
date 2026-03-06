@@ -1,8 +1,8 @@
 from qgis.PyQt.QtWidgets import (
     QAction, QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QTableWidget, 
-    QTableWidgetItem, QLabel, QLineEdit, QDoubleSpinBox, QPushButton, 
+    QTableWidgetItem, QLabel, QLineEdit, QDoubleSpinBox, QSpinBox, QPushButton, 
     QMessageBox, QWidget, QHeaderView, QAbstractItemView, QTabWidget,
-    QInputDialog, QComboBox, QSplitter
+    QInputDialog, QComboBox, QSplitter, QFileDialog
 )
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.core import QgsProject, QgsApplication
@@ -68,6 +68,12 @@ class ProjectBOMManager:
                 else:
                     self.budgets = {"Orçamento Base": {"items": [], "project_blocos": []}}
                     self.current_budget = "Orçamento Base"
+                    
+                for content in self.budgets.values():
+                    if 'items' in content:
+                        content['items'].sort(key=lambda x: str(x.get('nome', '')).lower())
+                    if 'project_blocos' in content:
+                        content['project_blocos'].sort(key=lambda x: str(x.get('nome', '')).lower())
                     
             except Exception as e:
                 print(f"Erro ao carregar BOM: {e}")
@@ -142,31 +148,46 @@ class ProjectBOMManager:
             self.current_budget = name
             self.save()
 
+    # --- Utilitario de formatacao ---
+    @staticmethod
+    def _fmt_brl(valor):
+        """Formata um float como moeda brasileira: '1.234,56'."""
+        return f"{valor:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+
     # --- Item Management (Avulsas) ---
-    def add_item(self, nome, preco_unitario, quantidade=1):
+    def add_item(self, nome, preco_unitario, quantidade=1, save=True):
+        """Adiciona ou atualiza uma peca avulsa no orcamento ativo.
+        Se a peca ja existir, soma a quantidade E atualiza o preco unitario.
+        O parametro save=False permite operacoes em lote sem gravar a cada item.
+        """
         found = False
         for item in self.items:
             if item['nome'] == nome:
                 item['quantidade'] += quantidade
+                item['preco_unitario'] = preco_unitario  # M2: atualiza preco ao re-adicionar
                 found = True
                 break
         if not found:
             self.items.append({'nome': nome, 'quantidade': quantidade, 'preco_unitario': preco_unitario})
-        self.save()
+            self.items.sort(key=lambda x: str(x.get('nome', '')).lower())
+        if save:  # M10: suporte a operacoes em lote
+            self.save()
 
-    def remove_item(self, index):
+    def remove_item(self, index, save=True):
         if 0 <= index < len(self.items):
             del self.items[index]
-            self.save()
+            if save:
+                self.save()
             
-    def update_item(self, index, quantidade, preco_unitario):
+    def update_item(self, index, quantidade, preco_unitario, save=True):
         if 0 <= index < len(self.items):
             self.items[index]['quantidade'] = quantidade
             self.items[index]['preco_unitario'] = preco_unitario
-            self.save()
+            if save:
+                self.save()
 
     # --- Bloco Management (No Projeto) ---
-    def add_bloco_project(self, nome_bloco, quantidade=1):
+    def add_bloco_project(self, nome_bloco, quantidade=1, save=True):
         found = False
         for pb in self.project_blocos:
             if pb['nome'] == nome_bloco:
@@ -175,17 +196,21 @@ class ProjectBOMManager:
                 break
         if not found:
             self.project_blocos.append({'nome': nome_bloco, 'quantidade': quantidade})
-        self.save()
+            self.project_blocos.sort(key=lambda x: str(x.get('nome', '')).lower())
+        if save:
+            self.save()
         
-    def remove_bloco_project(self, index):
+    def remove_bloco_project(self, index, save=True):
         if 0 <= index < len(self.project_blocos):
             del self.project_blocos[index]
-            self.save()
+            if save:
+                self.save()
             
-    def update_bloco_project(self, index, quantidade):
+    def update_bloco_project(self, index, quantidade, save=True):
         if 0 <= index < len(self.project_blocos):
             self.project_blocos[index]['quantidade'] = quantidade
-            self.save()
+            if save:
+                self.save()
 
     def clear_all(self):
         self.budgets[self.current_budget] = {"items": [], "project_blocos": []}
@@ -256,8 +281,10 @@ class ListaMateriaisDialog(QDialog):
         v_b.addWidget(self.list_global_blocos)
         
         h_b = QHBoxLayout()
-        self.spin_add_bloco_qtd = QDoubleSpinBox()
-        self.spin_add_bloco_qtd.setValue(1.0)
+        # M8: QSpinBox (inteiro) — quantidade de blocos nao pode ser fracionada
+        self.spin_add_bloco_qtd = QSpinBox()
+        self.spin_add_bloco_qtd.setRange(1, 9999)
+        self.spin_add_bloco_qtd.setValue(1)
         self.spin_add_bloco_qtd.setPrefix("Qtd: ")
         
         btn_add_b = QPushButton("Adicionar Bloco v")
@@ -297,7 +324,7 @@ class ListaMateriaisDialog(QDialog):
         self.table_proj_blocos.setHorizontalHeaderLabels(["Bloco", "Qtd", "Ações"])
         self.table_proj_blocos.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table_proj_blocos.cellChanged.connect(self.on_proj_bloco_changed)
-        self.table_proj_blocos.cellClicked.connect(self.on_proj_bloco_cell_clicked)
+        # cellClicked removido: exclusao agora e feita por QPushButton dedicado (M5)
         v_comp.addWidget(self.table_proj_blocos)
         
         # Tabela Peças Avulsas
@@ -307,7 +334,7 @@ class ListaMateriaisDialog(QDialog):
         self.table_proj_items.setHorizontalHeaderLabels(["Peça", "Qtd", "Preço Unit", "Ações"])
         self.table_proj_items.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table_proj_items.cellChanged.connect(self.on_proj_item_changed)
-        self.table_proj_items.cellClicked.connect(self.on_proj_item_cell_clicked)
+        # cellClicked removido: exclusao agora e feita por QPushButton dedicado (M5)
         v_comp.addWidget(self.table_proj_items)
         
         tab_comp.setLayout(v_comp)
@@ -372,49 +399,87 @@ class ListaMateriaisDialog(QDialog):
         self.list_global_blocos.clear()
         self.list_global_blocos.addItems(self.bloco_manager.list_names())
 
+    def _persistir_edicoes_pendentes(self):
+        """
+        Salva qualquer edicao em andamento nas tabelas antes de recarregar a UI.
+        Necessario porque o sinal cellChanged dispara apenas quando o editor e
+        fechado (Enter ou clique fora). Se o usuario clicar em 'Adicionar' enquanto
+        ainda esta editando uma celula, a edicao seria perdida no proximo refresh.
+        """
+        # Persiste edicoes da tabela de peças avulsas
+        self.table_proj_items.blockSignals(True)
+        for row in range(self.table_proj_items.rowCount()):
+            try:
+                q = float(self.table_proj_items.item(row, 1).text())
+                p = float(self.table_proj_items.item(row, 2).text())
+                self.project_manager.update_item(row, q, p)
+            except Exception:
+                pass
+        self.table_proj_items.blockSignals(False)
+
+        # Persiste edicoes da tabela de blocos do projeto
+        self.table_proj_blocos.blockSignals(True)
+        for row in range(self.table_proj_blocos.rowCount()):
+            try:
+                val = float(self.table_proj_blocos.item(row, 1).text())
+                self.project_manager.update_bloco_project(row, val)
+            except Exception:
+                pass
+        self.table_proj_blocos.blockSignals(False)
+
     def refresh_ui(self):
         self.refresh_comp_tables()
         if self.tab_project.currentIndex() == 1:
             self.refresh_final_table()
 
     def refresh_comp_tables(self):
+        # Garante que qualquer edicao em andamento seja salva antes de reconstruir a UI
+        self._persistir_edicoes_pendentes()
         # 1. Blocos do Projeto
         self.table_proj_blocos.blockSignals(True)
         self.table_proj_blocos.setRowCount(0)
         for i, pb in enumerate(self.project_manager.project_blocos):
             self.table_proj_blocos.insertRow(i)
-            
+
             # Nome (Read-only)
             item_name = QTableWidgetItem(pb['nome'])
             item_name.setFlags(item_name.flags() ^ 2)
             self.table_proj_blocos.setItem(i, 0, item_name)
-            
+
             # Qtd (Editable)
             self.table_proj_blocos.setItem(i, 1, QTableWidgetItem(str(pb['quantidade'])))
-            
-            # Botão Excluir
-            item_del = QTableWidgetItem("X Excluir")
-            item_del.setFlags(item_del.flags() ^ 2)  # Read-only
-            self.table_proj_blocos.setItem(i, 2, item_del)
-            
+
+            # M5: Botao Excluir real via setCellWidget
+            row_idx = i
+            btn_del_b = QPushButton("Excluir")
+            btn_del_b.setStyleSheet("color: red; font-weight: bold;")
+            btn_del_b.clicked.connect(lambda _, r=row_idx: self._on_delete_bloco(r))
+            self.table_proj_blocos.setCellWidget(i, 2, btn_del_b)
+
         self.table_proj_blocos.blockSignals(False)
-        
-        # 2. Peças Avulsas
+
+        # 2. Pecas Avulsas
         self.table_proj_items.blockSignals(True)
         self.table_proj_items.setRowCount(0)
         for i, item in enumerate(self.project_manager.items):
             self.table_proj_items.insertRow(i)
-            
+
             item_name = QTableWidgetItem(item['nome'])
             item_name.setFlags(item_name.flags() ^ 2)
             self.table_proj_items.setItem(i, 0, item_name)
-            
+
             self.table_proj_items.setItem(i, 1, QTableWidgetItem(str(item['quantidade'])))
-            self.table_proj_items.setItem(i, 2, QTableWidgetItem(str(item['preco_unitario'])))
-            item_del = QTableWidgetItem("X Excluir")
-            item_del.setFlags(item_del.flags() ^ 2)  # Read-only
-            self.table_proj_items.setItem(i, 3, item_del)
-            
+            # M4: preco formatado com virgula decimal (padrao BR)
+            preco_fmt = f"{item['preco_unitario']:.2f}".replace('.', ',')
+            self.table_proj_items.setItem(i, 2, QTableWidgetItem(preco_fmt))
+
+            # M5: Botao Excluir real via setCellWidget
+            row_idx = i
+            btn_del_p = QPushButton("Excluir")
+            btn_del_p.setStyleSheet("color: red; font-weight: bold;")
+            btn_del_p.clicked.connect(lambda _, r=row_idx: self._on_delete_peca(r))
+            self.table_proj_items.setCellWidget(i, 3, btn_del_p)
+
         self.table_proj_items.blockSignals(False)
 
     def refresh_final_table(self):
@@ -473,7 +538,9 @@ class ListaMateriaisDialog(QDialog):
             self.table_final.setItem(row, 3, QTableWidgetItem(f"R$ {subtotal:.2f}"))
             row += 1
             
-        self.lbl_total_final.setText(f"Total Estimado: R$ {total_geral:.2f}")
+        self.lbl_total_final.setText(
+            f"Total Estimado: R$ {ProjectBOMManager._fmt_brl(total_geral)}"
+        )
 
     # --- Events ---
     def on_budget_changed(self):
@@ -541,22 +608,27 @@ class ListaMateriaisDialog(QDialog):
             self.refresh_final_table()
 
     def on_update_prices(self):
-        # Update avulsas
-        count = 0 
-        for item in self.project_manager.items:
-             data = self.global_manager.get(item['nome'])
-             if data:
-                 p = data.get('custo',0)*(1+data.get('lucro',0)/100)
-                 if abs(item['preco_unitario'] - p) > 0.01:
-                     item['preco_unitario'] = p
-                     count+=1
+        """M7: usa update_item() em vez de modificar o dict diretamente."""
+        count = 0
+        for idx, item in enumerate(self.project_manager.items):
+            data = self.global_manager.get(item['nome'])
+            if data:
+                p = data.get('custo', 0) * (1 + data.get('lucro', 0) / 100)
+                if abs(item['preco_unitario'] - p) > 0.01:
+                    # Usa a API oficial para manter consistencia (M7)
+                    self.project_manager.update_item(idx, item['quantidade'], p, save=False)
+                    count += 1
         if count > 0:
-            self.project_manager.save()
-            QMessageBox.information(self,"Ok", f"{count} preços atualizados.")
-        self.refresh_final_table() # Recalc blocos prices too
+            self.project_manager.save()  # Salva uma unica vez ao final (M10)
+            QMessageBox.information(self, "Ok", f"{count} preco(s) atualizado(s).")
+        self.refresh_final_table()  # Recalc blocos prices too
 
     def on_export(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Exportar CSV", "orcamento.csv", "CSV (*.csv)")
+        # M3: diretorio padrao aponta para a pasta do projeto QGIS
+        default_path = os.path.join(
+            QgsProject.instance().homePath() or "", "orcamento.csv"
+        )
+        path, _ = QFileDialog.getSaveFileName(self, "Exportar CSV", default_path, "CSV (*.csv)")
         if path:
             try:
                 with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -583,46 +655,58 @@ class ListaMateriaisDialog(QDialog):
             self.refresh_ui()
 
     def on_proj_bloco_changed(self, row, col):
-        if col == 1:  # Alteração de Qtd
+        if col == 1:  # Apenas coluna de Qtd
             try:
                 val = float(self.table_proj_blocos.item(row, col).text())
                 self.project_manager.update_bloco_project(row, val)
-            except:
+                # M6: atualiza total final em tempo real
+                self.refresh_final_table()
+            except (ValueError, AttributeError):  # M9: excecao tipada
                 pass
 
     def on_proj_item_changed(self, row, col):
-        # Implementar update qtd (1) e preco (2)
+        # M1: filtra colunas editaveis antes de tentar salvar
+        if col not in (1, 2):
+            return
         try:
-             q = float(self.table_proj_items.item(row, 1).text())
-             p = float(self.table_proj_items.item(row, 2).text())
-             self.project_manager.update_item(row, q, p)
-        except: pass
+            q_text = self.table_proj_items.item(row, 1).text()
+            p_text = self.table_proj_items.item(row, 2).text().replace(',', '.')
+            q = float(q_text)
+            p = float(p_text)
+            self.project_manager.update_item(row, q, p)
+            # M6: atualiza total final em tempo real
+            self.refresh_final_table()
+        except (ValueError, AttributeError):  # M9: excecao tipada
+            pass
 
-    def on_proj_bloco_cell_clicked(self, row, col):
-        """Exclui o bloco do projeto ao clicar na coluna de ações (col 2)."""
-        if col == 2:
-            nome = self.table_proj_blocos.item(row, 0).text()
-            resp = QMessageBox.question(
-                self, 'Confirmar',
-                f'Remover o bloco "{nome}" do projeto?',
-                QMessageBox.Yes | QMessageBox.No
-            )
-            if resp == QMessageBox.Yes:
-                self.project_manager.remove_bloco_project(row)
-                self.refresh_comp_tables()
+    # M5: metodos de exclusao dedicados (chamados pelos QPushButtons das celulas)
+    def _on_delete_bloco(self, row):
+        """Exclui o bloco do projeto na linha indicada."""
+        if row < 0 or row >= len(self.project_manager.project_blocos):
+            return
+        nome = self.project_manager.project_blocos[row]['nome']
+        resp = QMessageBox.question(
+            self, 'Confirmar',
+            f'Remover o bloco "{nome}" do projeto?',
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if resp == QMessageBox.Yes:
+            self.project_manager.remove_bloco_project(row)
+            self.refresh_comp_tables()
 
-    def on_proj_item_cell_clicked(self, row, col):
-        """Exclui a peça avulsa do projeto ao clicar na coluna de ações (col 3)."""
-        if col == 3:
-            nome = self.table_proj_items.item(row, 0).text()
-            resp = QMessageBox.question(
-                self, 'Confirmar',
-                f'Remover a peça "{nome}" do projeto?',
-                QMessageBox.Yes | QMessageBox.No
-            )
-            if resp == QMessageBox.Yes:
-                self.project_manager.remove_item(row)
-                self.refresh_comp_tables()
+    def _on_delete_peca(self, row):
+        """Exclui a peca avulsa do projeto na linha indicada."""
+        if row < 0 or row >= len(self.project_manager.items):
+            return
+        nome = self.project_manager.items[row]['nome']
+        resp = QMessageBox.question(
+            self, 'Confirmar',
+            f'Remover a peca "{nome}" do projeto?',
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if resp == QMessageBox.Yes:
+            self.project_manager.remove_item(row)
+            self.refresh_comp_tables()
 
 class ListaMateriaisTool(AqueductTool):
     def __init__(self, iface, toolbar):

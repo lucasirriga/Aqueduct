@@ -30,7 +30,7 @@ class VazaoSetorTool(AqueductTool):
         
         # 1. Validação da Camada de Polígonos (Alvo)
         if not poly_layer or poly_layer.type() != poly_layer.VectorLayer or poly_layer.geometryType() != QgsWkbTypes.PolygonGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada de POLÍGONOS ativa primeiro.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada de POLÍGONOS ativa primeiro.", level=3, duration=5)
             return
 
         # 2. Seleção da Camada de Pontos (Emissores)
@@ -41,7 +41,7 @@ class VazaoSetorTool(AqueductTool):
                 point_layers.append(layer)
         
         if not point_layers:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de pontos encontrada no projeto.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de pontos encontrada no projeto.", level=3, duration=5)
             return
             
         point_layer_names = [l.name() for l in point_layers]
@@ -101,7 +101,7 @@ class VazaoSetorTool(AqueductTool):
 
         # 5. Processamento (Spatial Index)
         # Cria índice espacial dos pontos para performance
-        self.iface.messageBar().pushMessage("Aqueduct", "Indexando pontos...", level=0)
+        self.iface.messageBar().pushMessage("Aqueduct", "Indexando pontos...", level=0, duration=5)
         point_provider = selected_point_layer.dataProvider()
         point_index = QgsSpatialIndex(point_provider.getFeatures())
         

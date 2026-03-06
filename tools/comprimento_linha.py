@@ -30,15 +30,15 @@ class LineLengthTool(AqueductTool):
         
         # 1. Validações Iniciais
         if not layer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada selecionada.", level=3) # Critical
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada selecionada.", level=3, duration=5) # Critical
             return
 
         if layer.type() != layer.VectorLayer:
-             self.iface.messageBar().pushMessage("Aqueduct", "A camada selecionada não é vetorial.", level=3)
+             self.iface.messageBar().pushMessage("Aqueduct", "A camada selecionada não é vetorial.", level=3, duration=5)
              return
              
         if layer.geometryType() != QgsWkbTypes.LineGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "A camada deve ser de linhas.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "A camada deve ser de linhas.", level=3, duration=5)
             return
 
         # 2. Definição do escopo (Selecionados vs Todos)
