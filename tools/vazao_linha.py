@@ -33,7 +33,7 @@ class VazaoLinhaTool(AqueductTool):
         
         # 1. Validação da Camada de Linhas (Alvo)
         if not line_layer or line_layer.type() != line_layer.VectorLayer or line_layer.geometryType() != QgsWkbTypes.LineGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada de LINHAS ativa primeiro.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada de LINHAS ativa primeiro.", level=3, duration=5)
             return
 
         # 2. Seleção da Camada de Pontos (Emissores)
@@ -43,7 +43,7 @@ class VazaoLinhaTool(AqueductTool):
                 point_layers.append(layer)
         
         if not point_layers:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de pontos encontrada no projeto.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada de pontos encontrada no projeto.", level=3, duration=5)
             return
             
         point_layer_names = [l.name() for l in point_layers]
@@ -101,7 +101,7 @@ class VazaoLinhaTool(AqueductTool):
             idx_vazao = line_layer.fields().indexOf("vazao")
 
         # 5. Processamento (Spatial Index)
-        self.iface.messageBar().pushMessage("Aqueduct", "Calculando emissores nas linhas...", level=0)
+        self.iface.messageBar().pushMessage("Aqueduct", "Calculando emissores nas linhas...", level=0, duration=5)
         
         point_provider = selected_point_layer.dataProvider()
         point_index = QgsSpatialIndex(point_provider.getFeatures())
@@ -112,7 +112,7 @@ class VazaoLinhaTool(AqueductTool):
         transform = None
         
         if source_crs != target_crs:
-            self.iface.messageBar().pushMessage("Aqueduct", "Transformando coordenadas...", level=0)
+            self.iface.messageBar().pushMessage("Aqueduct", "Transformando coordenadas...", level=0, duration=5)
             transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
 
         # Define quais linhas processar

@@ -222,7 +222,7 @@ class ContabilizarMateriaisTool(AqueductTool):
                          project_bom.add_item(nome_peca, preco, qtd_barras)
                          items_added += 1
             else:
-                self.iface.messageBar().pushMessage("Aqueduct", "Campo DN/Diâmetro não encontrado na camada de tubos.", level=1)
+                self.iface.messageBar().pushMessage("Aqueduct", "Campo DN/Diâmetro não encontrado na camada de tubos.", level=1, duration=5)
 
         # 2. Processar Mangueiras
         layer_mangueiras = layers['mangueiras']
@@ -282,4 +282,4 @@ class ContabilizarMateriaisTool(AqueductTool):
         if items_added > 0:
             QMessageBox.information(self.iface.mainWindow(), "Sucesso", f"{items_added} itens adicionados à Lista de Materiais!")
         else:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhum item adicionado.", level=0)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhum item adicionado.", level=0, duration=5)

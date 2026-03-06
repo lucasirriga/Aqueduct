@@ -110,7 +110,7 @@ class ColetarTopografiaTool(AqueductTool):
         interval = params.get('interval', 5)
         
         if not layer or not api_key or not output_path:
-            self.iface.messageBar().pushMessage("Aqueduct", "Preencha todos os campos.", level=2)
+            self.iface.messageBar().pushMessage("Aqueduct", "Preencha todos os campos.", level=2, duration=5)
             return
 
         # Obter extensão (Bbox) - WGS84 (EPSG:4326) é necessario para OpenTopography
@@ -167,7 +167,7 @@ class ColetarTopografiaTool(AqueductTool):
                         if progress.wasCanceled():
                             f.close()
                             os.remove(raw_path)
-                            self.iface.messageBar().pushMessage("Aqueduct", "Download cancelado.", level=1)
+                            self.iface.messageBar().pushMessage("Aqueduct", "Download cancelado.", level=1, duration=5)
                             return
                             
                         f.write(chunk)
@@ -210,9 +210,9 @@ class ColetarTopografiaTool(AqueductTool):
                     rlayer = QgsRasterLayer(final_path, f"DEM Refinado ({interval}m)")
                     if rlayer.isValid():
                         QgsProject.instance().addMapLayer(rlayer)
-                        self.iface.messageBar().pushMessage("Aqueduct", "DEM refinado e carregado com sucesso!", level=0)
+                        self.iface.messageBar().pushMessage("Aqueduct", "DEM refinado e carregado com sucesso!", level=0, duration=5)
                     else:
-                         self.iface.messageBar().pushMessage("Aqueduct", "Falha ao carregar camada refinada.", level=1)
+                         self.iface.messageBar().pushMessage("Aqueduct", "Falha ao carregar camada refinada.", level=1, duration=5)
 
                     # 2. Geração de Polígonos (Se Ativo)
                     if generate_polygons and rlayer.isValid():
@@ -319,25 +319,25 @@ class ColetarTopografiaTool(AqueductTool):
                              vlayer = QgsVectorLayer(path_final_shp, f"Faixas de Elevação ({interval}m)", "ogr")
                              if vlayer.isValid():
                                  QgsProject.instance().addMapLayer(vlayer)
-                                 self.iface.messageBar().pushMessage("Aqueduct", "Polígonos gerados com sucesso!", level=0)
+                                 self.iface.messageBar().pushMessage("Aqueduct", "Polígonos gerados com sucesso!", level=0, duration=5)
                              else:
-                                 self.iface.messageBar().pushMessage("Aqueduct", "Falha ao carregar camada de polígonos.", level=1)
+                                 self.iface.messageBar().pushMessage("Aqueduct", "Falha ao carregar camada de polígonos.", level=1, duration=5)
                              
                          except Exception as e_poly:
-                             self.iface.messageBar().pushMessage("Aqueduct", f"Erro ao gerar polígonos: {e_poly}", level=1)
+                             self.iface.messageBar().pushMessage("Aqueduct", f"Erro ao gerar polígonos: {e_poly}", level=1, duration=5)
                              import traceback
                              traceback.print_exc()
 
                 except Exception as e_warp:
-                     self.iface.messageBar().pushMessage("Aqueduct", f"Erro no processamento: {e_warp}", level=1)
+                     self.iface.messageBar().pushMessage("Aqueduct", f"Erro no processamento: {e_warp}", level=1, duration=5)
                      # Fallback
                      rlayer = QgsRasterLayer(raw_path, "Copernicus DEM (Raw)")
                      QgsProject.instance().addMapLayer(rlayer)
 
             else:
-                self.iface.messageBar().pushMessage("Aqueduct", f"Erro API: {response.text}", level=2)
+                self.iface.messageBar().pushMessage("Aqueduct", f"Erro API: {response.text}", level=2, duration=5)
                 
         except Exception as e:
-            self.iface.messageBar().pushMessage("Aqueduct", f"Erro Geral: {str(e)}", level=2)
+            self.iface.messageBar().pushMessage("Aqueduct", f"Erro Geral: {str(e)}", level=2, duration=5)
         finally:
             progress.close()

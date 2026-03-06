@@ -30,16 +30,16 @@ class CalculoAreaTool(AqueductTool):
         
         # 1. Validações Iniciais
         if not layer:
-            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada selecionada.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada selecionada.", level=3, duration=5)
             return
 
         if layer.type() != layer.VectorLayer:
-             self.iface.messageBar().pushMessage("Aqueduct", "A camada selecionada não é vetorial.", level=3)
+             self.iface.messageBar().pushMessage("Aqueduct", "A camada selecionada não é vetorial.", level=3, duration=5)
              return
              
         # Verifica se é Polígono ou MultiPolígono
         if layer.geometryType() != QgsWkbTypes.PolygonGeometry:
-            self.iface.messageBar().pushMessage("Aqueduct", "A camada deve ser de polígonos.", level=3)
+            self.iface.messageBar().pushMessage("Aqueduct", "A camada deve ser de polígonos.", level=3, duration=5)
             return
 
         # 2. Definição do escopo (Selecionados vs Todos)
