@@ -17,8 +17,8 @@ class CriarAspersoresDialog(QDialog):
     def __init__(self, iface, parent=None):
         super().__init__(parent)
         self.iface = iface
-        self.setWindowTitle("Aqueduct - Criar Aspersores (Triângulo)")
-        self.resize(400, 400)
+        self.setWindowTitle("Aqueduct - Criar Aspersores")
+        self.resize(400, 450)
         self.setup_ui()
 
     def setup_ui(self):
@@ -30,19 +30,37 @@ class CriarAspersoresDialog(QDialog):
         self.populate_layers()
         layout.addWidget(self.combo_layer)
 
-        # 2. Dimensões do Triângulo
-        group_dims = QGroupBox("2. Dimensões do Triângulo (metros)")
+        # 2. Padrão de Distribuição
+        group_type = QGroupBox("2. Padrão de Distribuição")
+        vbox_type = QVBoxLayout()
+
+        from qgis.PyQt.QtWidgets import QRadioButton, QButtonGroup
+        self.radio_tri = QRadioButton("Triangular (Em Quincôncio)")
+        self.radio_rect = QRadioButton("Retangular (Alinhado)")
+        self.radio_tri.setChecked(True)
+
+        self.btn_group = QButtonGroup()
+        self.btn_group.addButton(self.radio_tri)
+        self.btn_group.addButton(self.radio_rect)
+
+        vbox_type.addWidget(self.radio_tri)
+        vbox_type.addWidget(self.radio_rect)
+        group_type.setLayout(vbox_type)
+        layout.addWidget(group_type)
+
+        # 3. Dimensões
+        group_dims = QGroupBox("3. Dimensões (metros)")
         form_dims = QFormLayout()
 
         self.spin_base = QDoubleSpinBox()
         self.spin_base.setRange(0.1, 1000.0)
         self.spin_base.setValue(12.0)
-        self.lbl_base = QLabel("Base (Distância Horizontal X):")
+        self.lbl_base = QLabel("Espaçamento entre Aspersores (Base X):")
 
         self.spin_altura = QDoubleSpinBox()
         self.spin_altura.setRange(0.1, 1000.0)
         self.spin_altura.setValue(10.0)
-        self.lbl_altura = QLabel("Altura (Distância Vertical Y):")
+        self.lbl_altura = QLabel("Espaçamento entre Linhas (Altura Y):")
 
         form_dims.addRow(self.lbl_base, self.spin_base)
         form_dims.addRow(self.lbl_altura, self.spin_altura)
@@ -50,8 +68,8 @@ class CriarAspersoresDialog(QDialog):
         group_dims.setLayout(form_dims)
         layout.addWidget(group_dims)
 
-        # 3. Rotação / Alinhamento
-        group_rot = QGroupBox("3. Alinhamento")
+        # 4. Rotação / Alinhamento
+        group_rot = QGroupBox("4. Alinhamento")
         form_rot = QFormLayout()
 
         self.spin_angle = QDoubleSpinBox()
@@ -132,10 +150,12 @@ class CriarAspersoresDialog(QDialog):
         angle_deg = self.spin_angle.value()
         angle_rad = math.radians(angle_deg)
 
-        # Parâmetros do Triângulo
+        # Parâmetros da Distribuição
         step_x = self.spin_base.value()
         step_y = self.spin_altura.value()
-        offset_odd_row = step_x / 2.0
+
+        is_triangular = self.radio_tri.isChecked()
+        offset_odd_row = step_x / 2.0 if is_triangular else 0.0
 
         # Create output layer
         crs = layer.crs()
@@ -185,9 +205,9 @@ class CriarAspersoresDialog(QDialog):
             row_idx = 0
 
             while curr_v <= max_v:
-                # O offset na linha ímpar faz a malha ficar triangular
+                # O offset na linha ímpar faz a malha ficar triangular (quincôncio)
                 row_offset_x = 0.0
-                if row_idx % 2 != 0:
+                if is_triangular and (row_idx % 2 != 0):
                     row_offset_x = offset_odd_row
 
                 curr_u = min_u + row_offset_x
@@ -239,7 +259,7 @@ class CriarAspersoresDialog(QDialog):
 class CriarAspersoresTool(AqueductTool):
     def initGui(self):
         icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_grade.svg')
-        self.action = QAction(QIcon(icon_path), 'Criar Aspersores (Triângulo)', self.iface.mainWindow())
+        self.action = QAction(QIcon(icon_path), 'Criar Aspersores', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
 
         self.iface.addPluginToMenu('&Aqueduct', self.action)
