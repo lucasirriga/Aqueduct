@@ -29,6 +29,21 @@ class AqueductTool(QObject):
         """
         raise NotImplementedError("O método run deve ser implementado nas subclasses.")
 
+    def run_automated(self, params=None):
+        """
+        Executa a ferramenta sem intervenção manual (via IA).
+        Opcionalmente recebe parâmetros da IA.
+        """
+        # Por padrão, se não houver um modo automático, abre o run normal
+        self.run()
+
+    def is_destructive(self):
+        """
+        Retorna True se a ferramenta altera arquivos existentes ou deleta dados.
+        Usado pelo Robson para decidir se pede confirmação.
+        """
+        return False
+
     def unload(self):
         """
         Remove a ação da interface do QGIS.

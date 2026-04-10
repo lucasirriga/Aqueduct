@@ -25,6 +25,9 @@ class AqueductPlugin:
         
         # Loader Dinâmico de Ferramentas
         self.load_tools()
+        
+        # Conecta o assistente ao registro de ferramentas
+        self.wire_tools()
 
     def load_tools(self):
         """Varre o diretório tools/ e carrega as subclasses de AqueductTool."""
@@ -69,6 +72,30 @@ class AqueductPlugin:
                         level=2, # Warning
                         duration=10
                     )
+
+    def wire_tools(self):
+        """Dá ao assistente acesso ao registro de todas as ferramentas carregadas."""
+        from .tools.assistente_robson import AssistenteRobsonTool
+        
+        robson = None
+        for tool in self.tools:
+            if isinstance(tool, AssistenteRobsonTool):
+                robson = tool
+                break
+        
+        if robson:
+            # Cria um dicionário para busca rápida por ID (nome do arquivo ou ID interno)
+            # Usaremos o nome do módulo como ID básico
+            registry = {}
+            for tool in self.tools:
+                # O ID pode ser o nome da classe ou algo extraído do módulo
+                tool_id = tool.__class__.__name__
+                # Mas para a IA é melhor algo mais simples, vindo do HABILIDADES_AQUEDUCT.md
+                # Vamos tentar associar pelo nome do arquivo do módulo
+                module_name = tool.__module__.split('.')[-1]
+                registry[module_name] = tool
+            
+            robson.set_tool_registry(registry)
 
     def unload(self):
         """Remove o item de menu do plugin e o ícone da interface do QGIS."""

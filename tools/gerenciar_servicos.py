@@ -95,13 +95,28 @@ class ServicoDialog(QDialog):
         form_layout = QFormLayout()
         
         self.edit_desc = QLineEdit() # Descrição é a chave
-        self.spin_valor = QDoubleSpinBox()
-        self.spin_valor.setRange(0.0, 999999.0)
-        self.spin_valor.setDecimals(2)
-        self.spin_valor.setPrefix("R$ ")
         
+        self.spin_custo = QDoubleSpinBox()
+        self.spin_custo.setRange(0.0, 999999.0)
+        self.spin_custo.setDecimals(2)
+        self.spin_custo.setPrefix("R$ ")
+        
+        self.spin_lucro = QDoubleSpinBox()
+        self.spin_lucro.setRange(0.0, 1000.0)
+        self.spin_lucro.setSuffix("%")
+        self.spin_lucro.setValue(20.0) # Margem padrão para serviços
+
+        self.lbl_valor_final = QLabel("R$ 0.00")
+        self.lbl_valor_final.setStyleSheet("font-weight: bold; color: green;")
+
+        # Conecta updates para cálculo em tempo real
+        self.spin_custo.valueChanged.connect(self.update_final_value)
+        self.spin_lucro.valueChanged.connect(self.update_final_value)
+
         form_layout.addRow("Descrição:", self.edit_desc)
-        form_layout.addRow("Valor Unitário:", self.spin_valor)
+        form_layout.addRow("Custo Unitário:", self.spin_custo)
+        form_layout.addRow("Lucro (%):", self.spin_lucro)
+        form_layout.addRow("Valor de Venda:", self.lbl_valor_final)
         
         self.btn_save = QPushButton("Salvar Serviço")
         self.btn_save.clicked.connect(self.on_save)
@@ -121,6 +136,12 @@ class ServicoDialog(QDialog):
         # Estado inicial
         self.clear_form()
 
+    def update_final_value(self):
+        custo = self.spin_custo.value()
+        lucro_perc = self.spin_lucro.value()
+        valor = custo * (1 + lucro_perc/100)
+        self.lbl_valor_final.setText(f"R$ {valor:.2f}")
+
     def refresh_list(self):
         self.list_widget.clear()
         names = self.manager.list_names()
@@ -133,7 +154,9 @@ class ServicoDialog(QDialog):
             self.current_name = desc
             self.edit_desc.setText(desc)
             self.edit_desc.setEnabled(False) # Chave primária
-            self.spin_valor.setValue(data.get('valor', 0.0))
+            self.spin_custo.setValue(data.get('custo', 0.0))
+            self.spin_lucro.setValue(data.get('lucro', 0.0))
+            self.update_final_value()
 
     def on_new(self):
         self.clear_form()
@@ -144,7 +167,9 @@ class ServicoDialog(QDialog):
         self.list_widget.clearSelection()
         self.edit_desc.setEnabled(True)
         self.edit_desc.clear()
-        self.spin_valor.setValue(0.0)
+        self.spin_custo.setValue(0.0)
+        self.spin_lucro.setValue(20.0)
+        self.update_final_value()
 
     def on_save(self):
         desc = self.edit_desc.text().strip()
@@ -153,7 +178,9 @@ class ServicoDialog(QDialog):
             return
             
         data = {
-            "valor": self.spin_valor.value()
+            "custo": self.spin_custo.value(),
+            "lucro": self.spin_lucro.value(),
+            "valor": self.spin_custo.value() * (1 + self.spin_lucro.value()/100)
         }
         
         self.manager.add_update(desc, data)

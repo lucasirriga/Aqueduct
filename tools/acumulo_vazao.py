@@ -115,6 +115,10 @@ class AcumuloVazaoDialog(QDialog):
         self.spin_diam_lateral.setToolTip("Deixe em 'Auto' (0.0) para descobrir sozinho ou fixe um tamanho de mangueira!")
         lay_etapa3.addRow("Diâmetro Fixo Lateral (mm):", self.spin_diam_lateral)
         
+        self.chk_is_mangueira = QCheckBox("Laterais são Mangueiras (Rolo)")
+        self.chk_is_mangueira.setToolTip("Se marcado, as laterais terão diâmetro fixo por toda extensão e serão contabilizadas em Rolos na lista de materiais.")
+        lay_etapa3.addRow(self.chk_is_mangueira)
+        
         group_etapa3.setLayout(lay_etapa3)
         lay_tab.addWidget(group_etapa3)
         lay_tab.addStretch()
@@ -244,7 +248,41 @@ class AcumuloVazaoDialog(QDialog):
             'hf_outros': self.spin_hf_outros.value(),
             'diam_lateral': self.spin_diam_lateral.value(),
             'simp_lateral': simp_lateral,
-            'simp_derivacao': simp_derivacao
+            'simp_derivacao': simp_derivacao,
+            'is_mangueira': self.chk_is_mangueira.isChecked()
+        }
+
+    @staticmethod
+    def get_auto_inputs():
+        """Tenta encontrar as camadas automaticamente no projeto atual."""
+        def buscar(keywords, geom):
+            for l in QgsProject.instance().mapLayers().values():
+                if hasattr(l, 'geometryType') and l.geometryType() == geom:
+                    name = l.name().lower()
+                    if any(kw in name for kw in keywords): return l
+            return None
+
+        from qgis.core import QgsWkbTypes
+        P = QgsWkbTypes.PointGeometry
+        L = QgsWkbTypes.LineGeometry
+        
+        return {
+            'emissores': buscar(['emissor', 'gotejador', 'aspersor'], P),
+            'laterais': buscar(['lateral', 'mangueira'], L),
+            'derivacao': buscar(['deriv', 'subprincipal'], L),
+            'cavaletes': buscar(['cavalete', 'hidrante'], P),
+            'linha_principal': buscar(['principal', 'adutora', 'main'], L),
+            'fontes': buscar(['fonte', 'bomba'], P),
+            'vazao': 2.0,
+            'cap_fonte': 50.0,
+            'simultaneos': 2,
+            'pressao_servico': 30.0,
+            'var_lateral': 10.0,
+            'hf_outros': 2.0,
+            'diam_lateral': 0.0,
+            'simp_lateral': 1.0,
+            'simp_derivacao': None,
+            'is_mangueira': False
         }
 
 
@@ -273,15 +311,27 @@ class AcumuloVazaoTool(AqueductTool):
         dlg = AcumuloVazaoDialog(self.iface.mainWindow())
         if not dlg.exec_():
             return
-            
         inputs = dlg.get_inputs()
+        self.run_with_inputs(inputs)
+
+    def run_automated(self, params=None):
+        """Executa automaticamente tentando detectar camadas."""
+        inputs = AcumuloVazaoDialog.get_auto_inputs()
+        if params:
+            inputs.update(params)
         
-        req_layers = [
-            inputs['emissores'], inputs['laterais'], inputs['derivacao'], 
-            inputs['cavaletes'], inputs['linha_principal'], inputs['fontes']
-        ]
-        if not all(req_layers):
-            self.iface.messageBar().pushMessage("Aqueduct", "Selecione todas as 6 camadas.", level=2, duration=5)
+        # Validação básica
+        req = ['emissores', 'laterais', 'derivacao', 'cavaletes', 'linha_principal', 'fontes']
+        missing = [r for r in req if not inputs.get(r)]
+        if missing:
+            raise Exception(f"Não encontrei estas camadas automaticamente: {', '.join(missing)}")
+            
+        self.run_with_inputs(inputs)
+
+    def run_with_inputs(self, inputs):
+        # Validação: Se for mangueira, diâmetro deve ser informado
+        if inputs['is_mangueira'] and inputs['diam_lateral'] <= 0:
+            self.iface.messageBar().pushMessage("Aqueduct", "Se as laterais são mangueiras, informe um diâmetro fixo!", level=2, duration=5)
             return
             
         self.execute_routing(inputs)
@@ -652,11 +702,17 @@ class AcumuloVazaoTool(AqueductTool):
         diams = {}
         limit_lateral = inputs['pressao_servico'] * (inputs['var_lateral'] / 100.0)
         limit_outros = inputs['hf_outros']
+        is_mangueira = inputs.get('is_mangueira', False)
         
         for k_lid, info in all_lines.items():
             if k_lid not in edges_by_lid: continue
+            
+            fix_d = 0.0
+            if info['tipo'] == 'lateral' and is_mangueira:
+                fix_d = inputs['diam_lateral']
+                
             if info['tipo'] == 'lateral':
-                d_dict = self.dimensionar_tubo(edges_by_lid[k_lid], limit_lateral, inputs['diam_lateral'])
+                d_dict = self.dimensionar_tubo(edges_by_lid[k_lid], limit_lateral, fix_d)
             else:
                 d_dict = self.dimensionar_tubo(edges_by_lid[k_lid], limit_outros, 0.0)
             diams.update(d_dict)
@@ -670,7 +726,8 @@ class AcumuloVazaoTool(AqueductTool):
             QgsField("V", QVariant.Double, len=10, prec=2),
             QgsField("DN", QVariant.Int),
             QgsField("HF", QVariant.Double, len=10, prec=2),
-            QgsField("L", QVariant.Double, len=10, prec=2)
+            QgsField("L", QVariant.Double, len=10, prec=2),
+            QgsField("formato", QVariant.String)
         ])
         out_layer.updateFields()
         
@@ -682,7 +739,12 @@ class AcumuloVazaoTool(AqueductTool):
                 vazao_m3 = round(edge['flow'] / 1000.0, 2)
                 d_val, hf_val = diams.get(e_idx, (0, 0.0))
                 l_tubo = edge.get('length', edge.get('len', 0.0))
-                feat.setAttributes([edge['tipo'], vazao_m3, d_val, round(hf_val, 2), round(l_tubo, 2)])
+                
+                formato = "Barra"
+                if edge['tipo'] == 'lateral' and is_mangueira:
+                    formato = "Rolo"
+                    
+                feat.setAttributes([edge['tipo'], vazao_m3, d_val, round(hf_val, 2), round(l_tubo, 2), formato])
                 out_features.append(feat)
                 
         pr.addFeatures(out_features)
@@ -735,7 +797,7 @@ class AcumuloVazaoTool(AqueductTool):
             lines = geom.asMultiPolyline() if geom.isMultipart() else [geom.asPolyline()]
             for line_coords in lines:
                 line_geom = QgsGeometry.fromPolylineXY(line_coords)
-                all_lines[global_lid] = {'geom': line_geom, 'fid': f.id()}
+                all_lines[global_lid] = {'geom': line_geom, 'fid': f.id(), 'tipo': 'principal'}
                 f_temp = QgsFeature(global_lid)
                 f_temp.setGeometry(line_geom)
                 line_idx.insertFeature(f_temp)

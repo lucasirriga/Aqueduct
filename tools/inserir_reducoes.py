@@ -19,8 +19,8 @@ from qgis.gui import QgsMapLayerComboBox
 
 from .ferramenta_base import AqueductTool
 from .lista_materiais import ProjectBOMManager
-from .gerenciar_blocos import BlocoManager
-from .gerenciar_pecas import PecaManager
+from .gerenciar_blocos import BlocoManager, GerenciarBlocosDialog
+from .gerenciar_pecas import PecaManager, PecaDialog
 
 
 # ---------------------------------------------------------------------------
@@ -72,11 +72,13 @@ class InserirReducoesDialog(QDialog):
         self.reducoes_lateral = {}     # variações DN na própria lateral
         self.juncoes_derivacao = {}    # junção lateral → derivação
         self.juncoes_emissor = {}      # junção lateral → emissor
+        self.finais_linha = {}         # extremidades finais de lateral
 
         # Combos de seleção de bloco por chave
         self.combos_lateral = {}
         self.combos_derivacao = {}
         self.combos_emissor = {}
+        self.combos_finais = {}
 
         self.setWindowTitle("Aqueduct - Conexões e Reduções")
         self.resize(700, 600)
@@ -103,6 +105,21 @@ class InserirReducoesDialog(QDialog):
         grp_layers.setLayout(form_l)
         layout.addWidget(grp_layers)
 
+        # --- Gerenciamento de Materiais ---
+        grp_materiais = QGroupBox("Gerenciamento de Materiais")
+        lay_mat = QHBoxLayout()
+        
+        btn_pecas = QPushButton("📦  Gerenciar Peças")
+        btn_pecas.clicked.connect(self._on_manage_pecas)
+        lay_mat.addWidget(btn_pecas)
+        
+        btn_blocos = QPushButton("🏗️  Gerenciar Blocos")
+        btn_blocos.clicked.connect(self._on_manage_blocos)
+        lay_mat.addWidget(btn_blocos)
+        
+        grp_materiais.setLayout(lay_mat)
+        layout.addWidget(grp_materiais)
+
         # --- Botão detectar ---
         btn_detectar = QPushButton("🔍  Detectar Conexões e Reduções")
         btn_detectar.setMinimumHeight(36)
@@ -110,9 +127,8 @@ class InserirReducoesDialog(QDialog):
         layout.addWidget(btn_detectar)
 
         # --- Abas de resultado ---
-        self.tabs = QTabWidget()
-        layout.addWidget(self.tabs)
-
+        tabs = QTabWidget()
+        
         # Aba 1 – Reduções em Laterais
         self.tab_lat = QWidget()
         self.lay_lat = QVBoxLayout(self.tab_lat)
@@ -122,7 +138,7 @@ class InserirReducoesDialog(QDialog):
         ))
         self.table_lat = self._make_table(["Transição DN", "Ocorrências", "Item de Redução (Peça ou Bloco)"])
         self.lay_lat.addWidget(self.table_lat)
-        self.tabs.addTab(self.tab_lat, "Reduções em Laterais")
+        tabs.addTab(self.tab_lat, "Reduções em Laterais")
 
         # Aba 2 – Junturas Lateral → Derivação
         self.tab_deriv = QWidget()
@@ -133,7 +149,7 @@ class InserirReducoesDialog(QDialog):
         ))
         self.table_deriv = self._make_table(["Transição (Lat→Deriv)", "Ocorrências", "Item de Conexão (Peça ou Bloco)"])
         self.lay_deriv.addWidget(self.table_deriv)
-        self.tabs.addTab(self.tab_deriv, "Junturas Lat→Derivação")
+        tabs.addTab(self.tab_deriv, "Junturas Lat→Derivação")
 
         # Aba 3 – Junturas Lateral → Emissor
         self.tab_emiss = QWidget()
@@ -142,9 +158,22 @@ class InserirReducoesDialog(QDialog):
             "Pontos onde o final de uma lateral alcança um emissor.\n"
             "Atribua uma peça ou bloco para cada DN de lateral que alimenta um emissor."
         ))
-        self.table_emiss = self._make_table(["DN Lateral", "Ocorrências", "Item de Emissão (Peça ou Bloco)"])
+        self.table_emiss = self._make_table(["Conexão", "Qtd", "Peça / Bloco"])
         self.lay_emiss.addWidget(self.table_emiss)
-        self.tabs.addTab(self.tab_emiss, "Junturas Lat→Emissor")
+        tabs.addTab(self.tab_emiss, "Laterais → Emissores")
+
+        # Aba 4 – Finais de Linha (Pontas Cegas ou Com aspersor)
+        self.tab_finais = QWidget()
+        self.lay_finais = QVBoxLayout(self.tab_finais)
+        self.lay_finais.addWidget(QLabel(
+            "Pontos onde a linha lateral termina (inclusive se houver aspersor).\n"
+            "Atribua uma peça de final de linha (ex: Plug, Válvula de limpeza)."
+        ))
+        self.table_finais = self._make_table(["DN do Cano", "Qtd", "Peça / Bloco"])
+        self.lay_finais.addWidget(self.table_finais)
+        tabs.addTab(self.tab_finais, "Finais de Linha")
+
+        layout.addWidget(tabs)
 
         # --- Botões de ação ---
         btn_row = QHBoxLayout()
@@ -368,6 +397,25 @@ class InserirReducoesDialog(QDialog):
         self.juncoes_emissor = dict(juncoes_e)
 
         # ----------------------------------------------------------------
+        # Caso 4 – Finais de Linha Lateral
+        # Um ponto onde uma lateral termina ('fim') e nada começa ('inicio')
+        # ----------------------------------------------------------------
+        finais_l = defaultdict(lambda: {'count': 0, 'pts': []})
+        for pt, conns in endpoint_map.items():
+            lats_fim = [c for c in conns if c['tipo'] == 'lateral' and c['extremo'] == 'fim']
+            lats_ini = [c for c in conns if c['tipo'] == 'lateral' and c['extremo'] == 'inicio']
+            
+            # Se termina uma lateral e não começa nenhuma outra lateral (ponta da linha)
+            if lats_fim and not lats_ini:
+                dn_final = lats_fim[0]['dn']
+                chave = f"Final de Linha {dn_final}mm"
+                finais_l[chave]['count'] += 1
+                finais_l[chave]['pts'].append(pt)
+                finais_l[chave]['dn'] = dn_final
+        
+        self.finais_linha = dict(finais_l)
+
+        # ----------------------------------------------------------------
         # Preencher as tabelas
         # ----------------------------------------------------------------
         # Preencher as tabelas usando o combo universal
@@ -383,9 +431,13 @@ class InserirReducoesDialog(QDialog):
             self.table_emiss, self.juncoes_emissor, self.combos_emissor,
             hint_fn=lambda k, d: f"emissor {d.get('dn_lat','')}"
         )
+        self._preencher_tabela(
+            self.table_finais, self.finais_linha, self.combos_finais,
+            hint_fn=lambda k, d: f"fim {d.get('dn','')}"
+        )
 
         total = (len(self.reducoes_lateral) + len(self.juncoes_derivacao) +
-                 len(self.juncoes_emissor))
+                 len(self.juncoes_emissor) + len(self.finais_linha))
 
         if total == 0:
             QMessageBox.information(self, "Resultado",
@@ -417,6 +469,47 @@ class InserirReducoesDialog(QDialog):
             combos_dict[chave] = combo
 
     # ------------------------------------------------------------------
+    def _on_manage_pecas(self):
+        dlg = PecaDialog(self.peca_manager, self)
+        dlg.exec_()
+        self.peca_manager.load()
+        self._refresh_all_combos()
+
+    def _on_manage_blocos(self):
+        dlg = GerenciarBlocosDialog(self)
+        dlg.exec_()
+        self.bloco_manager.load()
+        self._refresh_all_combos()
+
+    def _refresh_all_combos(self):
+        """Atualiza todos os QComboBoxes nas tabelas com os dados carregados."""
+        def _update_table_combos(table, combos_dict):
+            for row in range(table.rowCount()):
+                chave = table.item(row, 0).text()
+                combo_antigo = combos_dict.get(chave)
+                if not combo_antigo: continue
+                
+                # Salva a seleção atual
+                sel_data = combo_antigo.currentData()
+                
+                # Cria novo combo com dados atualizados
+                novo_combo = _build_combo_universal(self.bloco_manager, self.peca_manager)
+                
+                # Tenta restaurar a seleção
+                if sel_data:
+                    idx = novo_combo.findData(sel_data)
+                    if idx >= 0:
+                        novo_combo.setCurrentIndex(idx)
+                
+                table.setCellWidget(row, 2, novo_combo)
+                combos_dict[chave] = novo_combo
+
+        _update_table_combos(self.table_lat,  self.combos_lateral)
+        _update_table_combos(self.table_deriv, self.combos_derivacao)
+        _update_table_combos(self.table_emiss, self.combos_emissor)
+        _update_table_combos(self.table_finais, self.combos_finais)
+
+    # ------------------------------------------------------------------
     def _coletar_resultados(self):
         """Retorna lista de {label, tipo, nome, pts} para plotagem e orçamento.
         tipo pode ser 'peca' (peça unitária) ou 'bloco'."""
@@ -437,6 +530,7 @@ class InserirReducoesDialog(QDialog):
         _coleta(self.reducoes_lateral,  self.combos_lateral,  "Redução Lateral")
         _coleta(self.juncoes_derivacao, self.combos_derivacao, "Juntura→Derivação")
         _coleta(self.juncoes_emissor,   self.combos_emissor,   "Juntura→Emissor")
+        _coleta(self.finais_linha,      self.combos_finais,    "Final de Linha")
         return resultados
 
     # ------------------------------------------------------------------

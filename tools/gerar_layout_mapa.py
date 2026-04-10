@@ -37,13 +37,14 @@ class MapLayoutGenerator:
     def __init__(self, project):
         self.project = project
 
-    def create_layout(self, area_layer=None, standalone=True, page_size_key='A4 Paisagem  (297 × 210 mm)'):
+    def create_layout(self, area_layer=None, standalone=True, page_size_key='A4 Paisagem  (297 × 210 mm)', visible_layers=None):
         """
         Cria e retorna um QgsPrintLayout configurado.
 
         :param standalone:    Se True, aplica margens de 10mm e título (modo PDF Mapa).
                               Se False, margens 0 e sem título (modo Imagem para Orçamento).
         :param page_size_key: Chave do dicionário TAMANHOS_PAGINA. Default: A4 Paisagem.
+        :param visible_layers: Lista opcional de camadas a serem exibidas no mapa.
         """
         layout = QgsPrintLayout(self.project)
         layout.initializeDefaults()
@@ -115,6 +116,9 @@ class MapLayoutGenerator:
 
         map_item.attemptMove(QgsLayoutPoint(map_x, map_y, QgsUnitTypes.LayoutMillimeters))
         map_item.attemptResize(QgsLayoutSize(map_width, map_height, QgsUnitTypes.LayoutMillimeters))
+        if visible_layers is not None:
+            map_item.setLayers(visible_layers)
+
         layout.addLayoutItem(map_item)
 
         # ----------------------------------------------------------------
@@ -214,10 +218,10 @@ class MapLayoutGenerator:
         project_home = self.project.homePath()
         json_path = os.path.join(project_home, 'dados_projeto.json')
 
-        # Fonte das informações aumentada para preencher bem a área disponível.
-        # Base A4: corpo 9pt, título 10pt. Escala proporcionalmente com sx.
-        fsize  = max(7, min(16, round(9.0 * sx, 1)))
-        ftitle = max(8, min(18, round(10.0 * sx, 1)))
+        # Aumentado em 20% para melhor legibilidade:
+        # Base A4: corpo 10.8pt (antigo 9), título 12pt (antigo 10).
+        fsize  = max(7, min(18, round(10.8 * sx, 1)))
+        ftitle = max(8, min(20, round(12.0 * sx, 1)))
 
         info_html = ""
         if os.path.exists(json_path):
@@ -262,19 +266,19 @@ class MapLayoutGenerator:
         legend.setLinkedMap(map_item)
         legend.setLegendFilterByMapEnabled(True)
 
-        # Fontes reduzidas 36% do original (duas aplicações de −20%):
-        #   Título:  13 → 10.4 → 8.3pt base
-        #   Grupo:   11 →  8.8 → 7.0pt base
-        #   Item:    10 →  8.0 → 6.4pt base
-        font_title = QFont("Arial", max(5, round(8.3 * sx)))
+        # Fontes aumentadas em 20% conforme pedido:
+        #   Título:  8.3 -> 10.0pt base
+        #   Grupo:   7.0 -> 8.4pt base
+        #   Item:    6.4 -> 7.7pt base
+        font_title = QFont("Arial", max(5, round(10.0 * sx)))
         font_title.setBold(True)
         legend.setStyleFont(QgsLegendStyle.Title, font_title)
 
-        font_group = QFont("Arial", max(5, round(7.0 * sx)))
+        font_group = QFont("Arial", max(5, round(8.4 * sx)))
         legend.setStyleFont(QgsLegendStyle.Group, font_group)
         legend.setStyleFont(QgsLegendStyle.Subgroup, font_group)
 
-        font_item = QFont("Arial", max(4, round(6.4 * sx)))
+        font_item = QFont("Arial", max(4, round(7.7 * sx)))
         legend.setStyleFont(QgsLegendStyle.SymbolLabel, font_item)
 
         legend.attemptMove(QgsLayoutPoint(x, y, QgsUnitTypes.LayoutMillimeters))

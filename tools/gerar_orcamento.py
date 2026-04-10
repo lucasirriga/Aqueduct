@@ -1,13 +1,14 @@
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
-from qgis.PyQt.QtGui import QIcon, QTextDocument, QPageLayout, QPageSize
+from qgis.PyQt.QtGui import QIcon, QTextDocument, QPageLayout, QPageSize, QColor
 from qgis.PyQt.QtPrintSupport import QPrinter
-from qgis.core import QgsMapLayerType, QgsProject
+from qgis.core import QgsMapLayerType, QgsProject, QgsVectorLayer, QgsRasterLayer, QgsPalLayerSettings
 import os
 import pathlib
 import json
 import datetime
 
 from .ferramenta_base import AqueductTool
+from .gerar_layout_mapa import TAMANHOS_PAGINA
 
 
 class GerarOrcamentoTool(AqueductTool):
@@ -266,6 +267,35 @@ class GerarOrcamentoTool(AqueductTool):
             if ok and item:
                 area_layer = next((l for l in valid_layers if l.name() == item), None)
 
+        # --- Seleção do Tamanho da Página do Mapa ---
+        map_page_size = 'A4 Paisagem  (297 × 210 mm)' # Default
+        sat_layer = None
+
+        if area_layer:
+            # Seleção de tamanho de página
+            tamanhos_lista = list(TAMANHOS_PAGINA.keys())
+            tamanho_sel, ok_p = QInputDialog.getItem(
+                self.iface.mainWindow(),
+                'Aqueduct - Tamanho do Mapa',
+                'Selecione o tamanho da página para o MAPA:',
+                tamanhos_lista, 0, False
+            )
+            if ok_p and tamanho_sel:
+                map_page_size = tamanho_sel
+
+            # Seleção de satélite
+            rasters = [l for l in project.mapLayers().values() if l.type() == QgsMapLayerType.RasterLayer]
+            if rasters:
+                raster_names = ["-- Nenhuma --"] + [l.name() for l in rasters]
+                item_r, ok_r = QInputDialog.getItem(
+                    self.iface.mainWindow(),
+                    'Aqueduct - Camada de Fundo',
+                    'Selecione a camada de Satélite/Ortomosaico:',
+                    raster_names, 0, False
+                )
+                if ok_r and item_r != "-- Nenhuma --":
+                    sat_layer = next((l for l in rasters if l.name() == item_r), None)
+
         # Diálogo de salvar
         base_name = project.baseName() or 'orcamento'
         default_name = f"{base_name}_orcamento.pdf"
@@ -420,24 +450,82 @@ class GerarOrcamentoTool(AqueductTool):
             printer.setPageMargins(0, 0, 0, 0, QPrinter.Millimeter)
             doc.print_(printer)
 
-            # PDF do mapa em arquivo temporário (se camada selecionada)
-            tmp_map_path = None
+            # === Geração dos PDFs dos Mapas ===
+            tmp_map_paths = []
             if area_layer:
                 from qgis.core import QgsLayoutExporter
                 from .gerar_layout_mapa import MapLayoutGenerator
-                tmp_map = tempfile.NamedTemporaryFile(suffix='_mapa.pdf', delete=False)
-                tmp_map_path = tmp_map.name
-                tmp_map.close()
-
                 generator = MapLayoutGenerator(project)
-                layout    = generator.create_layout(area_layer)
-                exporter  = QgsLayoutExporter(layout)
-                settings  = QgsLayoutExporter.PdfExportSettings()
-                settings.dpi = 300
-                settings.writeGeoPdf = False
-                result = exporter.exportToPdf(tmp_map_path, settings)
-                if result != QgsLayoutExporter.Success:
-                    tmp_map_path = None  # ignora se falhou
+                
+                # Salvar estado original dos rótulos
+                original_label_states = {}
+                for lyr in project.mapLayers().values():
+                    if isinstance(lyr, QgsVectorLayer) and lyr.labelsEnabled():
+                        config = lyr.labeling()
+                        if config:
+                            original_label_states[lyr.id()] = config.settings().format().color()
+
+                def update_labels_color(color):
+                    for lid in original_label_states.keys():
+                        lyr = project.mapLayer(lid)
+                        if lyr:
+                            config = lyr.labeling()
+                            settings = config.settings()
+                            fmt = settings.format()
+                            fmt.setColor(color)
+                            settings.setFormat(fmt)
+                            config.setSettings(settings)
+                            lyr.setLabeling(config)
+                            lyr.triggerRepaint()
+
+                # Definir camadas visíveis (respeita o que o usuário marcou no painel de camadas)
+                visible_layers = project.layerTreeRoot().checkedLayers()
+                
+                try:
+                    # 1. Mapa com Satélite + Rótulos Brancos
+                    update_labels_color(QColor("white"))
+                    layers_map1 = list(visible_layers) # Cria cópia
+                    # Garantir que a camada de satélite selecionada esteja presente no Mapa 1
+                    if sat_layer and sat_layer not in layers_map1:
+                        layers_map1.append(sat_layer)
+                    
+                    tmp_m1 = tempfile.NamedTemporaryFile(suffix='_mapa_sat.pdf', delete=False)
+                    tmp_m1_path = tmp_m1.name
+                    tmp_m1.close()
+                    
+                    layout1 = generator.create_layout(area_layer, page_size_key=map_page_size, visible_layers=layers_map1)
+                    exporter1 = QgsLayoutExporter(layout1)
+                    settings = QgsLayoutExporter.PdfExportSettings()
+                    settings.dpi = 300
+                    exporter1.exportToPdf(tmp_m1_path, settings)
+                    tmp_map_paths.append(tmp_m1_path)
+                    
+                    # 2. Mapa sem Satélite + Rótulos Pretos
+                    update_labels_color(QColor("black"))
+                    layers_map2 = [l for l in visible_layers if l != sat_layer]
+                    
+                    tmp_m2 = tempfile.NamedTemporaryFile(suffix='_mapa_tec.pdf', delete=False)
+                    tmp_m2_path = tmp_m2.name
+                    tmp_m2.close()
+                    
+                    layout2 = generator.create_layout(area_layer, page_size_key=map_page_size, visible_layers=layers_map2)
+                    exporter2 = QgsLayoutExporter(layout2)
+                    exporter2.exportToPdf(tmp_m2_path, settings)
+                    tmp_map_paths.append(tmp_m2_path)
+
+                finally:
+                    # Restaurar estado original de todos os rótulos
+                    for lid, color in original_label_states.items():
+                        lyr = project.mapLayer(lid)
+                        if lyr:
+                            config = lyr.labeling()
+                            settings = config.settings()
+                            fmt = settings.format()
+                            fmt.setColor(color)
+                            settings.setFormat(fmt)
+                            config.setSettings(settings)
+                            lyr.setLabeling(config)
+                            lyr.triggerRepaint()
 
             # === Mesclagem dos PDFs ===
             # Tenta usar pypdf ou PyPDF2 (ambos compatíveis com QGIS)
@@ -455,11 +543,12 @@ class GerarOrcamentoTool(AqueductTool):
                 for page in reader_orc.pages:
                     writer.add_page(page)
 
-                # Adiciona páginas do mapa (paisagem, vai ao final)
-                if tmp_map_path and os.path.exists(tmp_map_path):
-                    reader_map = PdfReader(tmp_map_path)
-                    for page in reader_map.pages:
-                        writer.add_page(page)
+                # Adiciona páginas dos mapas (paisagem, vão ao final)
+                for m_path in tmp_map_paths:
+                    if m_path and os.path.exists(m_path):
+                        reader_map = PdfReader(m_path)
+                        for page in reader_map.pages:
+                            writer.add_page(page)
 
                 with open(pdf_path, 'wb') as f_out:
                     writer.write(f_out)
@@ -471,12 +560,13 @@ class GerarOrcamentoTool(AqueductTool):
                 shutil.copy(tmp_orc_path, pdf_path)
                 self.iface.messageBar().pushMessage(
                     'Aqueduct',
-                    'Aviso: pypdf não instalado. O mapa não foi incluído. Instale: pip install pypdf',
+                    'Aviso: pypdf não instalado. Os mapas não foram incluídos. Instale: pip install pypdf',
                     level=1, duration=10
                 )
 
             # Limpa temporários
-            for p in [tmp_orc_path, tmp_map_path]:
+            paths_to_clean = [tmp_orc_path] + tmp_map_paths
+            for p in paths_to_clean:
                 if p and os.path.exists(p):
                     try: os.remove(p)
                     except: pass
