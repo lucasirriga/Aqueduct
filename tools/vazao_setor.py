@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction, QInputDialog
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsField, QgsProject, QgsFeature, QgsSpatialIndex
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsField, QgsProject, QgsFeature, QgsSpatialIndex
 from qgis.PyQt.QtCore import QVariant
 import os
 
@@ -29,7 +29,7 @@ class VazaoSetorTool(AqueductTool):
         poly_layer = self.iface.activeLayer()
         
         # 1. Validação da Camada de Polígonos (Alvo)
-        if not poly_layer or poly_layer.type() != poly_layer.VectorLayer or poly_layer.geometryType() != QgsWkbTypes.PolygonGeometry:
+        if not poly_layer or poly_layer.type() != QgsMapLayerType.VectorLayer or poly_layer.geometryType() != QgsWkbTypes.PolygonGeometry:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada de POLÍGONOS ativa primeiro.", level=3, duration=5)
             return
 
@@ -37,7 +37,7 @@ class VazaoSetorTool(AqueductTool):
         # Lista apenas camadas de ponto do projeto
         point_layers = []
         for lid, layer in QgsProject.instance().mapLayers().items():
-            if layer.type() == layer.VectorLayer and layer.geometryType() == QgsWkbTypes.PointGeometry:
+            if layer.type() == QgsMapLayerType.VectorLayer and layer.geometryType() == QgsWkbTypes.PointGeometry:
                 point_layers.append(layer)
         
         if not point_layers:
@@ -85,19 +85,19 @@ class VazaoSetorTool(AqueductTool):
         
         fields_to_add = []
         idx_emissores = poly_layer.fields().indexOf("emissores")
-        idx_vazao = poly_layer.fields().indexOf("vazao")
+        idx_vazao = poly_layer.fields().indexOf("V")
         
         if idx_emissores == -1:
             fields_to_add.append(QgsField("emissores", QVariant.Int))
         if idx_vazao == -1:
-            fields_to_add.append(QgsField("vazao", QVariant.Double, len=10, prec=3))
+            fields_to_add.append(QgsField("V", QVariant.Double, len=10, prec=2))
             
         if fields_to_add:
             data_provider.addAttributes(fields_to_add)
             poly_layer.updateFields()
             # Recalcula índices
             idx_emissores = poly_layer.fields().indexOf("emissores")
-            idx_vazao = poly_layer.fields().indexOf("vazao")
+            idx_vazao = poly_layer.fields().indexOf("V")
 
         # 5. Processamento (Spatial Index)
         # Cria índice espacial dos pontos para performance
@@ -162,7 +162,7 @@ class VazaoSetorTool(AqueductTool):
             
             # Atualiza atributos
             poly_layer.changeAttributeValue(poly_feat.id(), idx_emissores, points_inside)
-            poly_layer.changeAttributeValue(poly_feat.id(), idx_vazao, vazao_calc)
+            poly_layer.changeAttributeValue(poly_feat.id(), idx_vazao, round(vazao_calc, 2))
             
             total_emissores += points_inside
             count_features += 1

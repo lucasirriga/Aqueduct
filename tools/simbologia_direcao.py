@@ -1,6 +1,7 @@
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.core import (
+    QgsMapLayerType,
     QgsWkbTypes, QgsSymbol, QgsSingleSymbolRenderer,
     QgsSimpleLineSymbolLayer, QgsMarkerLineSymbolLayer,
     QgsSimpleMarkerSymbolLayer, QgsProperty
@@ -32,7 +33,7 @@ class SimbologiaDirecaoTool(AqueductTool):
         layer = self.iface.activeLayer()
         
         # 1. Validações
-        if not layer or layer.type() != layer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 

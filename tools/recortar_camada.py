@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction, QInputDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
+from qgis.core import QgsMapLayerType, QgsProject, QgsGeometry, QgsWkbTypes
 import os
 
 from .ferramenta_base import AqueductTool
@@ -28,7 +28,7 @@ class RecortarCamadaTool(AqueductTool):
         target_layer = self.iface.activeLayer()
         
         # 1. Validação da Camada Alvo
-        if not target_layer or target_layer.type() != target_layer.VectorLayer:
+        if not target_layer or target_layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione a camada que será RECORTADA (Alvo).", level=3, duration=5)
             return
 
@@ -49,7 +49,7 @@ class RecortarCamadaTool(AqueductTool):
         for lid, layer in QgsProject.instance().mapLayers().items():
             if layer.id() == target_layer.id():
                 continue # Não pode recortar por si mesma (poderia, mas complexo)
-            if layer.type() == layer.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            if layer.type() == QgsMapLayerType.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
                 valid_layers.append(layer)
         
         if not valid_layers:

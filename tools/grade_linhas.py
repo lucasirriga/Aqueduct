@@ -4,6 +4,7 @@ from qgis.PyQt.QtWidgets import (
 )
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import (
+    QgsMapLayerType,
     QgsProject, QgsWkbTypes, QgsVectorLayer, QgsFeature, QgsGeometry, 
     QgsPointXY, QgsField
 )
@@ -64,7 +65,7 @@ class GradeLinhasDialog(QDialog):
         
         layers = QgsProject.instance().mapLayers().values()
         for layer in layers:
-            if layer.type() == layer.VectorLayer:
+            if layer.type() == QgsMapLayerType.VectorLayer:
                 if layer.geometryType() == QgsWkbTypes.PolygonGeometry:
                     self.combo_poly.addItem(layer.name(), layer)
                 elif layer.geometryType() == QgsWkbTypes.LineGeometry:

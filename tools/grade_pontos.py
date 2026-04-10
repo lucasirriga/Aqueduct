@@ -5,6 +5,7 @@ from qgis.PyQt.QtWidgets import (
 )
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import (
+    QgsMapLayerType,
     QgsProject, QgsWkbTypes, QgsVectorLayer, QgsFeature, QgsGeometry, 
     QgsPointXY, QgsField
 )
@@ -108,7 +109,7 @@ class GradePontosDialog(QDialog):
 
     def get_angle_from_selection(self):
         layer = self.iface.activeLayer()
-        if not layer or layer.type() != QgsVectorLayer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             QMessageBox.warning(self, "Aviso", "Selecione uma camada vetorial de Linha (Ativa).")
             return
             
@@ -156,7 +157,7 @@ class GradePontosDialog(QDialog):
         self.combo_layer.clear()
         layers = QgsProject.instance().mapLayers().values()
         for layer in layers:
-            if layer.type() == layer.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            if layer.type() == QgsMapLayerType.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
                 self.combo_layer.addItem(layer.name(), layer)
 
     def toggle_inputs(self, _=None):

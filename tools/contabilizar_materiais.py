@@ -7,7 +7,7 @@ from qgis.PyQt.QtWidgets import (
     QListWidget, QAbstractItemView, QLineEdit, QHBoxLayout
 )
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsProject, QgsWkbTypes, QgsVectorLayer
+from qgis.core import QgsMapLayerType, QgsProject, QgsWkbTypes, QgsVectorLayer
 
 from .ferramenta_base import AqueductTool
 from .lista_materiais import ProjectBOMManager
@@ -124,7 +124,7 @@ class ContabilizarMateriaisDialog(QDialog):
         self.combo_emissores.addItem("- Selecionar -", None)
         
         for layer in layers:
-            if layer.type() != layer.VectorLayer:
+            if layer.type() != QgsMapLayerType.VectorLayer:
                 continue
                 
             geo_type = layer.geometryType()

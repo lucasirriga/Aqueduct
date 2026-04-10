@@ -1,7 +1,7 @@
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from qgis.PyQt.QtGui import QIcon, QTextDocument, QPageLayout, QPageSize
 from qgis.PyQt.QtPrintSupport import QPrinter
-from qgis.core import QgsProject
+from qgis.core import QgsMapLayerType, QgsProject
 import os
 import pathlib
 import json
@@ -250,7 +250,7 @@ class GerarOrcamentoTool(AqueductTool):
         from qgis.core import QgsWkbTypes
         valid_layers = [
             lyr for lyr in project.mapLayers().values()
-            if lyr.type() == lyr.VectorLayer and lyr.geometryType() == QgsWkbTypes.PolygonGeometry
+            if lyr.type() == QgsMapLayerType.VectorLayer and lyr.geometryType() == QgsWkbTypes.PolygonGeometry
         ]
 
         area_layer = None

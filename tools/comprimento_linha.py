@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsField, QgsProject, QgsFeature
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsField, QgsProject, QgsFeature
 from qgis.PyQt.QtCore import QVariant
 import os
 
@@ -33,7 +33,7 @@ class LineLengthTool(AqueductTool):
             self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada selecionada.", level=3, duration=5) # Critical
             return
 
-        if layer.type() != layer.VectorLayer:
+        if layer.type() != QgsMapLayerType.VectorLayer:
              self.iface.messageBar().pushMessage("Aqueduct", "A camada selecionada não é vetorial.", level=3, duration=5)
              return
              
@@ -57,7 +57,7 @@ class LineLengthTool(AqueductTool):
         layer.startEditing()
         
         if idx == -1:
-            layer.dataProvider().addAttributes([QgsField(field_name, QVariant.Double, len=10, prec=3)])
+            layer.dataProvider().addAttributes([QgsField(field_name, QVariant.Double, len=10, prec=2)])
             layer.updateFields()
             idx = layer.fields().indexOf(field_name)
 
@@ -68,7 +68,7 @@ class LineLengthTool(AqueductTool):
         for feature in features_to_process:
             geom = feature.geometry()
             if geom:
-                length = geom.length()
+                length = round(geom.length(), 2)
                 layer.changeAttributeValue(feature.id(), idx, length)
                 total_length += length
                 count += 1
@@ -76,5 +76,5 @@ class LineLengthTool(AqueductTool):
         layer.commitChanges()
 
         # 5. Relatório
-        msg = f"Cálculo concluído {mode_msg}. Feições: {count}. Comprimento Total: {total_length:.3f} m."
+        msg = f"Cálculo concluído {mode_msg}. Feições: {count}. Comprimento Total: {total_length:.2f} m."
         self.iface.messageBar().pushMessage("Aqueduct", msg, level=0, duration=5)

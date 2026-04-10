@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsField
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsField
 from qgis.PyQt.QtCore import QVariant
 import os
 
@@ -33,7 +33,7 @@ class CalculoAreaTool(AqueductTool):
             self.iface.messageBar().pushMessage("Aqueduct", "Nenhuma camada selecionada.", level=3, duration=5)
             return
 
-        if layer.type() != layer.VectorLayer:
+        if layer.type() != QgsMapLayerType.VectorLayer:
              self.iface.messageBar().pushMessage("Aqueduct", "A camada selecionada não é vetorial.", level=3, duration=5)
              return
              

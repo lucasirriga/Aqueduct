@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction, QInputDialog
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsField, QgsProject, QgsFeature
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsField, QgsProject, QgsFeature
 from qgis.PyQt.QtCore import QVariant
 import os
 
@@ -29,7 +29,7 @@ class AtribuirDnTool(AqueductTool):
         layer = self.iface.activeLayer()
         
         # 1. Validação da Camada
-        if not layer or layer.type() != layer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 

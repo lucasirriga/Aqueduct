@@ -3,7 +3,7 @@ from qgis.PyQt.QtWidgets import (
     QDoubleSpinBox, QPushButton, QMessageBox, QLabel, QComboBox, QGroupBox, QWidget
 )
 from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.core import QgsProject, QgsWkbTypes, QgsUnitTypes, QgsDistanceArea
+from qgis.core import QgsMapLayerType, QgsProject, QgsWkbTypes, QgsUnitTypes, QgsDistanceArea
 import os
 import json
 
@@ -133,7 +133,7 @@ class InfoProjetoDialog(QDialog):
         self.combo_layer.clear()
         layers = QgsProject.instance().mapLayers().values()
         for layer in layers:
-            if layer.type() == layer.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            if layer.type() == QgsMapLayerType.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
                 self.combo_layer.addItem(layer.name(), layer)
 
     def calculate(self):
@@ -151,7 +151,7 @@ class InfoProjetoDialog(QDialog):
         
         # Check fields
         fields = [f.name() for f in layer.fields()]
-        has_vazao = 'vazao' in fields
+        has_vazao = 'V' in fields
         
         da = QgsDistanceArea()
         da.setSourceCrs(layer.crs(), QgsProject.instance().transformContext())
@@ -165,7 +165,7 @@ class InfoProjetoDialog(QDialog):
             
             # Vazao
             if has_vazao:
-                val = feat['vazao']
+                val = feat['V']
                 if val:
                     total_vazao += float(val)
         
@@ -201,7 +201,7 @@ class InfoProjetoDialog(QDialog):
         self.lbl_tempo_total.setText(f"{tempo_total:.2f}")
         
         if not has_vazao:
-            QMessageBox.information(self, "Info", "O campo 'vazao' não foi encontrado na camada. A vazão será 0.")
+            QMessageBox.information(self, "Info", "O campo 'V' não foi encontrado na camada. A vazão será 0.")
 
     def load_data(self):
         if self.filepath and os.path.exists(self.filepath):

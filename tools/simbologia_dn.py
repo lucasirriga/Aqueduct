@@ -1,6 +1,7 @@
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import (
+    QgsMapLayerType,
     QgsWkbTypes, QgsSymbol, QgsRendererCategory, 
     QgsCategorizedSymbolRenderer
 )
@@ -37,7 +38,7 @@ class SimbologiaDnTool(AqueductTool):
         layer = self.iface.activeLayer()
         
         # 1. Validações
-        if not layer or layer.type() != layer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
@@ -50,34 +51,40 @@ class SimbologiaDnTool(AqueductTool):
              self.iface.messageBar().pushMessage("Aqueduct", "Campo 'DN' não encontrado na camada.", level=3, duration=5)
              return
 
-        # 2. Definição das Categorias
-        # Valor, Label, Cor (Hex)
-        config = [
-            (50,  "DN 50",  "#4CAF50"), # Verde
-            (75,  "DN 75",  "#FF9800"), # Laranja
-            (100, "DN 100", "#2196F3"), # Azul
-            (125, "DN 125", "#E040FB"), # Lilás
-            (150, "DN 150", "#9C27B0"), # Roxo
-        ]
+        # 2. Obter valores únicos de DN na camada
+        unique_dns = set()
+        for feat in layer.getFeatures():
+            val = feat.attribute(idx_dn)
+            if val is not None:
+                try:
+                    # Garantir que seja número para ordenar corretamente
+                    unique_dns.add(int(float(val)))
+                except (ValueError, TypeError):
+                    pass
+                    
+        unique_dns = sorted(list(unique_dns))
         
+        if not unique_dns:
+             self.iface.messageBar().pushMessage("Aqueduct", "Nenhum valor válido de DN encontrado na camada.", level=2, duration=5)
+             return
+
+        # 3. Gerar Categorias com cores distintas uniformes
         categories = []
+        total = len(unique_dns)
         
-        for value, label, color_code in config:
+        for i, val in enumerate(unique_dns):
+            # Distribuiçāo uniforme no espectro de cores HSV para garantir contraste
+            hue = int((i * 360) / max(total, 1)) % 360
+            color = QColor.fromHsv(hue, 230, 230)
+            
             # Cria símbolo de linha padrão
             symbol = QgsSymbol.defaultSymbol(layer.geometryType())
-            symbol.setColor(QColor(color_code))
-            symbol.setWidth(0.4) # aprox 1 pixel dependendo da resolução, ou 1 (mm no qgis) ou pixel unit
+            symbol.setColor(color)
+            # Aumentando a espessura da linha um pouco para facilitar a visualização de longe
+            symbol.setWidth(0.6) 
             
-            # Ajuste para pixel se possível, mas layer.renderer usa unidades de mapa ou mm.
-            # O padrão do QGIS costuma ser Milímetros (mm). 
-            # 1 pixel em tela é relativo. Vamos fixar uma espessura fina visível.
-            # Se o usuário pediu "1 pixel", '0' costuma ser "hairline" (1px dispositivo).
-            # Mas '0' pode ser muito fino para impressão. Vamos usar width 0.6mm padrão ou configurar unit.
-            # Vou usar width 0.5 (padrão razoável) ou tentar configurar Unit = Pixel?
-            # Para simplificar e atender "1 pixel", usaremos uma espessura fixa pequena.
-            symbol.setWidth(0.26) # ~1px a 96dpi (1/96 inch = 0.26mm)
-            
-            category = QgsRendererCategory(value, symbol, label)
+            label = f"DN {val}"
+            category = QgsRendererCategory(val, symbol, label)
             categories.append(category)
 
         # 3. Aplicação do Renderizador

@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction, QInputDialog
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsField, QgsProject, QgsFeature
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsField, QgsProject, QgsFeature
 from qgis.PyQt.QtCore import QVariant
 import os
 
@@ -29,7 +29,7 @@ class AtribuirVazaoTool(AqueductTool):
         layer = self.iface.activeLayer()
         
         # 1. Validação da Camada
-        if not layer or layer.type() != layer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
@@ -48,23 +48,22 @@ class AtribuirVazaoTool(AqueductTool):
         vazao_val, ok = QInputDialog.getDouble(
             self.iface.mainWindow(),
             "Aqueduct - Definir Vazão",
-            f"Informe a Vazão (m³/h ou L/s) para as {selected_count} linhas selecionadas:",
-            0.0, 0.0, 100000.0, 3
+            f"Informe a Vazão (m³/h) para as {selected_count} linhas selecionadas:",
+            0.0, 0.0, 100000.0, 2
         )
         
         if not ok:
             return
 
-        # 4. Gerenciamento do Campo 'vazao'
-        # Nota: O nome do campo solicitado é "vazao" (mesmo da ferramenta de setor, ok)
-        field_name = "vazao"
+        # 4. Gerenciamento do Campo 'V'
+        field_name = "V"
         idx = layer.fields().indexOf(field_name)
         
         layer.startEditing()
         
         if idx == -1:
             # Cria campo Double para Vazão
-            layer.dataProvider().addAttributes([QgsField(field_name, QVariant.Double, len=10, prec=3)])
+            layer.dataProvider().addAttributes([QgsField(field_name, QVariant.Double, len=10, prec=2)])
             layer.updateFields()
             idx = layer.fields().indexOf(field_name)
 
@@ -73,7 +72,7 @@ class AtribuirVazaoTool(AqueductTool):
         features = layer.selectedFeatures()
         
         for feat in features:
-            layer.changeAttributeValue(feat.id(), idx, vazao_val)
+            layer.changeAttributeValue(feat.id(), idx, round(vazao_val, 2))
             count += 1
         
         layer.commitChanges()

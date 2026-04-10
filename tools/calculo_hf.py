@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsField
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsField
 from qgis.PyQt.QtCore import QVariant
 import os
 import math
@@ -14,7 +14,7 @@ class CalculoHfTool(AqueductTool):
     Parâmetros esperados nos campos:
     - Comprimento (m)
     - DN (mm)
-    - vazao (m³/h)
+    - V (m³/h)
     """
 
     def initGui(self):
@@ -34,7 +34,7 @@ class CalculoHfTool(AqueductTool):
         layer = self.iface.activeLayer()
         
         # 1. Validações
-        if not layer or layer.type() != layer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
@@ -48,12 +48,12 @@ class CalculoHfTool(AqueductTool):
         # Atualizado para usar 'L'.
         idx_len = fields.indexOf("L")
         idx_dn = fields.indexOf("DN")
-        idx_flow = fields.indexOf("vazao")
+        idx_flow = fields.indexOf("V")
         
         missing = []
         if idx_len == -1: missing.append("L")
         if idx_dn == -1: missing.append("DN")
-        if idx_flow == -1: missing.append("vazao")
+        if idx_flow == -1: missing.append("V")
         
         if missing:
              self.iface.messageBar().pushMessage(
@@ -63,14 +63,14 @@ class CalculoHfTool(AqueductTool):
              , duration=5)
              return
 
-        # 2. Prepara Campo Hf
-        field_name = "Hf"
+        # 2. Prepara Campo HF
+        field_name = "HF"
         idx_hf = fields.indexOf(field_name)
         
         layer.startEditing()
         
         if idx_hf == -1:
-            layer.dataProvider().addAttributes([QgsField(field_name, QVariant.Double, len=10, prec=4)])
+            layer.dataProvider().addAttributes([QgsField(field_name, QVariant.Double, len=10, prec=2)])
             layer.updateFields()
             idx_hf = layer.fields().indexOf(field_name)
 
@@ -117,18 +117,18 @@ class CalculoHfTool(AqueductTool):
                 # J (Perda unitária)
                 J = 10.67 * term1 * term2
                 
-                # Hf Total = J * L
-                Hf = J * float(L)
+                # HF Total = J * L
+                HF = round(J * float(L), 2)
                 
-                layer.changeAttributeValue(feat.id(), idx_hf, Hf)
+                layer.changeAttributeValue(feat.id(), idx_hf, HF)
                 count += 1
                 
             except Exception as e:
                 errors += 1
-                print(f"Erro calculando Hf feature {feat.id()}: {e}")
+                print(f"Erro calculando HF feature {feat.id()}: {e}")
 
         layer.commitChanges()
 
         # 4. Relatório
-        msg = f"Cálculo Hf concluído {mode_msg}. Processados: {count}. Erros/Ignorados: {errors}."
+        msg = f"Cálculo HF concluído {mode_msg}. Processados: {count}. Erros/Ignorados: {errors}."
         self.iface.messageBar().pushMessage("Aqueduct", msg, level=0, duration=5)

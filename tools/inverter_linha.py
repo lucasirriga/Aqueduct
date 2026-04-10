@@ -1,6 +1,6 @@
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsWkbTypes, QgsGeometry
+from qgis.core import QgsMapLayerType, QgsWkbTypes, QgsGeometry
 import os
 
 from .ferramenta_base import AqueductTool
@@ -28,7 +28,7 @@ class InverterLinhaTool(AqueductTool):
         layer = self.iface.activeLayer()
         
         # 1. Validações
-        if not layer or layer.type() != layer.VectorLayer:
+        if not layer or layer.type() != QgsMapLayerType.VectorLayer:
             self.iface.messageBar().pushMessage("Aqueduct", "Selecione uma camada vetorial de LINHAS.", level=3, duration=5)
             return
 
