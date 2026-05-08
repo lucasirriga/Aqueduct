@@ -124,10 +124,25 @@ class EditorBlocoDialog(QDialog):
         self.table_itens.setRowCount(0)
         for i, item in enumerate(self.itens):
             self.table_itens.insertRow(i)
-            self.table_itens.setItem(i, 0, QTableWidgetItem(item['nome']))
+            # Nome da peça como Read-only
+            item_nome = QTableWidgetItem(item['nome'])
+            item_nome.setFlags(item_nome.flags() ^ 2) # Toggle ItemIsEditable
+            self.table_itens.setItem(i, 0, item_nome)
             self.table_itens.setItem(i, 1, QTableWidgetItem(str(item['quantidade'])))
             
+    def sync_from_table(self):
+        """Sincroniza self.itens lendo os dados atuais da tabela."""
+        self.itens = []
+        for row in range(self.table_itens.rowCount()):
+            nome = self.table_itens.item(row, 0).text()
+            try:
+                qtd = int(self.table_itens.item(row, 1).text())
+            except Exception:
+                qtd = 1
+            self.itens.append({'nome': nome, 'quantidade': qtd})
+            
     def on_add(self):
+        self.sync_from_table()
         sel_items = self.list_pecas.selectedItems()
         if not sel_items:
             return
@@ -147,12 +162,14 @@ class EditorBlocoDialog(QDialog):
         self.refresh_table()
         
     def on_remove(self):
+        self.sync_from_table()
         row = self.table_itens.currentRow()
         if row >= 0:
             del self.itens[row]
             self.refresh_table()
             
     def get_itens(self):
+        self.sync_from_table()
         return self.itens
 
 class GerenciarBlocosDialog(QDialog):
