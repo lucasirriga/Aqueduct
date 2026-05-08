@@ -17,7 +17,7 @@ class SimbologiaDirecaoTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_direcao.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_simbologia_direcao.svg')
         
         self.action = QAction(QIcon(icon_path), 'Verificar Orientação (Direção)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

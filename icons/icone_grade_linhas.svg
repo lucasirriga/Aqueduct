@@ -1,6 +1,10 @@
-<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <line x1="3" y1="6" x2="21" y2="6" />
-  <line x1="3" y1="12" x2="21" y2="12" />
-  <line x1="3" y1="18" x2="21" y2="18" />
-  <rect x="5" y="4" width="14" height="16" stroke="#FF9800" stroke-width="1" stroke-dasharray="2 2" fill="none" opacity="0.5"/>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#00838F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polygon points="2,20 4,4 20,4 22,20" fill="#E0F7FA" stroke="#00838F" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <line x1="4" y1="8" x2="20" y2="8" stroke="#0097A7" stroke-width="1.5"/>
+  <line x1="4" y1="12" x2="20" y2="12" stroke="#0097A7" stroke-width="1.5"/>
+  <line x1="4" y1="16" x2="20" y2="16" stroke="#0097A7" stroke-width="1.5"/>
+  <line x1="4" y1="20" x2="20" y2="20" stroke="#0097A7" stroke-width="1.5"/>
+  <path d="M22 8 L22 12" stroke="#00695C" stroke-width="1"/>
+  <path d="M21 9 L22 8 L23 9" stroke="#00695C" stroke-width="1"/>
+  <path d="M21 11 L22 12 L23 11" stroke="#00695C" stroke-width="1"/>
 </svg>

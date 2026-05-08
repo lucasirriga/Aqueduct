@@ -1,0 +1,2953 @@
+{
+  "metadata": {
+    "source": "LEÃO - Seleção de Motobombas (Maio 2024)",
+    "total_models": 85,
+    "description": "Base de dados completa de motobombas com curvas de vazão e pressão",
+    "extraction_method": "OCR + tabela parsing automático"
+  },
+  "pumps": [
+    {
+      "model": "2,5R2PB-07 150",
+      "power_cv": 0.2,
+      "stages": 7.0,
+      "flow_range_m3_h": {
+        "min": 4.0,
+        "max": 26.0
+      },
+      "pressure_range_mca": {
+        "min": 5.2,
+        "max": 25.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 26.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 24.5,
+          "pressure_mca": 24.0
+        },
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 21.0
+        },
+        {
+          "flow_m3_h": 20.0,
+          "pressure_mca": 18.0
+        },
+        {
+          "flow_m3_h": 16.5,
+          "pressure_mca": 15.0
+        },
+        {
+          "flow_m3_h": 12.4,
+          "pressure_mca": 10.9
+        },
+        {
+          "flow_m3_h": 8.9,
+          "pressure_mca": 6.0
+        },
+        {
+          "flow_m3_h": 4.0,
+          "pressure_mca": 5.2
+        }
+      ]
+    },
+    {
+      "model": "2,5R2PB-11 150",
+      "power_cv": 0.3,
+      "stages": 11.0,
+      "flow_range_m3_h": {
+        "min": 4.0,
+        "max": 41.0
+      },
+      "pressure_range_mca": {
+        "min": 6.7,
+        "max": 39.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 41.0,
+          "pressure_mca": 39.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 35.0
+        },
+        {
+          "flow_m3_h": 34.0,
+          "pressure_mca": 32.0
+        },
+        {
+          "flow_m3_h": 31.0,
+          "pressure_mca": 28.0
+        },
+        {
+          "flow_m3_h": 26.5,
+          "pressure_mca": 24.0
+        },
+        {
+          "flow_m3_h": 20.5,
+          "pressure_mca": 18.0
+        },
+        {
+          "flow_m3_h": 14.0,
+          "pressure_mca": 10.0
+        },
+        {
+          "flow_m3_h": 4.0,
+          "pressure_mca": 6.7
+        }
+      ]
+    },
+    {
+      "model": "2,5R2PB-15 150",
+      "power_cv": 0.5,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 40.0,
+        "max": 57.0
+      },
+      "pressure_range_mca": {
+        "min": 7.5,
+        "max": 36.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 57.0,
+          "pressure_mca": 36.0
+        },
+        {
+          "flow_m3_h": 54.5,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 52.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 50.0,
+          "pressure_mca": 24.0
+        },
+        {
+          "flow_m3_h": 48.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 12.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 8.5
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 7.5
+        }
+      ]
+    },
+    {
+      "model": "2,5R2PB-21 150",
+      "power_cv": 0.7,
+      "stages": 21.0,
+      "flow_range_m3_h": {
+        "min": 56.0,
+        "max": 78.0
+      },
+      "pressure_range_mca": {
+        "min": 8.7,
+        "max": 52.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 78.0,
+          "pressure_mca": 52.0
+        },
+        {
+          "flow_m3_h": 75.0,
+          "pressure_mca": 46.0
+        },
+        {
+          "flow_m3_h": 72.0,
+          "pressure_mca": 40.0
+        },
+        {
+          "flow_m3_h": 69.0,
+          "pressure_mca": 36.0
+        },
+        {
+          "flow_m3_h": 66.0,
+          "pressure_mca": 28.0
+        },
+        {
+          "flow_m3_h": 62.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 60.0,
+          "pressure_mca": 11.9
+        },
+        {
+          "flow_m3_h": 56.0,
+          "pressure_mca": 8.7
+        }
+      ]
+    },
+    {
+      "model": "3R3PB-06 180",
+      "power_cv": 0.3,
+      "stages": 6.0,
+      "flow_range_m3_h": {
+        "min": 1.0,
+        "max": 35.0
+      },
+      "pressure_range_mca": {
+        "min": 6.7,
+        "max": 34.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 35.0,
+          "pressure_mca": 34.0
+        },
+        {
+          "flow_m3_h": 33.7,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 32.8,
+          "pressure_mca": 32.0
+        },
+        {
+          "flow_m3_h": 31.7,
+          "pressure_mca": 31.0
+        },
+        {
+          "flow_m3_h": 30.0,
+          "pressure_mca": 28.0
+        },
+        {
+          "flow_m3_h": 26.0,
+          "pressure_mca": 24.0
+        },
+        {
+          "flow_m3_h": 21.0,
+          "pressure_mca": 17.0
+        },
+        {
+          "flow_m3_h": 12.0,
+          "pressure_mca": 7.0
+        },
+        {
+          "flow_m3_h": 1.0,
+          "pressure_mca": 6.7
+        }
+      ]
+    },
+    {
+      "model": "3R3PB-09 180",
+      "power_cv": 0.5,
+      "stages": 9.0,
+      "flow_range_m3_h": {
+        "min": 2.0,
+        "max": 52.0
+      },
+      "pressure_range_mca": {
+        "min": 7.7,
+        "max": 51.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 52.0,
+          "pressure_mca": 51.0
+        },
+        {
+          "flow_m3_h": 51.0,
+          "pressure_mca": 50.0
+        },
+        {
+          "flow_m3_h": 49.0,
+          "pressure_mca": 48.6
+        },
+        {
+          "flow_m3_h": 48.0,
+          "pressure_mca": 46.0
+        },
+        {
+          "flow_m3_h": 44.0,
+          "pressure_mca": 42.0
+        },
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 35.0
+        },
+        {
+          "flow_m3_h": 31.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 19.0,
+          "pressure_mca": 11.0
+        },
+        {
+          "flow_m3_h": 2.0,
+          "pressure_mca": 7.7
+        }
+      ]
+    },
+    {
+      "model": "3R3PB-13 180",
+      "power_cv": 0.7,
+      "stages": 13.0,
+      "flow_range_m3_h": {
+        "min": 3.0,
+        "max": 75.0
+      },
+      "pressure_range_mca": {
+        "min": 9.5,
+        "max": 74.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 75.0,
+          "pressure_mca": 74.0
+        },
+        {
+          "flow_m3_h": 73.0,
+          "pressure_mca": 72.0
+        },
+        {
+          "flow_m3_h": 71.0,
+          "pressure_mca": 70.0
+        },
+        {
+          "flow_m3_h": 69.0,
+          "pressure_mca": 67.0
+        },
+        {
+          "flow_m3_h": 64.0,
+          "pressure_mca": 61.0
+        },
+        {
+          "flow_m3_h": 56.0,
+          "pressure_mca": 51.0
+        },
+        {
+          "flow_m3_h": 44.0,
+          "pressure_mca": 36.0
+        },
+        {
+          "flow_m3_h": 27.0,
+          "pressure_mca": 16.0
+        },
+        {
+          "flow_m3_h": 3.0,
+          "pressure_mca": 9.5
+        }
+      ]
+    },
+    {
+      "model": "3R3PB-18 180",
+      "power_cv": 1.0,
+      "stages": 18.0,
+      "flow_range_m3_h": {
+        "min": 4.0,
+        "max": 104.0
+      },
+      "pressure_range_mca": {
+        "min": 11.4,
+        "max": 103.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 104.0,
+          "pressure_mca": 103.0
+        },
+        {
+          "flow_m3_h": 101.0,
+          "pressure_mca": 100.0
+        },
+        {
+          "flow_m3_h": 99.0,
+          "pressure_mca": 97.0
+        },
+        {
+          "flow_m3_h": 95.0,
+          "pressure_mca": 92.0
+        },
+        {
+          "flow_m3_h": 89.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 78.0,
+          "pressure_mca": 71.0
+        },
+        {
+          "flow_m3_h": 62.0,
+          "pressure_mca": 50.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 22.0
+        },
+        {
+          "flow_m3_h": 4.0,
+          "pressure_mca": 11.4
+        }
+      ]
+    },
+    {
+      "model": "3R3PB-25 180",
+      "power_cv": 1.5,
+      "stages": 25.0,
+      "flow_range_m3_h": {
+        "min": 5.0,
+        "max": 145.0
+      },
+      "pressure_range_mca": {
+        "min": 14.0,
+        "max": 143.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 145.0,
+          "pressure_mca": 143.0
+        },
+        {
+          "flow_m3_h": 141.0,
+          "pressure_mca": 139.0
+        },
+        {
+          "flow_m3_h": 137.0,
+          "pressure_mca": 135.0
+        },
+        {
+          "flow_m3_h": 132.0,
+          "pressure_mca": 128.0
+        },
+        {
+          "flow_m3_h": 123.0,
+          "pressure_mca": 117.0
+        },
+        {
+          "flow_m3_h": 109.0,
+          "pressure_mca": 98.0
+        },
+        {
+          "flow_m3_h": 85.0,
+          "pressure_mca": 70.0
+        },
+        {
+          "flow_m3_h": 52.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 5.0,
+          "pressure_mca": 14.0
+        }
+      ]
+    },
+    {
+      "model": "4R12-07 370",
+      "power_cv": 2.0,
+      "stages": 7.0,
+      "flow_range_m3_h": {
+        "min": 6.0,
+        "max": 59.0
+      },
+      "pressure_range_mca": {
+        "min": 17.0,
+        "max": 44.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 59.0,
+          "pressure_mca": 44.5
+        },
+        {
+          "flow_m3_h": 42.0,
+          "pressure_mca": 35.5
+        },
+        {
+          "flow_m3_h": 27.5,
+          "pressure_mca": 17.0
+        },
+        {
+          "flow_m3_h": 6.0,
+          "pressure_mca": 32.2
+        }
+      ]
+    },
+    {
+      "model": "4R12-09 370",
+      "power_cv": 3.0,
+      "stages": 9.0,
+      "flow_range_m3_h": {
+        "min": 8.0,
+        "max": 76.5
+      },
+      "pressure_range_mca": {
+        "min": 23.0,
+        "max": 58.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 76.5,
+          "pressure_mca": 58.0
+        },
+        {
+          "flow_m3_h": 55.0,
+          "pressure_mca": 46.5
+        },
+        {
+          "flow_m3_h": 35.5,
+          "pressure_mca": 23.0
+        },
+        {
+          "flow_m3_h": 8.0,
+          "pressure_mca": 33.3
+        }
+      ]
+    },
+    {
+      "model": "4R12-15 350",
+      "power_cv": 5.0,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 19.0,
+        "max": 127.0
+      },
+      "pressure_range_mca": {
+        "min": 41.0,
+        "max": 96.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 127.0,
+          "pressure_mca": 96.0
+        },
+        {
+          "flow_m3_h": 91.5,
+          "pressure_mca": 78.5
+        },
+        {
+          "flow_m3_h": 62.0,
+          "pressure_mca": 42.0
+        },
+        {
+          "flow_m3_h": 19.0,
+          "pressure_mca": 41.0
+        }
+      ]
+    },
+    {
+      "model": "4R1IA-06 230",
+      "power_cv": 0.5,
+      "stages": 6.0,
+      "flow_range_m3_h": {
+        "min": 10.5,
+        "max": 47.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 43.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 47.0,
+          "pressure_mca": 43.5
+        },
+        {
+          "flow_m3_h": 42.5,
+          "pressure_mca": 32.0
+        },
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 14.5
+        },
+        {
+          "flow_m3_h": 10.5,
+          "pressure_mca": 7.0
+        },
+        {
+          "flow_m3_h": 11.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R1IA-06 370",
+      "power_cv": 0.5,
+      "stages": 6.0,
+      "flow_range_m3_h": {
+        "min": 17.3,
+        "max": 47.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 45.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 47.0,
+          "pressure_mca": 45.0
+        },
+        {
+          "flow_m3_h": 43.5,
+          "pressure_mca": 36.5
+        },
+        {
+          "flow_m3_h": 27.5,
+          "pressure_mca": 20.5
+        },
+        {
+          "flow_m3_h": 17.5,
+          "pressure_mca": 14.5
+        },
+        {
+          "flow_m3_h": 17.3,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R1PA-06 230",
+      "power_cv": 0.5,
+      "stages": 6.0,
+      "flow_range_m3_h": {
+        "min": 10.5,
+        "max": 47.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 43.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 47.0,
+          "pressure_mca": 43.5
+        },
+        {
+          "flow_m3_h": 42.5,
+          "pressure_mca": 32.0
+        },
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 14.5
+        },
+        {
+          "flow_m3_h": 10.5,
+          "pressure_mca": 7.0
+        },
+        {
+          "flow_m3_h": 11.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R1PA-06 370",
+      "power_cv": 0.5,
+      "stages": 6.0,
+      "flow_range_m3_h": {
+        "min": 17.5,
+        "max": 47.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 45.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 47.0,
+          "pressure_mca": 45.0
+        },
+        {
+          "flow_m3_h": 43.5,
+          "pressure_mca": 36.5
+        },
+        {
+          "flow_m3_h": 27.5,
+          "pressure_mca": 20.5
+        },
+        {
+          "flow_m3_h": 17.5,
+          "pressure_mca": 14.5
+        },
+        {
+          "flow_m3_h": 17.5,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3IA-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 39.0,
+        "max": 49.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 36.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 49.0,
+          "pressure_mca": 36.0
+        },
+        {
+          "flow_m3_h": 46.0,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 44.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 26.0
+        },
+        {
+          "flow_m3_h": 42.0,
+          "pressure_mca": 22.0
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 9.2
+        },
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3IA-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 36.0,
+        "max": 45.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 33.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 41.0,
+          "pressure_mca": 26.0
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 23.0
+        },
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 18.5
+        },
+        {
+          "flow_m3_h": 36.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3IB-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 39.0,
+        "max": 48.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 37.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 48.0,
+          "pressure_mca": 37.0
+        },
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 34.0
+        },
+        {
+          "flow_m3_h": 44.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 26.0
+        },
+        {
+          "flow_m3_h": 42.0,
+          "pressure_mca": 22.0
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 9.4
+        },
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3IB-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 40.0,
+        "max": 49.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 37.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 49.0,
+          "pressure_mca": 37.0
+        },
+        {
+          "flow_m3_h": 46.0,
+          "pressure_mca": 34.0
+        },
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 31.0
+        },
+        {
+          "flow_m3_h": 44.0,
+          "pressure_mca": 27.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 23.0
+        },
+        {
+          "flow_m3_h": 41.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3PA-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 39.0,
+        "max": 49.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 36.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 49.0,
+          "pressure_mca": 36.0
+        },
+        {
+          "flow_m3_h": 46.0,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 44.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 26.0
+        },
+        {
+          "flow_m3_h": 42.0,
+          "pressure_mca": 22.0
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 9.2
+        },
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3PA-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 36.0,
+        "max": 45.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 33.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 43.0,
+          "pressure_mca": 30.0
+        },
+        {
+          "flow_m3_h": 41.0,
+          "pressure_mca": 26.0
+        },
+        {
+          "flow_m3_h": 40.0,
+          "pressure_mca": 23.0
+        },
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 19.2
+        },
+        {
+          "flow_m3_h": 36.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 34.0,
+        "max": 39.0
+      },
+      "pressure_range_mca": {
+        "min": 9.2,
+        "max": 32.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 32.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 29.0
+        },
+        {
+          "flow_m3_h": 36.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 34.0,
+          "pressure_mca": 9.2
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 35.0,
+        "max": 39.0
+      },
+      "pressure_range_mca": {
+        "min": 18.2,
+        "max": 33.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 29.0
+        },
+        {
+          "flow_m3_h": 36.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 35.0,
+          "pressure_mca": 18.2
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-07 230",
+      "power_cv": 0.5,
+      "stages": 7.0,
+      "flow_range_m3_h": {
+        "min": 48.0,
+        "max": 54.0
+      },
+      "pressure_range_mca": {
+        "min": 9.6,
+        "max": 45.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 54.0,
+          "pressure_mca": 45.0
+        },
+        {
+          "flow_m3_h": 51.0,
+          "pressure_mca": 41.0
+        },
+        {
+          "flow_m3_h": 50.0,
+          "pressure_mca": 35.0
+        },
+        {
+          "flow_m3_h": 48.0,
+          "pressure_mca": 9.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-07 370",
+      "power_cv": 0.5,
+      "stages": 7.0,
+      "flow_range_m3_h": {
+        "min": 49.0,
+        "max": 56.0
+      },
+      "pressure_range_mca": {
+        "min": 18.0,
+        "max": 46.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 56.0,
+          "pressure_mca": 46.0
+        },
+        {
+          "flow_m3_h": 53.0,
+          "pressure_mca": 41.0
+        },
+        {
+          "flow_m3_h": 51.0,
+          "pressure_mca": 35.0
+        },
+        {
+          "flow_m3_h": 49.0,
+          "pressure_mca": 18.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-09 230",
+      "power_cv": 0.5,
+      "stages": 9.0,
+      "flow_range_m3_h": {
+        "min": 61.0,
+        "max": 70.0
+      },
+      "pressure_range_mca": {
+        "min": 9.9,
+        "max": 57.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 70.0,
+          "pressure_mca": 57.0
+        },
+        {
+          "flow_m3_h": 66.0,
+          "pressure_mca": 51.0
+        },
+        {
+          "flow_m3_h": 64.0,
+          "pressure_mca": 44.0
+        },
+        {
+          "flow_m3_h": 61.0,
+          "pressure_mca": 9.9
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-09 370",
+      "power_cv": 0.7,
+      "stages": 9.0,
+      "flow_range_m3_h": {
+        "min": 62.0,
+        "max": 72.0
+      },
+      "pressure_range_mca": {
+        "min": 20.5,
+        "max": 58.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 72.0,
+          "pressure_mca": 58.0
+        },
+        {
+          "flow_m3_h": 67.0,
+          "pressure_mca": 50.0
+        },
+        {
+          "flow_m3_h": 65.0,
+          "pressure_mca": 42.0
+        },
+        {
+          "flow_m3_h": 62.0,
+          "pressure_mca": 20.5
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-11 230",
+      "power_cv": 0.5,
+      "stages": 11.0,
+      "flow_range_m3_h": {
+        "min": 75.0,
+        "max": 86.0
+      },
+      "pressure_range_mca": {
+        "min": 10.3,
+        "max": 69.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 86.0,
+          "pressure_mca": 69.0
+        },
+        {
+          "flow_m3_h": 81.0,
+          "pressure_mca": 62.0
+        },
+        {
+          "flow_m3_h": 78.0,
+          "pressure_mca": 52.0
+        },
+        {
+          "flow_m3_h": 75.0,
+          "pressure_mca": 10.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-11 370",
+      "power_cv": 0.7,
+      "stages": 11.0,
+      "flow_range_m3_h": {
+        "min": 75.0,
+        "max": 87.0
+      },
+      "pressure_range_mca": {
+        "min": 25.4,
+        "max": 68.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 87.0,
+          "pressure_mca": 68.0
+        },
+        {
+          "flow_m3_h": 82.0,
+          "pressure_mca": 60.0
+        },
+        {
+          "flow_m3_h": 79.0,
+          "pressure_mca": 50.0
+        },
+        {
+          "flow_m3_h": 75.0,
+          "pressure_mca": 25.4
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-13 230",
+      "power_cv": 0.7,
+      "stages": 13.0,
+      "flow_range_m3_h": {
+        "min": 90.0,
+        "max": 102.0
+      },
+      "pressure_range_mca": {
+        "min": 11.3,
+        "max": 84.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 102.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 96.0,
+          "pressure_mca": 75.0
+        },
+        {
+          "flow_m3_h": 93.0,
+          "pressure_mca": 63.0
+        },
+        {
+          "flow_m3_h": 90.0,
+          "pressure_mca": 11.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-13 370",
+      "power_cv": 1.0,
+      "stages": 13.0,
+      "flow_range_m3_h": {
+        "min": 94.0,
+        "max": 106.0
+      },
+      "pressure_range_mca": {
+        "min": 25.5,
+        "max": 89.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 106.0,
+          "pressure_mca": 89.0
+        },
+        {
+          "flow_m3_h": 100.0,
+          "pressure_mca": 80.0
+        },
+        {
+          "flow_m3_h": 98.0,
+          "pressure_mca": 68.0
+        },
+        {
+          "flow_m3_h": 94.0,
+          "pressure_mca": 25.5
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-15 230",
+      "power_cv": 0.7,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 102.0,
+        "max": 118.0
+      },
+      "pressure_range_mca": {
+        "min": 11.6,
+        "max": 95.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 118.0,
+          "pressure_mca": 95.0
+        },
+        {
+          "flow_m3_h": 111.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 107.0,
+          "pressure_mca": 71.0
+        },
+        {
+          "flow_m3_h": 102.0,
+          "pressure_mca": 11.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-15 370",
+      "power_cv": 1.0,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 108.0,
+        "max": 122.0
+      },
+      "pressure_range_mca": {
+        "min": 25.8,
+        "max": 101.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 122.0,
+          "pressure_mca": 101.0
+        },
+        {
+          "flow_m3_h": 115.0,
+          "pressure_mca": 91.0
+        },
+        {
+          "flow_m3_h": 112.0,
+          "pressure_mca": 77.0
+        },
+        {
+          "flow_m3_h": 108.0,
+          "pressure_mca": 25.8
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-17 230",
+      "power_cv": 1.0,
+      "stages": 17.0,
+      "flow_range_m3_h": {
+        "min": 118.0,
+        "max": 135.0
+      },
+      "pressure_range_mca": {
+        "min": 12.3,
+        "max": 110.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 135.0,
+          "pressure_mca": 110.0
+        },
+        {
+          "flow_m3_h": 127.0,
+          "pressure_mca": 99.0
+        },
+        {
+          "flow_m3_h": 124.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 118.0,
+          "pressure_mca": 12.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-17 370",
+      "power_cv": 1.0,
+      "stages": 17.0,
+      "flow_range_m3_h": {
+        "min": 121.0,
+        "max": 138.0
+      },
+      "pressure_range_mca": {
+        "min": 26.2,
+        "max": 113.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 138.0,
+          "pressure_mca": 113.0
+        },
+        {
+          "flow_m3_h": 129.0,
+          "pressure_mca": 101.0
+        },
+        {
+          "flow_m3_h": 125.0,
+          "pressure_mca": 86.0
+        },
+        {
+          "flow_m3_h": 121.0,
+          "pressure_mca": 26.2
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-19 230",
+      "power_cv": 1.5,
+      "stages": 19.0,
+      "flow_range_m3_h": {
+        "min": 133.0,
+        "max": 150.0
+      },
+      "pressure_range_mca": {
+        "min": 13.5,
+        "max": 124.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 150.0,
+          "pressure_mca": 124.0
+        },
+        {
+          "flow_m3_h": 141.0,
+          "pressure_mca": 112.0
+        },
+        {
+          "flow_m3_h": 138.0,
+          "pressure_mca": 95.0
+        },
+        {
+          "flow_m3_h": 133.0,
+          "pressure_mca": 13.5
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-19 370",
+      "power_cv": 1.5,
+      "stages": 19.0,
+      "flow_range_m3_h": {
+        "min": 142.0,
+        "max": 155.0
+      },
+      "pressure_range_mca": {
+        "min": 36.8,
+        "max": 136.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 155.0,
+          "pressure_mca": 136.0
+        },
+        {
+          "flow_m3_h": 151.0,
+          "pressure_mca": 122.0
+        },
+        {
+          "flow_m3_h": 148.0,
+          "pressure_mca": 104.0
+        },
+        {
+          "flow_m3_h": 142.0,
+          "pressure_mca": 36.8
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-21 230",
+      "power_cv": 1.5,
+      "stages": 21.0,
+      "flow_range_m3_h": {
+        "min": 145.0,
+        "max": 167.0
+      },
+      "pressure_range_mca": {
+        "min": 14.6,
+        "max": 137.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 167.0,
+          "pressure_mca": 137.0
+        },
+        {
+          "flow_m3_h": 157.0,
+          "pressure_mca": 123.0
+        },
+        {
+          "flow_m3_h": 151.0,
+          "pressure_mca": 106.0
+        },
+        {
+          "flow_m3_h": 145.0,
+          "pressure_mca": 14.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-21 370",
+      "power_cv": 1.5,
+      "stages": 21.0,
+      "flow_range_m3_h": {
+        "min": 152.0,
+        "max": 170.0
+      },
+      "pressure_range_mca": {
+        "min": 36.4,
+        "max": 143.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 170.0,
+          "pressure_mca": 143.0
+        },
+        {
+          "flow_m3_h": 161.0,
+          "pressure_mca": 131.0
+        },
+        {
+          "flow_m3_h": 158.0,
+          "pressure_mca": 112.0
+        },
+        {
+          "flow_m3_h": 152.0,
+          "pressure_mca": 36.4
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-23 230",
+      "power_cv": 1.5,
+      "stages": 23.0,
+      "flow_range_m3_h": {
+        "min": 157.0,
+        "max": 180.0
+      },
+      "pressure_range_mca": {
+        "min": 14.9,
+        "max": 146.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 180.0,
+          "pressure_mca": 146.0
+        },
+        {
+          "flow_m3_h": 170.0,
+          "pressure_mca": 132.0
+        },
+        {
+          "flow_m3_h": 164.0,
+          "pressure_mca": 112.0
+        },
+        {
+          "flow_m3_h": 157.0,
+          "pressure_mca": 14.9
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-23 370",
+      "power_cv": 1.5,
+      "stages": 23.0,
+      "flow_range_m3_h": {
+        "min": 172.0,
+        "max": 188.0
+      },
+      "pressure_range_mca": {
+        "min": 44.8,
+        "max": 161.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 188.0,
+          "pressure_mca": 161.0
+        },
+        {
+          "flow_m3_h": 182.0,
+          "pressure_mca": 146.0
+        },
+        {
+          "flow_m3_h": 179.0,
+          "pressure_mca": 128.0
+        },
+        {
+          "flow_m3_h": 172.0,
+          "pressure_mca": 44.8
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-24 230",
+      "power_cv": 1.5,
+      "stages": 24.0,
+      "flow_range_m3_h": {
+        "min": 163.0,
+        "max": 187.0
+      },
+      "pressure_range_mca": {
+        "min": 15.0,
+        "max": 151.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 187.0,
+          "pressure_mca": 151.0
+        },
+        {
+          "flow_m3_h": 176.0,
+          "pressure_mca": 137.0
+        },
+        {
+          "flow_m3_h": 171.0,
+          "pressure_mca": 116.0
+        },
+        {
+          "flow_m3_h": 163.0,
+          "pressure_mca": 15.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-24 370",
+      "power_cv": 2.0,
+      "stages": 24.0,
+      "flow_range_m3_h": {
+        "min": 182.0,
+        "max": 198.0
+      },
+      "pressure_range_mca": {
+        "min": 31.6,
+        "max": 171.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 198.0,
+          "pressure_mca": 171.0
+        },
+        {
+          "flow_m3_h": 193.0,
+          "pressure_mca": 155.0
+        },
+        {
+          "flow_m3_h": 188.0,
+          "pressure_mca": 135.0
+        },
+        {
+          "flow_m3_h": 182.0,
+          "pressure_mca": 31.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-26 230",
+      "power_cv": 2.0,
+      "stages": 26.0,
+      "flow_range_m3_h": {
+        "min": 181.0,
+        "max": 207.0
+      },
+      "pressure_range_mca": {
+        "min": 16.6,
+        "max": 169.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 207.0,
+          "pressure_mca": 169.0
+        },
+        {
+          "flow_m3_h": 195.0,
+          "pressure_mca": 153.0
+        },
+        {
+          "flow_m3_h": 189.0,
+          "pressure_mca": 133.0
+        },
+        {
+          "flow_m3_h": 181.0,
+          "pressure_mca": 16.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-26 370",
+      "power_cv": 2.0,
+      "stages": 26.0,
+      "flow_range_m3_h": {
+        "min": 192.0,
+        "max": 212.0
+      },
+      "pressure_range_mca": {
+        "min": 31.6,
+        "max": 180.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 212.0,
+          "pressure_mca": 180.0
+        },
+        {
+          "flow_m3_h": 203.0,
+          "pressure_mca": 162.0
+        },
+        {
+          "flow_m3_h": 198.0,
+          "pressure_mca": 139.0
+        },
+        {
+          "flow_m3_h": 192.0,
+          "pressure_mca": 31.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-28 230",
+      "power_cv": 2.0,
+      "stages": 28.0,
+      "flow_range_m3_h": {
+        "min": 194.0,
+        "max": 221.0
+      },
+      "pressure_range_mca": {
+        "min": 17.0,
+        "max": 181.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 221.0,
+          "pressure_mca": 181.0
+        },
+        {
+          "flow_m3_h": 208.0,
+          "pressure_mca": 163.0
+        },
+        {
+          "flow_m3_h": 203.0,
+          "pressure_mca": 139.0
+        },
+        {
+          "flow_m3_h": 194.0,
+          "pressure_mca": 17.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-28 370",
+      "power_cv": 2.0,
+      "stages": 28.0,
+      "flow_range_m3_h": {
+        "min": 207.0,
+        "max": 229.0
+      },
+      "pressure_range_mca": {
+        "min": 32.0,
+        "max": 194.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 229.0,
+          "pressure_mca": 194.0
+        },
+        {
+          "flow_m3_h": 220.0,
+          "pressure_mca": 174.0
+        },
+        {
+          "flow_m3_h": 215.0,
+          "pressure_mca": 146.0
+        },
+        {
+          "flow_m3_h": 207.0,
+          "pressure_mca": 32.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-30 230",
+      "power_cv": 2.0,
+      "stages": 30.0,
+      "flow_range_m3_h": {
+        "min": 205.0,
+        "max": 235.0
+      },
+      "pressure_range_mca": {
+        "min": 17.2,
+        "max": 191.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 235.0,
+          "pressure_mca": 191.0
+        },
+        {
+          "flow_m3_h": 221.0,
+          "pressure_mca": 172.0
+        },
+        {
+          "flow_m3_h": 215.0,
+          "pressure_mca": 146.0
+        },
+        {
+          "flow_m3_h": 205.0,
+          "pressure_mca": 17.2
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-30 370",
+      "power_cv": 2.0,
+      "stages": 30.0,
+      "flow_range_m3_h": {
+        "min": 221.0,
+        "max": 244.0
+      },
+      "pressure_range_mca": {
+        "min": 32.2,
+        "max": 207.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 244.0,
+          "pressure_mca": 207.0
+        },
+        {
+          "flow_m3_h": 236.0,
+          "pressure_mca": 186.0
+        },
+        {
+          "flow_m3_h": 230.0,
+          "pressure_mca": 160.0
+        },
+        {
+          "flow_m3_h": 221.0,
+          "pressure_mca": 32.2
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-32 230",
+      "power_cv": 3.0,
+      "stages": 32.0,
+      "flow_range_m3_h": {
+        "min": 233.0,
+        "max": 259.0
+      },
+      "pressure_range_mca": {
+        "min": 21.6,
+        "max": 218.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 259.0,
+          "pressure_mca": 218.0
+        },
+        {
+          "flow_m3_h": 249.0,
+          "pressure_mca": 198.0
+        },
+        {
+          "flow_m3_h": 242.0,
+          "pressure_mca": 170.0
+        },
+        {
+          "flow_m3_h": 233.0,
+          "pressure_mca": 21.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-32 370",
+      "power_cv": 3.0,
+      "stages": 32.0,
+      "flow_range_m3_h": {
+        "min": 244.0,
+        "max": 264.0
+      },
+      "pressure_range_mca": {
+        "min": 35.0,
+        "max": 228.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 264.0,
+          "pressure_mca": 228.0
+        },
+        {
+          "flow_m3_h": 256.0,
+          "pressure_mca": 207.0
+        },
+        {
+          "flow_m3_h": 252.0,
+          "pressure_mca": 180.0
+        },
+        {
+          "flow_m3_h": 244.0,
+          "pressure_mca": 35.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-34 230",
+      "power_cv": 3.0,
+      "stages": 34.0,
+      "flow_range_m3_h": {
+        "min": 247.0,
+        "max": 275.0
+      },
+      "pressure_range_mca": {
+        "min": 21.9,
+        "max": 231.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 275.0,
+          "pressure_mca": 231.0
+        },
+        {
+          "flow_m3_h": 265.0,
+          "pressure_mca": 209.0
+        },
+        {
+          "flow_m3_h": 258.0,
+          "pressure_mca": 180.0
+        },
+        {
+          "flow_m3_h": 247.0,
+          "pressure_mca": 21.9
+        }
+      ]
+    },
+    {
+      "model": "4R3RIA-34 370",
+      "power_cv": 3.0,
+      "stages": 34.0,
+      "flow_range_m3_h": {
+        "min": 257.0,
+        "max": 283.0
+      },
+      "pressure_range_mca": {
+        "min": 35.4,
+        "max": 242.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 283.0,
+          "pressure_mca": 242.0
+        },
+        {
+          "flow_m3_h": 272.0,
+          "pressure_mca": 220.0
+        },
+        {
+          "flow_m3_h": 266.0,
+          "pressure_mca": 190.0
+        },
+        {
+          "flow_m3_h": 257.0,
+          "pressure_mca": 35.4
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 34.0,
+        "max": 39.0
+      },
+      "pressure_range_mca": {
+        "min": 9.2,
+        "max": 32.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 32.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 29.0
+        },
+        {
+          "flow_m3_h": 36.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 34.0,
+          "pressure_mca": 9.2
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 35.0,
+        "max": 39.0
+      },
+      "pressure_range_mca": {
+        "min": 19.6,
+        "max": 33.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 39.0,
+          "pressure_mca": 33.0
+        },
+        {
+          "flow_m3_h": 37.0,
+          "pressure_mca": 29.0
+        },
+        {
+          "flow_m3_h": 36.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 35.0,
+          "pressure_mca": 19.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-07 230",
+      "power_cv": 0.5,
+      "stages": 7.0,
+      "flow_range_m3_h": {
+        "min": 48.0,
+        "max": 54.0
+      },
+      "pressure_range_mca": {
+        "min": 9.6,
+        "max": 45.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 54.0,
+          "pressure_mca": 45.0
+        },
+        {
+          "flow_m3_h": 51.0,
+          "pressure_mca": 41.0
+        },
+        {
+          "flow_m3_h": 50.0,
+          "pressure_mca": 35.0
+        },
+        {
+          "flow_m3_h": 48.0,
+          "pressure_mca": 9.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-07 370",
+      "power_cv": 0.5,
+      "stages": 7.0,
+      "flow_range_m3_h": {
+        "min": 49.0,
+        "max": 56.0
+      },
+      "pressure_range_mca": {
+        "min": 17.0,
+        "max": 46.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 56.0,
+          "pressure_mca": 46.0
+        },
+        {
+          "flow_m3_h": 53.0,
+          "pressure_mca": 41.0
+        },
+        {
+          "flow_m3_h": 51.0,
+          "pressure_mca": 35.0
+        },
+        {
+          "flow_m3_h": 49.0,
+          "pressure_mca": 17.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-09 230",
+      "power_cv": 0.5,
+      "stages": 9.0,
+      "flow_range_m3_h": {
+        "min": 61.0,
+        "max": 70.0
+      },
+      "pressure_range_mca": {
+        "min": 9.9,
+        "max": 57.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 70.0,
+          "pressure_mca": 57.0
+        },
+        {
+          "flow_m3_h": 66.0,
+          "pressure_mca": 51.0
+        },
+        {
+          "flow_m3_h": 64.0,
+          "pressure_mca": 44.0
+        },
+        {
+          "flow_m3_h": 61.0,
+          "pressure_mca": 9.9
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-09 370",
+      "power_cv": 0.7,
+      "stages": 9.0,
+      "flow_range_m3_h": {
+        "min": 62.0,
+        "max": 72.0
+      },
+      "pressure_range_mca": {
+        "min": 19.6,
+        "max": 58.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 72.0,
+          "pressure_mca": 58.0
+        },
+        {
+          "flow_m3_h": 67.0,
+          "pressure_mca": 50.0
+        },
+        {
+          "flow_m3_h": 65.0,
+          "pressure_mca": 42.0
+        },
+        {
+          "flow_m3_h": 62.0,
+          "pressure_mca": 19.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-11 230",
+      "power_cv": 0.5,
+      "stages": 11.0,
+      "flow_range_m3_h": {
+        "min": 75.0,
+        "max": 86.0
+      },
+      "pressure_range_mca": {
+        "min": 10.3,
+        "max": 69.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 86.0,
+          "pressure_mca": 69.0
+        },
+        {
+          "flow_m3_h": 81.0,
+          "pressure_mca": 62.0
+        },
+        {
+          "flow_m3_h": 78.0,
+          "pressure_mca": 52.0
+        },
+        {
+          "flow_m3_h": 75.0,
+          "pressure_mca": 10.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-11 370",
+      "power_cv": 0.7,
+      "stages": 11.0,
+      "flow_range_m3_h": {
+        "min": 75.0,
+        "max": 87.0
+      },
+      "pressure_range_mca": {
+        "min": 20.1,
+        "max": 68.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 87.0,
+          "pressure_mca": 68.0
+        },
+        {
+          "flow_m3_h": 82.0,
+          "pressure_mca": 60.0
+        },
+        {
+          "flow_m3_h": 79.0,
+          "pressure_mca": 50.0
+        },
+        {
+          "flow_m3_h": 75.0,
+          "pressure_mca": 20.1
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-13 230",
+      "power_cv": 0.7,
+      "stages": 13.0,
+      "flow_range_m3_h": {
+        "min": 90.0,
+        "max": 102.0
+      },
+      "pressure_range_mca": {
+        "min": 11.3,
+        "max": 84.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 102.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 96.0,
+          "pressure_mca": 75.0
+        },
+        {
+          "flow_m3_h": 93.0,
+          "pressure_mca": 63.0
+        },
+        {
+          "flow_m3_h": 90.0,
+          "pressure_mca": 11.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-13 370",
+      "power_cv": 1.0,
+      "stages": 13.0,
+      "flow_range_m3_h": {
+        "min": 94.0,
+        "max": 106.0
+      },
+      "pressure_range_mca": {
+        "min": 20.3,
+        "max": 89.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 106.0,
+          "pressure_mca": 89.0
+        },
+        {
+          "flow_m3_h": 100.0,
+          "pressure_mca": 80.0
+        },
+        {
+          "flow_m3_h": 98.0,
+          "pressure_mca": 68.0
+        },
+        {
+          "flow_m3_h": 94.0,
+          "pressure_mca": 20.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-15 230",
+      "power_cv": 0.7,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 102.0,
+        "max": 118.0
+      },
+      "pressure_range_mca": {
+        "min": 11.6,
+        "max": 95.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 118.0,
+          "pressure_mca": 95.0
+        },
+        {
+          "flow_m3_h": 111.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 107.0,
+          "pressure_mca": 71.0
+        },
+        {
+          "flow_m3_h": 102.0,
+          "pressure_mca": 11.6
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-15 370",
+      "power_cv": 1.0,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 108.0,
+        "max": 122.0
+      },
+      "pressure_range_mca": {
+        "min": 20.8,
+        "max": 101.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 122.0,
+          "pressure_mca": 101.0
+        },
+        {
+          "flow_m3_h": 115.0,
+          "pressure_mca": 91.0
+        },
+        {
+          "flow_m3_h": 112.0,
+          "pressure_mca": 77.0
+        },
+        {
+          "flow_m3_h": 108.0,
+          "pressure_mca": 20.8
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-17 230",
+      "power_cv": 1.0,
+      "stages": 17.0,
+      "flow_range_m3_h": {
+        "min": 118.0,
+        "max": 135.0
+      },
+      "pressure_range_mca": {
+        "min": 12.3,
+        "max": 110.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 135.0,
+          "pressure_mca": 110.0
+        },
+        {
+          "flow_m3_h": 127.0,
+          "pressure_mca": 99.0
+        },
+        {
+          "flow_m3_h": 124.0,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 118.0,
+          "pressure_mca": 12.3
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-17 370",
+      "power_cv": 1.0,
+      "stages": 17.0,
+      "flow_range_m3_h": {
+        "min": 121.0,
+        "max": 138.0
+      },
+      "pressure_range_mca": {
+        "min": 21.0,
+        "max": 113.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 138.0,
+          "pressure_mca": 113.0
+        },
+        {
+          "flow_m3_h": 129.0,
+          "pressure_mca": 101.0
+        },
+        {
+          "flow_m3_h": 125.0,
+          "pressure_mca": 86.0
+        },
+        {
+          "flow_m3_h": 121.0,
+          "pressure_mca": 21.0
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-19 230",
+      "power_cv": 1.5,
+      "stages": 19.0,
+      "flow_range_m3_h": {
+        "min": 133.0,
+        "max": 150.0
+      },
+      "pressure_range_mca": {
+        "min": 13.5,
+        "max": 124.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 150.0,
+          "pressure_mca": 124.0
+        },
+        {
+          "flow_m3_h": 141.0,
+          "pressure_mca": 112.0
+        },
+        {
+          "flow_m3_h": 138.0,
+          "pressure_mca": 95.0
+        },
+        {
+          "flow_m3_h": 133.0,
+          "pressure_mca": 13.5
+        }
+      ]
+    },
+    {
+      "model": "4R3RPA-19 370",
+      "power_cv": 1.5,
+      "stages": 19.0,
+      "flow_range_m3_h": {
+        "min": 142.0,
+        "max": 155.0
+      },
+      "pressure_range_mca": {
+        "min": 42.8,
+        "max": 136.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 155.0,
+          "pressure_mca": 136.0
+        },
+        {
+          "flow_m3_h": 151.0,
+          "pressure_mca": 122.0
+        },
+        {
+          "flow_m3_h": 148.0,
+          "pressure_mca": 104.0
+        },
+        {
+          "flow_m3_h": 142.0,
+          "pressure_mca": 42.8
+        }
+      ]
+    },
+    {
+      "model": "4R4IA-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 35.0,
+        "max": 46.5
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 29.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 46.5,
+          "pressure_mca": 29.0
+        },
+        {
+          "flow_m3_h": 45.5,
+          "pressure_mca": 17.5
+        },
+        {
+          "flow_m3_h": 43.5,
+          "pressure_mca": 15.0
+        },
+        {
+          "flow_m3_h": 41.0,
+          "pressure_mca": 11.0
+        },
+        {
+          "flow_m3_h": 35.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R4IA-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 16.0,
+        "max": 45.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 44.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 44.0
+        },
+        {
+          "flow_m3_h": 42.5,
+          "pressure_mca": 39.0
+        },
+        {
+          "flow_m3_h": 34.0,
+          "pressure_mca": 27.5
+        },
+        {
+          "flow_m3_h": 16.0,
+          "pressure_mca": 13.5
+        },
+        {
+          "flow_m3_h": 19.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R4PA-05 230",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 35.0,
+        "max": 46.5
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 29.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 46.5,
+          "pressure_mca": 29.0
+        },
+        {
+          "flow_m3_h": 45.5,
+          "pressure_mca": 17.5
+        },
+        {
+          "flow_m3_h": 43.5,
+          "pressure_mca": 15.0
+        },
+        {
+          "flow_m3_h": 41.0,
+          "pressure_mca": 11.0
+        },
+        {
+          "flow_m3_h": 35.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R4PA-05 370",
+      "power_cv": 0.5,
+      "stages": 5.0,
+      "flow_range_m3_h": {
+        "min": 16.0,
+        "max": 45.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 44.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 45.0,
+          "pressure_mca": 44.0
+        },
+        {
+          "flow_m3_h": 42.5,
+          "pressure_mca": 39.0
+        },
+        {
+          "flow_m3_h": 34.0,
+          "pressure_mca": 27.5
+        },
+        {
+          "flow_m3_h": 16.0,
+          "pressure_mca": 13.5
+        },
+        {
+          "flow_m3_h": 19.2,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R5IA-03 230",
+      "power_cv": 0.5,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 10.6,
+        "max": 30.5
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 28.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 30.5,
+          "pressure_mca": 28.0
+        },
+        {
+          "flow_m3_h": 27.0,
+          "pressure_mca": 24.5
+        },
+        {
+          "flow_m3_h": 20.5,
+          "pressure_mca": 16.0
+        },
+        {
+          "flow_m3_h": 12.0,
+          "pressure_mca": 9.5
+        },
+        {
+          "flow_m3_h": 10.6,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R5IA-03 370",
+      "power_cv": 0.5,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 13.0,
+        "max": 31.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 28.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 31.0,
+          "pressure_mca": 28.5
+        },
+        {
+          "flow_m3_h": 28.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 17.5
+        },
+        {
+          "flow_m3_h": 13.0,
+          "pressure_mca": 10.5
+        },
+        {
+          "flow_m3_h": 18.2,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R5IB-02 230",
+      "power_cv": 0.5,
+      "stages": 2.0,
+      "flow_range_m3_h": {
+        "min": 9.5,
+        "max": 21.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 20.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 21.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 19.5,
+          "pressure_mca": 18.0
+        },
+        {
+          "flow_m3_h": 15.5,
+          "pressure_mca": 12.5
+        },
+        {
+          "flow_m3_h": 9.5,
+          "pressure_mca": 7.5
+        },
+        {
+          "flow_m3_h": 10.2,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R5IB-02 370",
+      "power_cv": 0.5,
+      "stages": 2.0,
+      "flow_range_m3_h": {
+        "min": 8.5,
+        "max": 22.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 20.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 20.5
+        },
+        {
+          "flow_m3_h": 19.5,
+          "pressure_mca": 17.5
+        },
+        {
+          "flow_m3_h": 15.0,
+          "pressure_mca": 12.0
+        },
+        {
+          "flow_m3_h": 8.5,
+          "pressure_mca": 7.0
+        },
+        {
+          "flow_m3_h": 18.0,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R5PA-03 230",
+      "power_cv": 0.5,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 10.6,
+        "max": 30.5
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 28.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 30.5,
+          "pressure_mca": 28.0
+        },
+        {
+          "flow_m3_h": 27.0,
+          "pressure_mca": 24.5
+        },
+        {
+          "flow_m3_h": 20.5,
+          "pressure_mca": 16.0
+        },
+        {
+          "flow_m3_h": 12.0,
+          "pressure_mca": 9.5
+        },
+        {
+          "flow_m3_h": 10.6,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R5PA-03 370",
+      "power_cv": 0.5,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 13.0,
+        "max": 31.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 28.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 31.0,
+          "pressure_mca": 28.5
+        },
+        {
+          "flow_m3_h": 28.0,
+          "pressure_mca": 25.0
+        },
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 17.5
+        },
+        {
+          "flow_m3_h": 13.0,
+          "pressure_mca": 10.5
+        },
+        {
+          "flow_m3_h": 18.2,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R6PB-03 230",
+      "power_cv": 0.5,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 11.7,
+        "max": 22.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 21.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 21.5
+        },
+        {
+          "flow_m3_h": 18.0,
+          "pressure_mca": 17.0
+        },
+        {
+          "flow_m3_h": 16.0,
+          "pressure_mca": 15.0
+        },
+        {
+          "flow_m3_h": 13.0,
+          "pressure_mca": 10.5
+        },
+        {
+          "flow_m3_h": 11.7,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R6PB-03 370",
+      "power_cv": 0.7,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 13.0,
+        "max": 22.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 20.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 22.0,
+          "pressure_mca": 20.0
+        },
+        {
+          "flow_m3_h": 17.0,
+          "pressure_mca": 16.0
+        },
+        {
+          "flow_m3_h": 15.5,
+          "pressure_mca": 14.5
+        },
+        {
+          "flow_m3_h": 13.0,
+          "pressure_mca": 11.5
+        },
+        {
+          "flow_m3_h": 19.2,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R6PB-15 230",
+      "power_cv": 3.0,
+      "stages": 15.0,
+      "flow_range_m3_h": {
+        "min": 88.5,
+        "max": 116.5
+      },
+      "pressure_range_mca": {
+        "min": 65.0,
+        "max": 84.0
+      },
+      "curve": [
+        {
+          "flow_m3_h": 116.5,
+          "pressure_mca": 84.0
+        },
+        {
+          "flow_m3_h": 110.5,
+          "pressure_mca": 78.5
+        },
+        {
+          "flow_m3_h": 94.0,
+          "pressure_mca": 73.5
+        },
+        {
+          "flow_m3_h": 88.5,
+          "pressure_mca": 65.0
+        }
+      ]
+    },
+    {
+      "model": "4R8PB-03 370",
+      "power_cv": 1.0,
+      "stages": 3.0,
+      "flow_range_m3_h": {
+        "min": 7.5,
+        "max": 23.5
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 21.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 23.5,
+          "pressure_mca": 21.5
+        },
+        {
+          "flow_m3_h": 19.0,
+          "pressure_mca": 17.5
+        },
+        {
+          "flow_m3_h": 13.0,
+          "pressure_mca": 10.0
+        },
+        {
+          "flow_m3_h": 7.5,
+          "pressure_mca": 4.5
+        },
+        {
+          "flow_m3_h": 20.9,
+          "pressure_mca": 4.0
+        }
+      ]
+    },
+    {
+      "model": "4R8PB-04 230",
+      "power_cv": 1.0,
+      "stages": 4.0,
+      "flow_range_m3_h": {
+        "min": 11.0,
+        "max": 31.0
+      },
+      "pressure_range_mca": {
+        "min": 4.0,
+        "max": 27.5
+      },
+      "curve": [
+        {
+          "flow_m3_h": 31.0,
+          "pressure_mca": 27.5
+        },
+        {
+          "flow_m3_h": 25.5,
+          "pressure_mca": 23.5
+        },
+        {
+          "flow_m3_h": 18.0,
+          "pressure_mca": 14.0
+        },
+        {
+          "flow_m3_h": 11.0,
+          "pressure_mca": 6.5
+        },
+        {
+          "flow_m3_h": 14.1,
+          "pressure_mca": 4.0
+        }
+      ]
+    }
+  ]
+}

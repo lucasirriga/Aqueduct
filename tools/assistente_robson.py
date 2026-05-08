@@ -10,6 +10,8 @@ from qgis.PyQt.QtGui import QIcon, QFont
 from qgis.core import QgsProject
 
 from .ferramenta_base import AqueductTool
+from .gerenciar_pecas import PecaManager
+from .gerenciar_servicos import ServicoManager
 
 # ---------------------------------------------------------------------------
 class RobsonMemoryManager:
@@ -101,7 +103,7 @@ class GemmaWorker(QThread):
         import requests
         try:
             payload = {
-                "model": "google/gemma-3-1b@q4_0", # ID sugerido pelo log do LM Studio
+                "model": "qwen2.5-coder-0.5b-instruct",
                 "messages": [
                     {"role": "system", "content": self.context},
                     {"role": "user", "content": self.prompt}
@@ -190,6 +192,14 @@ class RobsonChatDock(QDockWidget):
             "totais": {}
         }
         
+        try:
+            peca_mgr = PecaManager()
+            summary["banco_pecas"] = peca_mgr.pecas
+            servico_mgr = ServicoManager()
+            summary["banco_servicos"] = servico_mgr.servicos
+        except:
+            pass
+        
         # Tenta pegar totais de tubulação se a camada existir
         top_layer = QgsProject.instance().mapLayersByName("Topologia")
         if top_layer:
@@ -229,10 +239,17 @@ Seu objetivo é guiar o usuário no projeto de irrigação.
 CAPACIDADES (FERRAMENTAS):
 {habilidades}
 
+NOVA CAPACIDADE (Banco de Dados):
+Você pode ler e editar o banco de dados de Peças e Serviços.
+- Para adicionar/atualizar peça: [EXECUTE: atualizar_peca, {"nome": "Tubo PVC...", "custo": 10.5, "lucro": 30.0}]
+- Para remover peça: [EXECUTE: remover_peca, {"nome": "Tubo PVC..."}]
+- Para adicionar/atualizar serviço: [EXECUTE: atualizar_servico, {"descricao": "Escavação...", "custo": 50.0, "lucro": 20.0}]
+- Para remover serviço: [EXECUTE: remover_servico, {"descricao": "Escavação..."}]
+
 PREFERÊNCIAS GLOBAIS (O QUE VOCÊ APRENDEU SOBRE O USUÁRIO):
 {global_m}
 
-ESTADO ATUAL DO PROJETO (QGIS):
+ESTADO ATUAL DO PROJETO E BANCO DE DADOS:
 {real_context}
 
 NOTAS ESPECÍFICAS DESTE PROJETO:
@@ -242,7 +259,7 @@ Instruções Cruciais:
 1. Responda em Português Brasil.
 2. Seja EXTREMAMENTE conciso (máximo 2 sentenças).
 3. Se precisar agir, use SEMPRE no final da resposta: [EXECUTE: id, {{"param": val}}]
-   Exemplos de IDs: acumulo_vazao, atribuir_vazao, grade_linhas.
+   Exemplos de IDs: acumulo_vazao, atualizar_peca, grade_linhas.
 """
         system = template.replace("{habilidades}", habilidades) \
                          .replace("{global_m}", global_m) \
@@ -292,6 +309,18 @@ Instruções Cruciais:
         self.input.setFocus()
 
     def _handle_execution(self, tool_id, params):
+        db_commands = ["atualizar_peca", "remover_peca", "atualizar_servico", "remover_servico"]
+        if tool_id in db_commands:
+            self.pending_action = (tool_id, params)
+            self.browser.append(
+                f"<div style='background: #fff3e0; padding: 10px; border-radius: 5px;'>"
+                f"<b>⚠️ Ação no Banco de Dados:</b> O Robson quer executar <b>{tool_id}</b>.<br><br>"
+                f"<a href='action:confirm' style='background: #4caf50; color: white; padding: 5px; text-decoration: none;'>✅ Confirmar</a> &nbsp; "
+                f"<a href='action:cancel' style='background: #f44336; color: white; padding: 5px; text-decoration: none;'>❌ Cancelar</a>"
+                f"</div>"
+            )
+            return
+
         if tool_id not in self.tool_registry:
             self.browser.append(f"<p style='color: orange;'>⚠️ Ferramenta '{tool_id}' não encontrada no registro.</p>")
             return
@@ -324,6 +353,25 @@ Instruções Cruciais:
                 tool_id, params = self.pending_action
                 self.pending_action = None
                 self.browser.append(f"<p style='color: blue;'>⚙️ Confirmado. Executando {tool_id}...</p>")
+                
+                db_commands = ["atualizar_peca", "remover_peca", "atualizar_servico", "remover_servico"]
+                if tool_id in db_commands:
+                    try:
+                        if tool_id == "atualizar_peca":
+                            PecaManager().add_update(params.get("nome"), {"custo": float(params.get("custo", 0)), "lucro": float(params.get("lucro", 30))})
+                        elif tool_id == "remover_peca":
+                            PecaManager().remove(params.get("nome"))
+                        elif tool_id == "atualizar_servico":
+                            c = float(params.get("custo", 0))
+                            l = float(params.get("lucro", 20))
+                            ServicoManager().add_update(params.get("descricao"), {"custo": c, "lucro": l, "valor": c * (1 + l/100)})
+                        elif tool_id == "remover_servico":
+                            ServicoManager().remove(params.get("descricao"))
+                        self.browser.append(f"<p style='color: green;'>✅ Banco de dados atualizado com sucesso.</p>")
+                    except Exception as e:
+                        self.browser.append(f"<p style='color: red;'>❌ Erro no banco de dados: {e}</p>")
+                    return
+
                 try:
                     self.tool_registry[tool_id].run_automated(params)
                     self.browser.append(f"<p style='color: green;'>✅ Concluído com sucesso.</p>")
@@ -366,7 +414,7 @@ class AssistenteRobsonTool(AqueductTool):
 
     def initGui(self):
         icon_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_robson.svg')
+            os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_assistente_robson.svg')
         # Placeholder se não existir
         if not os.path.exists(icon_path): icon_path = ""
         

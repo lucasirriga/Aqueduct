@@ -1,4 +1,9 @@
-<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-  <path d="M12 14l9-9"/>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#0277BD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Tubo principal -->
+  <path d="M2 12 L22 12" stroke="#0277BD" stroke-width="3"/>
+  <!-- Lápis de edição -->
+  <path d="M14 4 L20 10 L10 20 L4 20 L4 14 Z" fill="#E1F5FE" stroke="#0277BD" stroke-width="1.5"/>
+  <path d="M16 6 L18 8" stroke="#0277BD" stroke-width="1.5"/>
+  <!-- Gota de água sobre o tubo -->
+  <path d="M8 7 Q8 4 10 4 Q12 4 12 7 Q12 10 10 11 Q8 10 8 7Z" fill="#29B6F6" stroke="none"/>
 </svg>

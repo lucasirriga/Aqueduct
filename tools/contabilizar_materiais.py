@@ -147,7 +147,7 @@ class ContabilizarMateriaisDialog(QDialog):
 
 class ContabilizarMateriaisTool(AqueductTool):
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_contabilizar.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_contabilizar_materiais.svg')
         self.action = QAction(QIcon(icon_path), 'Contabilizar Materiais Auto', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         

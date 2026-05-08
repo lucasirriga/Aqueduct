@@ -653,7 +653,7 @@ class AnaliseLucroDialog(QDialog):
 
 class AnaliseLucroTool(AqueductTool):
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_lucro.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_analise_lucro.svg')
         # Se icone não existir, usar um padrão do QGIS ou deixar sem
         self.action = QAction(QIcon(icon_path), 'Análise de Lucro', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

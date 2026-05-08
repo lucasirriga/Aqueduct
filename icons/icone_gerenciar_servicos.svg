@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#4527A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Prancheta/clipboard -->
+  <rect x="5" y="4" width="14" height="17" rx="1" fill="#EDE7F6" stroke="#4527A0"/>
+  <rect x="9" y="2" width="6" height="4" rx="1" fill="#B39DDB" stroke="#4527A0"/>
+  <!-- Itens de serviço -->
+  <path d="M8 10 L10 12 L14 8" stroke="#4527A0" stroke-width="1.5"/>
+  <line x1="12" y1="10" x2="17" y2="10" stroke="#9575CD" stroke-width="1.5"/>
+  <path d="M8 15 L10 17 L14 13" stroke="#7E57C2" stroke-width="1.5"/>
+  <line x1="12" y1="15" x2="17" y2="15" stroke="#9575CD" stroke-width="1.5"/>
+</svg>

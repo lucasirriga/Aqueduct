@@ -1,0 +1,15 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Nó fonte -->
+  <circle cx="4" cy="12" r="2" fill="#1565C0" stroke="none"/>
+  <!-- Setas de fluxo convergindo -->
+  <path d="M6 12 L10 8"/>
+  <path d="M6 12 L10 12"/>
+  <path d="M6 12 L10 16"/>
+  <!-- Nó central -->
+  <circle cx="12" cy="12" r="2" fill="#42A5F5" stroke="none"/>
+  <!-- Saída acumulada -->
+  <path d="M14 12 L20 12"/>
+  <path d="M18 10 L20 12 L18 14"/>
+  <!-- Símbolo de soma -->
+  <text x="11" y="8" font-size="6" fill="#1565C0" stroke="none" font-family="sans-serif">Σ</text>
+</svg>

@@ -55,7 +55,7 @@ class TermosDialog(QDialog):
 
 class TermosServicoTool(AqueductTool):
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_termos.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_termos_servico.svg')
         self.action = QAction(QIcon(icon_path), 'Termos de Serviço', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         

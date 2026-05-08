@@ -135,7 +135,7 @@ class MicrotuboComandoDialog(QDialog):
 
 class MicrotuboComandoTool(AqueductTool):
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_microtubo.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_microtubo_comando.svg')
         if not os.path.exists(icon_path):
              icon_path = "" # Fallback
              

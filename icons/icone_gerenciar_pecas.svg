@@ -1,0 +1,7 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#37474F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Engrenagem -->
+  <circle cx="12" cy="12" r="3" fill="#B0BEC5" stroke="#37474F"/>
+  <path d="M12 2 L13.5 5.5 L17 4 L17 8 L20.5 9 L19 12 L20.5 15 L17 16 L17 20 L13.5 18.5 L12 22 L10.5 18.5 L7 20 L7 16 L3.5 15 L5 12 L3.5 9 L7 8 L7 4 L10.5 5.5 Z" fill="#CFD8DC" stroke="#37474F" stroke-width="1.5"/>
+  <!-- Ícone de catálogo/lista interno -->
+  <circle cx="12" cy="12" r="2" fill="#37474F" stroke="none"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#1A237E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Tubulação telescópica (DN decrescente) -->
+  <rect x="2" y="8" width="6" height="8" rx="1" fill="#C5CAE9" stroke="#1A237E"/>
+  <rect x="8" y="9" width="5" height="6" rx="1" fill="#9FA8DA" stroke="#3949AB"/>
+  <rect x="13" y="10" width="4" height="4" rx="1" fill="#7986CB" stroke="#5C6BC0"/>
+  <rect x="17" y="11" width="5" height="2" rx="0.5" fill="#5C6BC0" stroke="#5C6BC0"/>
+  <!-- Seta de fluxo -->
+  <path d="M18 9 L22 12 L18 15" fill="none" stroke="#E53935" stroke-width="1.5"/>
+  <!-- Símbolo calculadora -->
+  <text x="3" y="21" font-size="4" fill="#1A237E" stroke="none" font-family="sans-serif">DN▼</text>
+</svg>

@@ -1,0 +1,6 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Arrow Cursor -->
+  <path d="M7 2L18 13L13 13.5L16 19L14 20L11 14.5L7 17.5V2Z" fill="#E0E0E0" stroke="#1A1A1A" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Plus Symbol (Bottom Right) -->
+  <path d="M16 4V10M13 7H19" stroke="#00C853" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

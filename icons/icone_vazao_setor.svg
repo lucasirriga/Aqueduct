@@ -1,0 +1,8 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#01579B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polygon points="3,4 21,4 21,20 3,20" fill="#E1F5FE" stroke="#01579B" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <line x1="12" y1="4" x2="12" y2="20" stroke="#0288D1" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <line x1="3" y1="12" x2="21" y2="12" stroke="#0288D1" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <path d="M3 4 L12 12 L21 4" stroke="#29B6F6" stroke-width="1"/>
+  <path d="M3 20 L12 12 L21 20" stroke="#29B6F6" stroke-width="1"/>
+  <text x="8" y="11" font-size="5" fill="#01579B" stroke="none" font-family="sans-serif" font-weight="bold">m³/h</text>
+</svg>

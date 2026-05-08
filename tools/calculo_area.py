@@ -13,7 +13,7 @@ class CalculoAreaTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_area.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_calculo_area.svg')
         
         self.action = QAction(QIcon(icon_path), 'Calcular Área (Hectares)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

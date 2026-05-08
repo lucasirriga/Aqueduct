@@ -1,0 +1,17 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#6A1B9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Cabeça do robô -->
+  <rect x="6" y="5" width="12" height="10" rx="2" fill="#CE93D8" stroke="#6A1B9A"/>
+  <!-- Olhos -->
+  <circle cx="9.5" cy="9" r="1.5" fill="#6A1B9A" stroke="none"/>
+  <circle cx="14.5" cy="9" r="1.5" fill="#6A1B9A" stroke="none"/>
+  <!-- Boca (sorriso) -->
+  <path d="M9 12.5 Q12 14.5 15 12.5" stroke="#6A1B9A" stroke-width="1.5"/>
+  <!-- Antena -->
+  <line x1="12" y1="5" x2="12" y2="2"/>
+  <circle cx="12" cy="2" r="1" fill="#AB47BC" stroke="none"/>
+  <!-- Corpo -->
+  <rect x="8" y="15" width="8" height="4" rx="1" fill="#E1BEE7" stroke="#6A1B9A"/>
+  <!-- Pezinhos -->
+  <line x1="10" y1="19" x2="10" y2="22"/>
+  <line x1="14" y1="19" x2="14" y2="22"/>
+</svg>

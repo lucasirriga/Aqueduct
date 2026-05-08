@@ -12,7 +12,7 @@ class RecortarCamadaTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_recortar.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_recortar_camada.svg')
         
         self.action = QAction(QIcon(icon_path), 'Recortar pela Máscara (In-Place)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

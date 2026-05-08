@@ -260,7 +260,7 @@ class ContabilizarTubosDialog(QDialog):
 class ContabilizarTubosTool(AqueductTool):
     def initGui(self):
         # Usar um icone de tubulacao se existir, ou o mesmo de contabilizar
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_tubos.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_contabilizar_tubos.svg')
         if not os.path.exists(icon_path):
              icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_contabilizar.svg')
              

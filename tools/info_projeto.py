@@ -259,7 +259,7 @@ class InfoProjetoDialog(QDialog):
 
 class InfoProjetoTool(AqueductTool):
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_info.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_info_projeto.svg')
         self.action = QAction(QIcon(icon_path), 'Informações do Projeto', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         

@@ -1,0 +1,13 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="hf_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFCC02;stop-opacity:1"/>
+      <stop offset="50%" style="stop-color:#FF8800;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#CC0000;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <path d="M3 18 L21 18" stroke="url(#hf_grad)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M3 12 L21 12" stroke="url(#hf_grad)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M3 7 L21 7" stroke="url(#hf_grad)" stroke-width="2" stroke-linecap="round"/>
+  <text x="2" y="5" font-size="4" fill="#E65100" stroke="none" font-family="sans-serif">Hf</text>
+</svg>

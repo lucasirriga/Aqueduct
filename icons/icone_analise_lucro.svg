@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Gráfico de barras crescente -->
+  <rect x="3" y="15" width="4" height="6" fill="#81C784" stroke="#2E7D32"/>
+  <rect x="10" y="10" width="4" height="11" fill="#4CAF50" stroke="#2E7D32"/>
+  <rect x="17" y="5" width="4" height="16" fill="#2E7D32" stroke="#2E7D32"/>
+  <!-- Linha de tendência -->
+  <path d="M5 15 L12 10 L19 5" stroke="#F9A825" stroke-width="1.5" stroke-dasharray="2,1"/>
+  <!-- Símbolo de moeda -->
+  <text x="1" y="6" font-size="7" fill="#2E7D32" stroke="none" font-family="sans-serif" font-weight="bold">R$</text>
+</svg>

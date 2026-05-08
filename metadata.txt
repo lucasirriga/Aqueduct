@@ -2,7 +2,7 @@
 name=Aqueduct
 qgisMinimumVersion=3.0
 description=Plugin de automação para projetos de irrigação e análise espacial agronômica.
-version=0.1.0
+version=0.1.3
 author=Agrônomo/Desenvolvedor
 email=seu_email@dominio.com
 about=Ferramentas modulares para cálculo hidráulico, análise de terreno e dimensionamento de sistemas de irrigação.

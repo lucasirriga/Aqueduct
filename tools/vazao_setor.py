@@ -13,7 +13,7 @@ class VazaoSetorTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_vazao.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_vazao_setor.svg')
         
         self.action = QAction(QIcon(icon_path), 'Calcular Vazão e Emissores', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

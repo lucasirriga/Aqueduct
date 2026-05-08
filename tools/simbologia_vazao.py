@@ -16,7 +16,7 @@ class SimbologiaVazaoTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_simbologia.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_simbologia_vazao.svg')
         
         self.action = QAction(QIcon(icon_path), 'Aplicar Simbologia de Vazão', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

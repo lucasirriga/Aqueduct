@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#B71C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Documento PDF -->
+  <path d="M5 2 L5 22 L19 22 L19 7 L14 2 Z" fill="#FFEBEE" stroke="#B71C1C"/>
+  <path d="M14 2 L14 7 L19 7" fill="#FFCDD2" stroke="#B71C1C"/>
+  <!-- Linhas de texto -->
+  <line x1="8" y1="11" x2="16" y2="11" stroke="#EF9A9A" stroke-width="1.5"/>
+  <line x1="8" y1="14" x2="16" y2="14" stroke="#EF9A9A" stroke-width="1.5"/>
+  <!-- Símbolo R$ -->
+  <text x="7" y="20" font-size="6" fill="#B71C1C" stroke="none" font-family="sans-serif" font-weight="bold">R$</text>
+  <!-- Ícone mapa pequeno no canto -->
+  <rect x="14" y="16" width="4" height="3" fill="#B71C1C" stroke="none" rx="0.5"/>
+</svg>

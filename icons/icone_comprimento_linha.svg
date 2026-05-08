@@ -1,0 +1,11 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#00695C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Linha a ser medida -->
+  <path d="M3 12 Q8 6 12 12 Q16 18 21 12" stroke="#00897B" stroke-width="2.5"/>
+  <!-- Régua/escala abaixo -->
+  <line x1="3" y1="19" x2="21" y2="19" stroke="#00695C" stroke-width="1.5"/>
+  <line x1="3" y1="17" x2="3" y2="21" stroke="#00695C" stroke-width="1.5"/>
+  <line x1="12" y1="18" x2="12" y2="20" stroke="#00695C" stroke-width="1.5"/>
+  <line x1="21" y1="17" x2="21" y2="21" stroke="#00695C" stroke-width="1.5"/>
+  <!-- Símbolo m -->
+  <text x="9" y="23" font-size="4" fill="#00695C" stroke="none" font-family="sans-serif">m</text>
+</svg>

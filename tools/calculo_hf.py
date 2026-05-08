@@ -18,7 +18,7 @@ class CalculoHfTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_hf.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_calculo_hf.svg')
         
         self.action = QAction(QIcon(icon_path), 'Calcular Perda de Carga (Hf)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

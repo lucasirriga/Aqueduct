@@ -207,7 +207,7 @@ class GerenciarServicosTool(AqueductTool):
     Ferramenta para abrir o gerenciador CRUD de serviços (Global).
     """
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_servicos.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_gerenciar_servicos.svg')
         self.action = QAction(QIcon(icon_path), 'Gerenciar Serviços', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         

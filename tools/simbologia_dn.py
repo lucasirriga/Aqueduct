@@ -22,7 +22,7 @@ class SimbologiaDnTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_simbologia.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_simbologia_dn.svg')
         
         self.action = QAction(QIcon(icon_path), 'Aplicar Simbologia DN', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
@@ -81,7 +81,7 @@ class SimbologiaDnTool(AqueductTool):
             symbol = QgsSymbol.defaultSymbol(layer.geometryType())
             symbol.setColor(color)
             # Aumentando a espessura da linha um pouco para facilitar a visualização de longe
-            symbol.setWidth(0.6) 
+            symbol.setWidth(0.2) 
             
             label = f"DN {val}"
             category = QgsRendererCategory(val, symbol, label)

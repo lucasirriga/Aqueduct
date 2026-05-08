@@ -210,7 +210,7 @@ class GerenciarPecasTool(AqueductTool):
     Ferramenta para abrir o gerenciador CRUD de peças.
     """
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_pecas.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_gerenciar_pecas.svg')
         self.action = QAction(QIcon(icon_path), 'Gerenciar Peças', self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         

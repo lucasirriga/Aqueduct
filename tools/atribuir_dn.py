@@ -13,7 +13,7 @@ class AtribuirDnTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_dn.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_atribuir_dn.svg')
         
         self.action = QAction(QIcon(icon_path), 'Atribuir Diâmetro Nominal (DN)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

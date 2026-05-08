@@ -14,8 +14,9 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 1.  **Configuração:** Definir dados do cliente e projeto (`info_projeto`).
 2.  **Layout:** Gerar malhas de aspersores ou gotas (`grade_pontos` / `grade_linhas`).
 3.  **Cálculo:** Definir vazões por setor e acumular no sistema (`vazao_setor` -> `acumulo_vazao`).
-4.  **Detalhamento:** Inserir conexões automáticas e rotear comandos (`inserir_reducoes` -> `microtubo_comando`).
-5.  **Fechamento:** Listar materiais e serviços para gerar o orçamento final (`lista_materiais` -> `gerar_orcamento`).
+4.  **Bomba:** Selecionar a motobomba adequada pela curva Q-H (`selecionar_bomba`).
+5.  **Detalhamento:** Inserir conexões automáticas e rotear comandos (`inserir_reducoes` -> `microtubo_comando`).
+6.  **Fechamento:** Listar materiais e serviços para gerar o orçamento final (`lista_materiais` -> `gerar_orcamento`).
 
 ---
 
@@ -26,6 +27,7 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 -   **`termos_servico`**: (termos_servico.py) Gerencia as cláusulas legais e técnicas que acompanham o orçamento.
 -   **`gerenciar_pecas`**: (gerenciar_pecas.py) Interface para cadastrar novos tubos, emissores e acessórios no banco de dados.
 -   **`gerenciar_blocos`**: (gerenciar_blocos.py) Permite criar "Kits" ou "Blocos" (ex: Kit de Filtragem) para facilitar a inserção no orçamento.
+-   **`somador_selecao`**: (somador_selecao.py) Ferramenta interativa que permite selecionar feições no mapa e somar automaticamente os valores de uma coluna específica (ex: somar comprimento de vários trechos selecionados).
 
 ### 2. Design de Layout e Geometria
 -   **`grade_linhas`**: (grade_linhas.py) Gera as linhas laterais de irrigação dentro de um polígono com espaçamento definido.
@@ -42,6 +44,8 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 -   **`calculo_hf`**: (calculo_hf.py) Calculadora rápida para perdas de carga pontuais usando Hazen-Williams.
 -   **`atribuir_vazao`**: (atribuir_vazao.py) Permite ajuste manual da vazão em trechos específicos para cenários atípicos.
 -   **`atribuir_dn`**: (atribuir_dn.py) Permite fixar ou alterar manualmente o diâmetro de um tubo após o cálculo automático.
+-   **`dimensionar_tubulacao`**: (dimensionar_tubulacao.py) Dimensiona uma tubulação selecionada em trechos, detectando mangueiras conectadas, acumulando vazões dos emissores e selecionando diâmetros por Hazen-Williams respeitando a perda de carga máxima informada.
+-   **`selecionar_bomba`**: (selecionar_bomba.py) Lê a vazão do projeto em `dados_projeto.json`, solicita a pressão pretendida e busca modelos compatíveis no banco de dados (`data/bomba_database.json`). Exibe lista de modelos com gráfico interativo da curva Q-H e ponto de operação do projeto. Permite cadastrar o modelo escolhido nas Peças e adicioná-lo ao orçamento.
 
 ### 4. Conexões e Automação
 -   **`inserir_reducoes`**: (inserir_reducoes.py) Identifica mudanças de diâmetro e insere automaticamente a peça de redução correspondente.
@@ -59,6 +63,9 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 -   **`simbologia_dn`**: (simbologia_dn.py) Aplica cores padronizadas baseadas no diâmetro (ex: 20mm=Cinza, 50mm=Azul).
 -   **`simbologia_vazao`**: (simbologia_vazao.py) Gradiente de cores baseado no volume de água.
 -   **`simbologia_direcao`**: (simbologia_direcao.py) Adiciona setas de fluxo para auditoria rápida do sentido da água.
+-   **`simbologia_hf`**: (simbologia_hf.py) Gradiente de cores (Laranjas) baseado na perda de carga unitária (HF) dos trechos.
+-   **`simbologia_emissores`**: (simbologia_emissores.py) Aplica cor vermelha e tamanho reduzido (0.4) para destacar pontos de emissão.
+-   **`simbologia_setores`**: (simbologia_setores.py) Define polígonos com contorno preto fino (0.16) e preenchimento transparente para visualização de setores.
 
 ---
 

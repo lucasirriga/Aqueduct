@@ -13,7 +13,7 @@ class LineLengthTool(AqueductTool):
 
     def initGui(self):
         # Usa o mesmo ícone por enquanto ou um específico se existisse
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_comprimento.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_comprimento_linha.svg')
 
         self.action = QAction(QIcon(icon_path), 'Calcular Comprimento de Linhas', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

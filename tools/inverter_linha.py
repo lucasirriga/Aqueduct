@@ -12,7 +12,7 @@ class InverterLinhaTool(AqueductTool):
     """
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_inverter.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_inverter_linha.svg')
         
         self.action = QAction(QIcon(icon_path), 'Inverter Direção (Linhas Selecionadas)', self.iface.mainWindow())
         self.action.triggered.connect(self.run)

@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Tubo inclinado com perda -->
+  <path d="M3 8 L21 16" stroke="#E65100" stroke-width="3" stroke-linecap="round"/>
+  <!-- Seta de perda (caindo) -->
+  <path d="M12 8 L12 14" stroke="#EF6C00" stroke-width="1.5" stroke-dasharray="2,1"/>
+  <path d="M10 12 L12 14 L14 12" stroke="#EF6C00" stroke-width="1.5"/>
+  <!-- Símbolo Hf -->
+  <text x="14" y="8" font-size="7" fill="#E65100" stroke="none" font-family="sans-serif" font-weight="bold">Hf</text>
+  <!-- Gotículas -->
+  <circle cx="6" cy="18" r="1.5" fill="#FFB74D" stroke="none"/>
+  <circle cx="10" cy="20" r="1" fill="#FFB74D" stroke="none"/>
+</svg>

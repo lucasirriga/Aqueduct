@@ -1,0 +1,9 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#37474F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Pacote de tubos (visão isométrica) -->
+  <ellipse cx="12" cy="5" rx="8" ry="3" fill="#B0BEC5" stroke="#37474F"/>
+  <rect x="4" y="5" width="16" height="12" fill="#CFD8DC" stroke="none"/>
+  <path d="M4 5 L4 17 Q4 20 12 20 Q20 20 20 17 L20 5" fill="#CFD8DC" stroke="#37474F"/>
+  <ellipse cx="12" cy="17" rx="8" ry="3" fill="#ECEFF1" stroke="#37474F"/>
+  <!-- Símbolo de contagem -->
+  <text x="9" y="13" font-size="7" fill="#263238" stroke="none" font-family="sans-serif" font-weight="bold">×N</text>
+</svg>

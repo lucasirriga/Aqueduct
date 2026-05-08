@@ -15,7 +15,7 @@ class GerarOrcamentoTool(AqueductTool):
     """Ferramenta para gerar o PDF de orçamento do projeto de irrigação."""
 
     def initGui(self):
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_pdf_orcamento.svg')
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_gerar_orcamento.svg')
         if not os.path.exists(icon_path):
             icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'icons', 'icone_pdf.svg')
 
