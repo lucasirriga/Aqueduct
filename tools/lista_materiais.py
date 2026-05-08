@@ -433,8 +433,6 @@ class ListaMateriaisDialog(QDialog):
             self.refresh_final_table()
 
     def refresh_comp_tables(self):
-        # Garante que qualquer edicao em andamento seja salva antes de reconstruir a UI
-        self._persistir_edicoes_pendentes()
         # 1. Blocos do Projeto
         self.table_proj_blocos.blockSignals(True)
         self.table_proj_blocos.setRowCount(0)
@@ -546,10 +544,12 @@ class ListaMateriaisDialog(QDialog):
     def on_budget_changed(self):
         new = self.combo_budgets.currentText()
         if new:
+            self._persistir_edicoes_pendentes()
             self.project_manager.set_current_budget(new)
             self.refresh_ui()
 
     def on_new(self):
+        self._persistir_edicoes_pendentes()
         name, ok = QInputDialog.getText(self, "Novo", "Nome:")
         if ok and name:
             copy_curr = False
@@ -576,6 +576,7 @@ class ListaMateriaisDialog(QDialog):
             self.refresh_ui()
 
     def on_add_peca_to_project(self):
+        self._persistir_edicoes_pendentes()
         items = self.list_global_pecas.selectedItems()
         for i in items:
             nome = i.text()
@@ -587,6 +588,7 @@ class ListaMateriaisDialog(QDialog):
         self.refresh_ui()
 
     def on_add_bloco_to_project(self):
+        self._persistir_edicoes_pendentes()
         item = self.list_global_blocos.currentItem()
         if item:
             nome = item.text()
@@ -605,10 +607,12 @@ class ListaMateriaisDialog(QDialog):
 
     def on_project_tab_changed(self, index):
         if index == 1:
+            self._persistir_edicoes_pendentes()
             self.refresh_final_table()
 
     def on_update_prices(self):
         """M7: usa update_item() em vez de modificar o dict diretamente."""
+        self._persistir_edicoes_pendentes()
         count = 0
         for idx, item in enumerate(self.project_manager.items):
             data = self.global_manager.get(item['nome'])
@@ -653,6 +657,7 @@ class ListaMateriaisDialog(QDialog):
         if ok and val == (a+b):
             self.project_manager.clear_all()
             self.refresh_ui()
+            self._limpar_todos_blocos_do_mapa()
 
     def on_proj_bloco_changed(self, row, col):
         if col == 1:  # Apenas coluna de Qtd
@@ -687,12 +692,14 @@ class ListaMateriaisDialog(QDialog):
         nome = self.project_manager.project_blocos[row]['nome']
         resp = QMessageBox.question(
             self, 'Confirmar',
-            f'Remover o bloco "{nome}" do projeto?',
+            f'Remover o bloco "{nome}" do projeto e de todos os cavaletes associados no mapa?',
             QMessageBox.Yes | QMessageBox.No
         )
         if resp == QMessageBox.Yes:
+            self._persistir_edicoes_pendentes()
             self.project_manager.remove_bloco_project(row)
             self.refresh_comp_tables()
+            self._remover_bloco_do_mapa(nome)
 
     def _on_delete_peca(self, row):
         """Exclui a peca avulsa do projeto na linha indicada."""
@@ -705,8 +712,47 @@ class ListaMateriaisDialog(QDialog):
             QMessageBox.Yes | QMessageBox.No
         )
         if resp == QMessageBox.Yes:
+            self._persistir_edicoes_pendentes()
             self.project_manager.remove_item(row)
             self.refresh_comp_tables()
+
+    def _remover_bloco_do_mapa(self, nome_bloco):
+        layers = QgsProject.instance().mapLayers().values()
+        mudancas = 0
+        for layer in layers:
+            if layer.type() == 0: # 0 = VectorLayer
+                idx = layer.fields().indexOf('bloco_id')
+                if idx != -1:
+                    layer.startEditing()
+                    for feat in layer.getFeatures():
+                        if feat.attributes()[idx] == nome_bloco:
+                            layer.changeAttributeValue(feat.id(), idx, None)
+                            mudancas += 1
+                    if mudancas > 0:
+                        layer.commitChanges()
+                        layer.triggerRepaint()
+        
+        if mudancas > 0:
+            QMessageBox.information(self, "Aviso", f"O bloco '{nome_bloco}' foi desvinculado de {mudancas} ponto(s) no mapa.")
+
+    def _limpar_todos_blocos_do_mapa(self):
+        layers = QgsProject.instance().mapLayers().values()
+        mudancas = 0
+        for layer in layers:
+            if layer.type() == 0:
+                idx = layer.fields().indexOf('bloco_id')
+                if idx != -1:
+                    layer.startEditing()
+                    for feat in layer.getFeatures():
+                        if feat.attributes()[idx]:
+                            layer.changeAttributeValue(feat.id(), idx, None)
+                            mudancas += 1
+                    if mudancas > 0:
+                        layer.commitChanges()
+                        layer.triggerRepaint()
+        
+        if mudancas > 0:
+            QMessageBox.information(self, "Aviso", f"Todos os blocos ({mudancas}) foram desvinculados do mapa.")
 
 class ListaMateriaisTool(AqueductTool):
     def __init__(self, iface, toolbar):
