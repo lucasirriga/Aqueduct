@@ -18,44 +18,105 @@ from .lista_materiais import ProjectBOMManager
 # ---------------------------------------------------------------------------
 # Caminho do banco de dados de bombas
 # ---------------------------------------------------------------------------
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'bomba_database.json')
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'motobombas.json')
 
 
 def _carregar_banco():
-    """Carrega o arquivo bomba_database.json e retorna a lista de bombas."""
+    """Carrega o arquivo motobombas.json e adapta a estrutura para o plugin."""
     if not os.path.exists(DB_PATH):
         raise FileNotFoundError(f"Banco de dados não encontrado em: {DB_PATH}")
     with open(DB_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    return data.get('pumps', [])
+        
+    bombas_originais = data.get('motobombas', [])
+    bombas_adaptadas = []
+    
+    for b in bombas_originais:
+        curva_orig = b.get('curva_desempenho', [])
+        if not curva_orig:
+            continue
+            
+        curva_nova = []
+        vazoes = []
+        pressoes = []
+        
+        for pt in curva_orig:
+            q = pt.get('vazao_m3h', 0)
+            p = pt.get('altura_manometrica_mca', 0)
+            curva_nova.append({'flow_m3_h': q, 'pressure_mca': p})
+            vazoes.append(q)
+            pressoes.append(p)
+            
+        if not vazoes:
+            continue
+            
+        bomba_ad = {
+            'model': b.get('modelo', 'Desconhecido'),
+            'power_cv': str(b.get('potencia_cv', '-')),
+            'flow_range_m3_h': {'min': min(vazoes), 'max': max(vazoes)},
+            'pressure_range_mca': {'min': min(pressoes), 'max': max(pressoes)},
+            'curve': curva_nova,
+            '_raw': b # Mantem os dados originais caso precise no futuro
+        }
+        bombas_adaptadas.append(bomba_ad)
+        
+    return bombas_adaptadas
 
 
-def _buscar_bombas_compativeis(todas, vazao_m3h, pressao_mca, margem_vazao=0.10):
+def _buscar_bombas_compativeis(todas, vazao_m3h, pressao_mca, margem_vazao=0.15, tolerancia_pressao_mca=2.0):
     """
-    Retorna bombas cujo range de vazão cobre a vazão do projeto e
-    cujo range de pressão cobre a pressão desejada.
-    Permite margem de 10% na vazão para modelos levemente subdimensionados.
+    Retorna bombas compatíveis realizando interpolação linear direta 
+    sobre os pontos da curva coletados para a vazão solicitada.
     """
     compativeis = []
     for b in todas:
         fmin = b['flow_range_m3_h']['min']
         fmax = b['flow_range_m3_h']['max']
-        pmin = b['pressure_range_mca']['min']
-        pmax = b['pressure_range_mca']['max']
 
-        # A vazão do projeto deve estar dentro do range da bomba (com margem)
-        vazao_ok = (fmin * (1 - margem_vazao)) <= vazao_m3h <= (fmax * (1 + margem_vazao))
-        pressao_ok = pmin <= pressao_mca <= pmax
+        # A vazão do projeto deve estar no range da bomba (com margem)
+        if not ((fmin * (1 - margem_vazao)) <= vazao_m3h <= (fmax * (1 + margem_vazao))):
+            continue
+            
+        curve = sorted(b.get('curve', []), key=lambda x: x['flow_m3_h'])
+        if len(curve) < 2:
+            continue
+            
+        # Interpolação linear para achar a Altura Manométrica (H) da bomba na vazão solicitada (Q)
+        h_interpolado = None
+        
+        if vazao_m3h <= curve[0]['flow_m3_h']:
+            h_interpolado = curve[0]['pressure_mca']
+        elif vazao_m3h >= curve[-1]['flow_m3_h']:
+            h_interpolado = curve[-1]['pressure_mca']
+        else:
+            for i in range(len(curve) - 1):
+                p1 = curve[i]
+                p2 = curve[i+1]
+                if p1['flow_m3_h'] <= vazao_m3h <= p2['flow_m3_h']:
+                    dq = p2['flow_m3_h'] - p1['flow_m3_h']
+                    if dq == 0:
+                        h_interpolado = p1['pressure_mca']
+                    else:
+                        dp = p2['pressure_mca'] - p1['pressure_mca']
+                        h_interpolado = p1['pressure_mca'] + (vazao_m3h - p1['flow_m3_h']) * (dp / dq)
+                    break
+                    
+        # Para ser compatível, a bomba deve fornecer no mínimo a pressão exigida 
+        # (podendo faltar no máximo uma pequena tolerância)
+        if h_interpolado is not None and h_interpolado >= (pressao_mca - tolerancia_pressao_mca):
+            # Limitamos para não sugerir bombas absurdamente superdimensionadas
+            # (que fornecem mais que o dobro da pressão necessária)
+            if h_interpolado <= (pressao_mca * 2.5):
+                compativeis.append(b)
 
-        if vazao_ok and pressao_ok:
-            compativeis.append(b)
-
-    # Ordena por potência (menor primeiro) e depois por modelo
-    def _sort_key(b):
+    # Ordena por quão perto a pressão interpolada está da desejada, e depois potência
+    def _sort_key(b_item):
         try:
-            return float(b.get('power_cv', '999').replace(',', '.'))
+            pow_val = float(b_item.get('power_cv', '999').replace(',', '.'))
         except Exception:
-            return 999
+            pow_val = 999
+        return pow_val
+        
     compativeis.sort(key=_sort_key)
     return compativeis
 
