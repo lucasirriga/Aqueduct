@@ -273,3 +273,29 @@ class InfoProjetoTool(AqueductTool):
     def run(self):
         dlg = InfoProjetoDialog(self.iface.mainWindow())
         dlg.exec_()
+
+    def run_automated(self, params=None):
+        """Permite que a IA altere diretamente as informações do projeto."""
+        if not params:
+            return
+            
+        project_home = QgsProject.instance().homePath()
+        if not project_home:
+            raise Exception("Salve o projeto QGIS antes de editar as informações.")
+            
+        filepath = os.path.join(project_home, 'dados_projeto.json')
+        data = {}
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except:
+                pass
+                
+        # Atualiza o dicionário com os campos recebidos da IA
+        for key, value in params.items():
+            data[key] = value
+            
+        # Salva as alterações
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)

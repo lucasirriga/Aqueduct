@@ -58,6 +58,7 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 -   **`gerenciar_servicos`**: (gerenciar_servicos.py) Adiciona itens não materiais (instalação, frete, escavação).
 -   **`analise_lucro`**: (analise_lucro.py) Proporciona uma visão financeira detalhada, mostrando lucro unitário, margem e impacto de cada item no orçamento total.
 -   **`gerar_orcamento`**: (gerar_orcamento.py) Gera o documento PDF final com Tabelas de Materiais, Serviços e 2 Mapas (Satélite e Técnico).
+-   **`gerar_relatorio_tecnico`**: (gerar_relatorio_tecnico.py) Gera o documento PDF com a Lista de Materiais e Serviços apenas com descrições e quantidades, sem valores financeiros, incluindo os 2 Mapas.
 
 ### 6. Visualização (Simbologia)
 -   **`simbologia_dn`**: (simbologia_dn.py) Aplica cores padronizadas baseadas no diâmetro (ex: 20mm=Cinza, 50mm=Azul).

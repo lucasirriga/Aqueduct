@@ -87,9 +87,8 @@ class EditMemoryDialog(QDialog):
             QMessageBox.critical(self, "Erro", f"JSON Inválido: {e}")
             return None
 
-# ---------------------------------------------------------------------------
 class GemmaWorker(QThread):
-    """Thread para comunicacao com LM Studio (Gemma 3 1B)."""
+    """Thread para comunicacao com LM Studio Remoto (OpenAI API compatibility)."""
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
 
@@ -97,13 +96,14 @@ class GemmaWorker(QThread):
         super().__init__()
         self.prompt = prompt
         self.context = context
-        self.url = "http://localhost:1234/v1/chat/completions"
+        # Endpoint remoto do LM Studio
+        self.url = "http://187.127.23.97:1234/v1/chat/completions"
 
     def run(self):
         import requests
         try:
             payload = {
-                "model": "qwen2.5-coder-0.5b-instruct",
+                "model": "google/gemma-3-1b",
                 "messages": [
                     {"role": "system", "content": self.context},
                     {"role": "user", "content": self.prompt}
@@ -111,7 +111,8 @@ class GemmaWorker(QThread):
                 "temperature": 0.7
             }
             print(f"Robson: Enviando requisição para {self.url} usando modelo {payload['model']}...")
-            response = requests.post(self.url, json=payload, timeout=60)
+            # Timeout aumentado para 120s para permitir inferência mais lenta
+            response = requests.post(self.url, json=payload, timeout=120)
             if response.status_code == 200:
                 text = response.json()['choices'][0]['message']['content']
                 self.finished.emit(text)
@@ -119,7 +120,6 @@ class GemmaWorker(QThread):
                 error_msg = response.text
                 print(f"Robson: Erro do servidor (Status {response.status_code}): {error_msg}")
                 self.error.emit(f"Servidor retornou erro {response.status_code}: {error_msg[:100]}")
-                self.error.emit(f"Servidor retornou erro {response.status_code}")
         except Exception as e:
             self.error.emit(str(e))
 
@@ -144,6 +144,12 @@ class RobsonChatDock(QDockWidget):
         self.browser.setHtml("<p style='color: gray;'>Olá! Eu sou o <b>Robson</b>. Como posso ajudar com seu projeto de irrigação hoje?</p>")
         layout.addWidget(self.browser)
         
+        # Indicador de Pensando
+        self.status_label = QLabel("⏳ Robson está processando...")
+        self.status_label.setStyleSheet("color: #6A1B9A; font-style: italic; font-weight: bold;")
+        self.status_label.hide()
+        layout.addWidget(self.status_label)
+        
         # Entrada de texto
         input_row = QHBoxLayout()
         self.input = QLineEdit()
@@ -151,9 +157,9 @@ class RobsonChatDock(QDockWidget):
         self.input.returnPressed.connect(self._enviar)
         input_row.addWidget(self.input)
         
-        btn_send = QPushButton("Enviar")
-        btn_send.clicked.connect(self._enviar)
-        input_row.addWidget(btn_send)
+        self.btn_send = QPushButton("Enviar")
+        self.btn_send.clicked.connect(self._enviar)
+        input_row.addWidget(self.btn_send)
         layout.addLayout(input_row)
         
         # Rodape com ferramentas
@@ -175,6 +181,8 @@ class RobsonChatDock(QDockWidget):
         self.browser.append(f"<p align='right'><b>Você:</b> {text}</p>")
         self.input.clear()
         self.input.setEnabled(False)
+        self.btn_send.setEnabled(False)
+        self.status_label.show()
         
         # Preparar contexto
         context = self._get_full_context()
@@ -191,6 +199,16 @@ class RobsonChatDock(QDockWidget):
             "projeto_arquivo": QgsProject.instance().fileName() or "Não salvo",
             "totais": {}
         }
+        
+        project_home = QgsProject.instance().homePath()
+        if project_home:
+            info_path = os.path.join(project_home, 'dados_projeto.json')
+            if os.path.exists(info_path):
+                try:
+                    with open(info_path, 'r', encoding='utf-8') as f:
+                        summary["info_projeto"] = json.load(f)
+                except:
+                    pass
         
         try:
             peca_mgr = PecaManager()
@@ -246,6 +264,10 @@ Você pode ler e editar o banco de dados de Peças e Serviços.
 - Para adicionar/atualizar serviço: [EXECUTE: atualizar_servico, {"descricao": "Escavação...", "custo": 50.0, "lucro": 20.0}]
 - Para remover serviço: [EXECUTE: remover_servico, {"descricao": "Escavação..."}]
 
+NOVA CAPACIDADE (Informações do Projeto):
+Você pode editar qualquer informação do projeto (cliente, local, energia, fonte_agua, etc).
+- Para alterar dados: [EXECUTE: info_projeto, {"cliente": "João", "local": "Fazenda", "energia": "Solar"}]
+
 PREFERÊNCIAS GLOBAIS (O QUE VOCÊ APRENDEU SOBRE O USUÁRIO):
 {global_m}
 
@@ -258,8 +280,9 @@ NOTAS ESPECÍFICAS DESTE PROJETO:
 Instruções Cruciais:
 1. Responda em Português Brasil.
 2. Seja EXTREMAMENTE conciso (máximo 2 sentenças).
-3. Se precisar agir, use SEMPRE no final da resposta: [EXECUTE: id, {{"param": val}}]
-   Exemplos de IDs: acumulo_vazao, atualizar_peca, grade_linhas.
+3. Se o usuário pedir para usar, abrir ou executar uma ferramenta, use SEMPRE no final da resposta: [EXECUTE: id_da_ferramenta] ou [EXECUTE: id, {"param": "valor"}]
+   Exemplos de IDs: acumulo_vazao, atualizar_peca, vazao_setor, gerar_relatorio_tecnico, etc.
+   Se não houver parâmetros a enviar, basta usar [EXECUTE: id_da_ferramenta].
 """
         system = template.replace("{habilidades}", habilidades) \
                          .replace("{global_m}", global_m) \
@@ -268,6 +291,8 @@ Instruções Cruciais:
         return system
 
     def _on_nei_response(self, text):
+        self.status_label.hide()
+        self.btn_send.setEnabled(True)
         # 1. Extrair Tags de Memória
         import re
         
@@ -290,11 +315,11 @@ Instruções Cruciais:
         # 2. Limpar tags do texto exibido
         clean_text = re.sub(r"\[MEMORIA_.*?\]", "", text)
         
-        # 3. Processar EXECUTE (Regex robusta com re.DOTALL para JSON multi-linha)
-        exe_match = re.search(r"\[EXECUTE:\s*([\w_]+)\s*,\s*(\{.*?\})\]", text, re.DOTALL)
+        # 3. Processar EXECUTE (Regex robusta, ignorando .py e permitindo JSON opcional)
+        exe_match = re.search(r"\[EXECUTE:\s*([a-zA-Z0-9_\.]+)(?:[,\s]*(\{.*?\}))?\s*\]", text, re.DOTALL)
         if exe_match:
-            tool_id = exe_match.group(1).strip()
-            params_json = exe_match.group(2).strip()
+            tool_id = exe_match.group(1).strip().replace(".py", "")
+            params_json = exe_match.group(2).strip() if exe_match.group(2) else "{}"
             try:
                 params = json.loads(params_json)
                 self._handle_execution(tool_id, params)
@@ -302,7 +327,7 @@ Instruções Cruciais:
                 clean_text = re.sub(r"\[EXECUTE:.*?\]", "", clean_text, flags=re.DOTALL)
             except Exception as e:
                 print(f"Robson Parser Error: {e} | JSON: {params_json}")
-                self.browser.append(f"<p style='color: red;'><i>(Erro ao processar parâmetros: {e})</i></p>")
+                self.browser.append(f"<p style='color: red;'><i>(Erro ao processar comando do agente: {e})</i></p>")
         
         self.browser.append(f"<p><b>Robson:</b> {clean_text}</p>")
         self.input.setEnabled(True)
@@ -386,7 +411,9 @@ Instruções Cruciais:
 
 
     def _on_nei_error(self, err):
-        self.browser.append(f"<p style='color: red;'><b>Erro:</b> Não consegui falar com o LM Studio. Verifique se ele está rodando em localhost:1234. ({err})</p>")
+        self.status_label.hide()
+        self.btn_send.setEnabled(True)
+        self.browser.append(f"<p style='color: red;'><b>Erro:</b> Não consegui falar com o servidor. Verifique se ele está rodando. ({err})</p>")
         self.input.setEnabled(True)
 
     def _edit_memory(self):
@@ -421,7 +448,10 @@ class AssistenteRobsonTool(AqueductTool):
         self.action = QAction(QIcon(icon_path), "Assistente Robson", self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         self.iface.addPluginToMenu('&Aqueduct', self.action)
-        self.iface.addToolBarIcon(self.action)
+        if self.toolbar:
+            self.toolbar.addAction(self.action)
+        else:
+            self.iface.addToolBarIcon(self.action)
 
     def run(self):
         if not self.dock:
