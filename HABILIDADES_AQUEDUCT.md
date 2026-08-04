@@ -73,6 +73,24 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 
 ---
 
+## 🧩 Peças Padrão de um Projeto (Checklist de Conferência)
+
+Todo projeto de irrigação tem dois tipos principais: **microaspersão** e **aspersão convencional**. Quando o usuário perguntar "o que falta no projeto?", a IA deve conferir a lista de peças/materiais (`gerenciar_pecas`, `contabilizar_materiais`, `lista_materiais`) contra este checklist antes de responder.
+
+### Comuns aos dois tipos de projeto
+-   **Válvula de alívio** (conjunto): 2x adaptador rosca-liso 2", 1x válvula hidráulica 2", 3x joelho de comando 1/8", 1x tê de comando 1/8", 1x piloto regulador de pressão.
+-   **Quadro de comando**: número de estações deve ser igual ou superior ao número de válvulas do projeto.
+-   **Bomba**: dimensionada conforme a pressão e vazão do sistema (ver `selecionar_bomba`).
+-   **Quadro de força**: na maioria dos casos, um inversor de frequência.
+
+### Específicos por tipo de projeto
+-   **Microaspersão**: emissores do tipo microaspersor.
+-   **Aspersão convencional**: emissores do tipo aspersor, geralmente com vazão superior a 200 L/h.
+
+> Estas são peças típicas/esperadas na maioria dos projetos, não uma regra rígida — use como referência para apontar ausências prováveis, mas confirme com o usuário antes de dar como "faltante" algo que pode ser intencionalmente omitido no caso específico.
+
+---
+
 ## ⚠️ Restrições e Regras para a IA
 -   **Direção do Fluxo:** Sempre verifique se as linhas estão desenhadas no sentido do fluxo antes de rodar o `acumulo_vazao`. Use `simbologia_direcao` para validar.
 -   **Topologia:** As tubulações devem estar conectadas (snapped) para que o cálculo de rede funcione.
