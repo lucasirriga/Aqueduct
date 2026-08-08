@@ -32,6 +32,7 @@ A IA deve seguir esta sequência lógica para um projeto do zero:
 ### 2. Design de Layout e Geometria
 -   **`grade_linhas`**: (grade_linhas.py) Gera as linhas laterais de irrigação dentro de um polígono com espaçamento definido.
 -   **`grade_pontos`**: (grade_pontos.py) Gera a posição exata dos emissores (aspersores/gotejadores).
+-   **`grade_obliqua_pontos`**: (grade_obliqua_pontos.py) Gera uma grade de pontos a partir de 2 linhas de referência (não precisam ser perpendiculares) e um espaçamento próprio para cada linha, criando famílias de linhas paralelas e usando as interseções entre elas como pontos. Recorta tanto as linhas quanto os pontos finais pelo polígono informado; a camada de linhas intermediária não é mantida no resultado.
 -   **`grade_poligonos`**: (grade_poligonos.py) Divide uma área maior em parcelas menores (setores).
 -   **`recortar_camada`**: (recortar_camada.py) Ferramenta de limpeza para ajustar tubulações aos limites da propriedade.
 -   **`calculo_area`**: (calculo_area.py) Atualiza o atributo de área em hectares/m² de camadas de polígono.
